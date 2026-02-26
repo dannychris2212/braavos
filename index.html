@@ -1103,17 +1103,16 @@ async function salvarLead(){
   payload.prioridade=['baixa','normal','alta','vip'].includes(prioNorm)?prioNorm:'normal';
   const prox=document.getElementById('l-prox').value;
   if(prox)payload.proximo_contato=prox;
-  console.log('Inserindo lead:',payload);
-  // insert sem .select() para evitar conflito com nome da PK
-  const {error}=await sb.from('leads').insert(payload,{returning:'minimal'});
+  console.log('Inserindo lead via RPC:',payload);
+  const {error}=await sb.rpc('inserir_lead',{payload});
   if(error){console.error('Erro lead:',error);showToast('Erro: '+error.message,'er');return;}
-  // Se marcou cliente, busca o lead recém criado pelo vendedor_id + nome
+  // Se marcou cliente, busca o lead recém criado
   let leadId=null;
   if(isCliente){
     const {data:novo}=await sb.from('leads')
-      .select('*').eq('vendedor_id',P.vendedor_id).eq('nome',nome)
+      .select('id').eq('vendedor_id',P.vendedor_id).eq('nome',nome)
       .order('created_at',{ascending:false}).limit(1).single();
-    leadId=novo?.lead_id||novo?.id||Object.values(novo||{})[0];
+    leadId=novo?.id;
   }
 
   // Se marcou "já é cliente", promove automaticamente
