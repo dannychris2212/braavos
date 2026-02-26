@@ -1089,15 +1089,18 @@ async function salvarLead(){
   if(!P?.vendedor_id||!P?.empresa_id){showToast('Sessão inválida, faça login novamente','er');return;}
   const isCliente=document.getElementById('lead-is-cliente').checked;
   const payload={nome,telefone,vendedor_id:P.vendedor_id,empresa_id:P.empresa_id};
-  const statusVal=document.getElementById('l-status').value;
+  const statusVal=document.getElementById('l-status').value.toLowerCase().trim();
   const validStatus=['novo','qualificando','aguardando_cliente','pronto_para_compra','em_negocicao','fechado_ganho','fechado_perdido'];
   payload.status=isCliente?'fechado_ganho':(validStatus.includes(statusVal)?statusVal:'novo');
   const opt={empresa_cliente:'l-emp',email:'l-email',cargo_cliente:'l-cargo',cnpj:'l-cnpj',cidade:'l-cid',estado:'l-est',regiao:'l-reg',notas:'l-notas',segmento:'l-seg',origem:'l-orig'};
   Object.entries(opt).forEach(([field,elId])=>{const v=document.getElementById(elId)?.value?.trim();if(v)payload[field]=v;});
+  // força lowercase nos campos com constraints
+  if(payload.status) payload.status=payload.status.toLowerCase();
+  if(payload.prioridade) payload.prioridade=payload.prioridade.toLowerCase();
   // prioridade: só manda se for valor válido
-  const prioVal=document.getElementById('l-prio')?.value?.trim();
-  if(['baixa','normal','alta','vip'].includes(prioVal)) payload.prioridade=prioVal;
-  else payload.prioridade='normal';
+  const prioVal=(document.getElementById('l-prio')?.value||'').toLowerCase().trim();
+  const prioNorm=prioVal.toLowerCase().trim();
+  payload.prioridade=['baixa','normal','alta','vip'].includes(prioNorm)?prioNorm:'normal';
   const prox=document.getElementById('l-prox').value;
   if(prox)payload.proximo_contato=prox;
   console.log('Inserindo lead:',payload);
