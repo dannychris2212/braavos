@@ -1072,30 +1072,20 @@ function updBadge(n){
 // ── SALVAR LEAD ───────────────────────────────────────────────────
 async function salvarLead(){
   const nome=document.getElementById('l-nome').value.trim();
+  const telefone=document.getElementById('l-tel').value.trim();
   if(!nome){showToast('Informe o nome','er');return;}
+  if(!telefone){showToast('Telefone é obrigatório','er');return;}
+  if(!P?.vendedor_id||!P?.empresa_id){showToast('Sessão inválida, faça login novamente','er');return;}
   const isCliente=document.getElementById('lead-is-cliente').checked;
-  const payload={
-    nome,
-    empresa_cliente:document.getElementById('l-emp').value.trim(),
-    telefone:document.getElementById('l-tel').value.trim(),
-    email:document.getElementById('l-email').value.trim(),
-    cargo_cliente:document.getElementById('l-cargo').value.trim(),
-    cnpj:document.getElementById('l-cnpj').value.trim(),
-    status:isCliente?'ganho':document.getElementById('l-status').value,
-    prioridade:document.getElementById('l-prio').value,
-    segmento:document.getElementById('l-seg').value,
-    origem:document.getElementById('l-orig').value,
-    cidade:document.getElementById('l-cid').value.trim(),
-    estado:document.getElementById('l-est').value.trim(),
-    proximo_contato:document.getElementById('l-prox').value||null,
-    regiao:document.getElementById('l-reg').value.trim(),
-    notas:document.getElementById('l-notas').value.trim(),
-  };
-  if(P?.vendedor_id) payload.vendedor_id=P.vendedor_id;
-  if(P?.empresa_id)  payload.empresa_id=P.empresa_id;
-
+  const payload={nome,telefone,vendedor_id:P.vendedor_id,empresa_id:P.empresa_id};
+  payload.status=isCliente?'ganho':document.getElementById('l-status').value;
+  const opt={empresa_cliente:'l-emp',email:'l-email',cargo_cliente:'l-cargo',cnpj:'l-cnpj',cidade:'l-cid',estado:'l-est',regiao:'l-reg',notas:'l-notas',segmento:'l-seg',origem:'l-orig',prioridade:'l-prio'};
+  Object.entries(opt).forEach(([field,elId])=>{const v=document.getElementById(elId)?.value?.trim();if(v)payload[field]=v;});
+  const prox=document.getElementById('l-prox').value;
+  if(prox)payload.proximo_contato=prox;
+  console.log('Inserindo lead:',payload);
   const {data:lead,error}=await sb.from('leads').insert(payload).select().single();
-  if(error){showToast('Erro: '+error.message,'er');return;}
+  if(error){console.error('Erro lead:',error);showToast('Erro: '+error.message,'er');return;}
 
   // Se marcou "já é cliente", promove automaticamente
   if(isCliente && lead){
