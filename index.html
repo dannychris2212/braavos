@@ -3,811 +3,815 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Braavos — White Label Demo</title>
+<title>Braavos — Sales Intelligence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 :root{
-  --b-obsidian:#0a0a0f;
-  --b-void:#0f0f1a;
-  --b-surface:rgba(255,255,255,0.04);
-  --b-surface-2:rgba(255,255,255,0.07);
-  --b-border:rgba(255,255,255,0.08);
-  --b-border-strong:rgba(255,255,255,0.14);
-  --b-gold:#c9a84c;
-  --b-gold-dim:rgba(201,168,76,0.12);
-  --b-text:#f0f0f8;
-  --b-text-muted:rgba(240,240,248,0.45);
-  --b-success:#4fc87a;
-  --b-warning:#f0a050;
-  --b-danger:#f05050;
-  --font-display:'Bebas Neue',sans-serif;
-  --font-body:'Outfit',sans-serif;
-  --font-mono:'JetBrains Mono',monospace;
-  --blur-1:blur(6px);
-  --blur-2:blur(16px);
-  --blur-3:blur(32px);
-  --radius:16px;
-  --radius-sm:10px;
-  --radius-lg:24px;
-  --brand:#c9a84c;
-  --brand-dim:rgba(201,168,76,0.12);
-  --brand-bg:#0a0a0f;
-  --brand-bg-2:#0f0f1a;
+  --b-surface:rgba(255,255,255,0.04);--b-surface-2:rgba(255,255,255,0.07);
+  --b-border:rgba(255,255,255,0.08);--b-border-strong:rgba(255,255,255,0.14);
+  --b-gold:#c9a84c;--b-text:#f0f0f8;--b-text-muted:rgba(240,240,248,0.45);
+  --b-success:#4fc87a;--b-warning:#f0a050;--b-danger:#f05050;
+  --font-display:'Bebas Neue',sans-serif;--font-body:'Outfit',sans-serif;--font-mono:'JetBrains Mono',monospace;
+  --blur-2:blur(16px);--blur-3:blur(32px);
+  --radius:16px;--radius-sm:10px;--radius-lg:24px;
+  --brand:#c9a84c;--brand-dim:rgba(201,168,76,0.12);--brand-bg:#0a0a0f;--brand-bg-2:#0f0f1a;
 }
-
-.theme-braavos{--brand:#c9a84c;--brand-dim:rgba(201,168,76,0.12);--brand-bg:#0a0a0f;--brand-bg-2:#0f0f1a}
-.theme-techwave{--brand:#0ea5e9;--brand-dim:rgba(14,165,233,0.12);--brand-bg:#070d14;--brand-bg-2:#0a1520}
+.theme-braavos  {--brand:#c9a84c;--brand-dim:rgba(201,168,76,0.12);--brand-bg:#0a0a0f;--brand-bg-2:#0f0f1a}
+.theme-techwave {--brand:#0ea5e9;--brand-dim:rgba(14,165,233,0.12);--brand-bg:#070d14;--brand-bg-2:#0a1520}
 .theme-logistica{--brand:#f97316;--brand-dim:rgba(249,115,22,0.12);--brand-bg:#0f0a06;--brand-bg-2:#1a1008}
-.theme-fintech{--brand:#10b981;--brand-dim:rgba(16,185,129,0.12);--brand-bg:#060f0a;--brand-bg-2:#081a10}
-.theme-saude{--brand:#a855f7;--brand-dim:rgba(168,85,247,0.12);--brand-bg:#0c0714;--brand-bg-2:#130d1f}
+.theme-fintech  {--brand:#10b981;--brand-dim:rgba(16,185,129,0.12);--brand-bg:#060f0a;--brand-bg-2:#081a10}
+.theme-saude    {--brand:#a855f7;--brand-dim:rgba(168,85,247,0.12);--brand-bg:#0c0714;--brand-bg-2:#130d1f}
 
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--font-body);color:var(--b-text);background:var(--brand-bg);transition:background 0.6s ease}
 body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.5}
 
 /* LOGIN */
-#login-screen{
-  position:fixed;inset:0;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--brand-bg);
-  z-index:500;
-  transition:opacity 0.4s ease;
-}
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--brand-bg);z-index:500;transition:opacity 0.4s ease}
 #login-screen.hidden{opacity:0;pointer-events:none}
-.login-box{
-  width:380px;
-  background:rgba(255,255,255,0.04);
-  border:1px solid var(--b-border);
-  border-radius:var(--radius-lg);
-  padding:40px;
-  backdrop-filter:var(--blur-2);
-  -webkit-backdrop-filter:var(--blur-2);
-  position:relative;
-  overflow:hidden;
-}
+.login-box{width:380px;background:rgba(255,255,255,0.04);border:1px solid var(--b-border);border-radius:var(--radius-lg);padding:40px;backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);position:relative;overflow:hidden}
 .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent)}
-.login-logo{
-  font-family:var(--font-display);
-  font-size:42px;letter-spacing:0.1em;text-transform:uppercase;
-  margin-bottom:6px;
-}
-.login-logo span{color:var(--brand)}
+.login-logo{font-family:var(--font-display);font-size:42px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
 .login-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--b-text-muted);text-transform:uppercase;margin-bottom:32px}
-.login-label{font-size:12px;color:var(--b-text-muted);margin-bottom:6px;font-family:var(--font-mono);letter-spacing:0.05em;text-transform:uppercase}
-.login-input{
-  width:100%;padding:11px 14px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid var(--b-border);
-  border-radius:var(--radius-sm);
-  color:var(--b-text);font-family:var(--font-body);font-size:14px;
-  outline:none;transition:border-color 0.2s;margin-bottom:16px;
-}
-.login-input:focus{border-color:var(--brand)}
-.login-input::placeholder{color:var(--b-text-muted)}
-.login-btn{
-  width:100%;padding:12px;
-  background:var(--brand);color:#fff;
-  border:none;border-radius:99px;
-  font-family:var(--font-body);font-size:14px;font-weight:600;
-  cursor:pointer;transition:opacity 0.2s;margin-top:4px;
-  letter-spacing:0.05em;
-}
-.login-btn:hover{opacity:0.88}
-.login-btn:disabled{opacity:0.5;cursor:not-allowed}
-.login-error{
-  font-size:12px;color:var(--b-danger);
-  font-family:var(--font-mono);text-align:center;
-  margin-top:12px;min-height:16px;
-}
+.login-label{font-size:11px;color:var(--b-text-muted);margin-bottom:6px;font-family:var(--font-mono);letter-spacing:0.1em;text-transform:uppercase}
+.login-input{width:100%;padding:11px 14px;background:rgba(255,255,255,0.05);border:1px solid var(--b-border);border-radius:var(--radius-sm);color:var(--b-text);font-family:var(--font-body);font-size:14px;outline:none;transition:border-color 0.2s;margin-bottom:16px}
+.login-input:focus{border-color:var(--brand)}.login-input::placeholder{color:var(--b-text-muted)}
+.login-btn{width:100%;padding:12px;background:var(--brand);color:#fff;border:none;border-radius:99px;font-family:var(--font-body);font-size:14px;font-weight:600;cursor:pointer;transition:opacity 0.2s;letter-spacing:0.05em}
+.login-btn:hover{opacity:0.88}.login-btn:disabled{opacity:0.5;cursor:not-allowed}
+.login-error{font-size:12px;color:var(--b-danger);font-family:var(--font-mono);text-align:center;margin-top:12px;min-height:16px}
 
-/* APP */
-.app{display:flex;height:100vh;overflow:hidden;position:relative;padding-top:52px}
-.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;transition:background 0.8s ease}
+/* LAYOUT */
+.app{display:flex;height:100vh;overflow:hidden;position:relative}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none}
 .orb-1{width:500px;height:500px;top:-150px;left:-100px;background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);animation:orb1 14s ease-in-out infinite alternate}
 .orb-2{width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);animation:orb2 18s ease-in-out infinite alternate}
 @keyframes orb1{from{transform:translate(0,0)}to{transform:translate(50px,30px)}}
 @keyframes orb2{from{transform:translate(0,0)}to{transform:translate(-40px,-50px)}}
 
-/* THEME SWITCHER */
-.theme-switcher{
-  position:fixed;top:0;left:0;right:0;height:52px;
-  background:rgba(10,10,15,0.85);backdrop-filter:var(--blur-3);-webkit-backdrop-filter:var(--blur-3);
-  border-bottom:1px solid var(--b-border);
-  display:flex;align-items:center;padding:0 24px;gap:12px;z-index:100;
-}
-.switcher-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--b-text-muted);text-transform:uppercase;margin-right:4px;white-space:nowrap}
-.theme-btn{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;border:1px solid var(--b-border);background:var(--b-surface);color:var(--b-text-muted);cursor:pointer;font-size:12px;font-family:var(--font-body);transition:all 0.2s;white-space:nowrap}
-.theme-btn:hover{border-color:var(--b-border-strong);color:var(--b-text)}
-.theme-btn.active{border-color:var(--brand);color:var(--brand);background:var(--brand-dim)}
-.theme-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.switcher-right{margin-left:auto;display:flex;align-items:center;gap:12px}
-.logout-btn{font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted);letter-spacing:0.1em;cursor:pointer;padding:5px 10px;border:1px solid var(--b-border);border-radius:99px;background:transparent;transition:all 0.2s}
-.logout-btn:hover{color:var(--b-danger);border-color:var(--b-danger)}
-
 /* SIDEBAR */
-.sidebar{
-  width:220px;height:calc(100vh - 52px);
-  background:rgba(255,255,255,0.025);
-  border-right:1px solid var(--b-border);
-  backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);
-  display:flex;flex-direction:column;padding:28px 0;
-  flex-shrink:0;position:fixed;left:0;top:52px;
-  z-index:10;transition:background 0.6s;
-}
-.sidebar-logo{padding:0 24px 28px;font-family:var(--font-display);font-size:32px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--b-border);margin-bottom:12px}
-.sidebar-logo .b-gold{color:var(--b-gold)}
-.sidebar-logo .brand-color{color:var(--brand);transition:color 0.5s}
+.sidebar{width:220px;height:100vh;background:rgba(255,255,255,0.025);border-right:1px solid var(--b-border);backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);display:flex;flex-direction:column;padding:28px 0;flex-shrink:0;position:fixed;left:0;top:0;z-index:10}
+.sidebar-logo{padding:0 24px 28px;font-family:var(--font-display);font-size:32px;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--b-border);margin-bottom:12px}
+.sidebar-logo .sg{color:var(--b-gold)}.sidebar-logo .sr{color:var(--brand);transition:color 0.5s}
 .sidebar-logo small{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;color:var(--b-text-muted);text-transform:uppercase;margin-top:4px}
-.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;color:var(--b-text-muted);cursor:pointer;font-size:14px;font-weight:400;border-left:2px solid transparent;transition:all 0.2s;user-select:none}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;color:var(--b-text-muted);cursor:pointer;font-size:14px;border-left:2px solid transparent;transition:all 0.2s;user-select:none}
 .nav-item:hover{color:var(--b-text);background:rgba(255,255,255,0.03)}
 .nav-item.active{color:var(--b-text);background:rgba(255,255,255,0.05);border-left-color:var(--brand);font-weight:500}
 .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 .nav-spacer{flex:1}
 .sidebar-user{margin:0 12px;padding:14px;background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius-sm)}
 .sidebar-user-name{font-size:13px;font-weight:500;margin-bottom:2px}
-.sidebar-user-role{font-family:var(--font-mono);font-size:10px;color:var(--brand);letter-spacing:0.1em;text-transform:uppercase;transition:color 0.5s}
+.sidebar-user-role{font-family:var(--font-mono);font-size:10px;color:var(--brand);letter-spacing:0.1em;text-transform:uppercase}
+.sidebar-logout{font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted);cursor:pointer;margin-top:8px;display:inline-block;transition:color 0.2s}
+.sidebar-logout:hover{color:var(--b-danger)}
 
 /* MAIN */
 .main{flex:1;overflow-y:auto;padding:32px 28px;position:relative;z-index:1;margin-left:220px}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:var(--b-border);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--b-border);border-radius:2px}
 
-/* PAGE HEADER */
+/* PAGE */
 .page-header{margin-bottom:28px}
-.page-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--brand);text-transform:uppercase;margin-bottom:6px;transition:color 0.5s}
-.page-title{font-family:var(--font-display);font-size:44px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;line-height:1}
+.page-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--brand);text-transform:uppercase;margin-bottom:6px}
+.page-title{font-family:var(--font-display);font-size:44px;letter-spacing:0.08em;text-transform:uppercase;line-height:1}
+.page{animation:pageIn 0.3s ease forwards}
+@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* CARDS */
-.card{background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius);backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);padding:22px;transition:border-color 0.2s, transform 0.15s, background 0.6s;position:relative;overflow:hidden}
+.card{background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius);backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);padding:22px;transition:border-color 0.2s,transform 0.15s;position:relative;overflow:hidden}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.08),transparent)}
 .card:hover{border-color:var(--b-border-strong)}
-.card.clickable{cursor:pointer}
-.card.clickable:hover{transform:translateY(-2px);border-color:var(--brand)}
-.card-shine::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);pointer-events:none;border-radius:var(--radius)}
+.card.clickable{cursor:pointer}.card.clickable:hover{transform:translateY(-2px);border-color:var(--brand)}
+.card-shine::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);pointer-events:none}
 
-/* GRID */
+/* GRIDS */
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
 .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px}
 
 /* METRIC */
-.metric-label{font-size:12px;color:var(--b-text-muted);margin-bottom:10px;font-family:var(--font-mono);letter-spacing:0.05em;text-transform:uppercase}
-.metric-value{font-family:var(--font-display);font-size:48px;font-weight:400;line-height:1;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
-.metric-sub{font-size:12px;color:var(--b-text-muted)}
+.metric-label{font-size:11px;color:var(--b-text-muted);margin-bottom:8px;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase}
+.metric-value{font-family:var(--font-display);font-size:44px;line-height:1;letter-spacing:0.05em;margin-bottom:4px}
+.metric-sub{font-size:11px;color:var(--b-text-muted)}
 
-/* PROGRESS */
-.progress-wrap{margin-top:16px}
-.progress-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}
-.progress-label{color:var(--b-text-muted)}
-.progress-pct{font-weight:600;font-family:var(--font-mono)}
-.progress-track{height:6px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden}
-.progress-fill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s cubic-bezier(0.4,0,0.2,1), background 0.5s}
+/* FUNIL */
+.funil-wrap{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.funil-stage{background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius-sm);padding:16px 14px;text-align:center;position:relative;overflow:hidden}
+.funil-stage::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--stage-color)}
+.funil-stage-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--b-text-muted);margin-bottom:10px}
+.funil-stage-count{font-family:var(--font-display);font-size:36px;color:var(--stage-color);line-height:1;margin-bottom:4px}
+.funil-stage-sub{font-size:10px;color:var(--b-text-muted)}
 
-/* BADGE */
-.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase;transition:background 0.5s, border-color 0.5s, color 0.5s}
+/* BADGES */
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase}
 .badge-brand{background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)}
 .badge-success{background:rgba(79,200,122,0.12);border:1px solid rgba(79,200,122,0.3);color:var(--b-success)}
 .badge-warning{background:rgba(240,160,80,0.12);border:1px solid rgba(240,160,80,0.3);color:var(--b-warning)}
-.badge-muted{background:rgba(255,255,255,0.05);border:1px solid var(--b-border);color:var(--b-text-muted)}
 .badge-danger{background:rgba(240,80,80,0.12);border:1px solid rgba(240,80,80,0.3);color:var(--b-danger)}
+.badge-muted{background:rgba(255,255,255,0.05);border:1px solid var(--b-border);color:var(--b-text-muted)}
 
-/* VISIT ROW */
+/* LEAD ROWS */
+.lead-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border);cursor:pointer;transition:background 0.15s}
+.lead-row:last-child{border:none;padding-bottom:0}
+.lead-row:hover{background:rgba(255,255,255,0.02);margin:0 -22px;padding-left:22px;padding-right:22px}
+.lead-avatar{width:38px;height:38px;border-radius:10px;background:var(--brand-dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:16px;color:var(--brand);flex-shrink:0}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-size:14px;font-weight:500;margin-bottom:2px}
+.lead-company{font-size:12px;color:var(--b-text-muted)}
+.lead-meta{display:flex;gap:8px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
+
+/* VISIT ROWS */
 .visit-row{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border)}
 .visit-row:last-child{border:none;padding-bottom:0}
 .visit-icon{width:38px;height:38px;border-radius:10px;background:var(--b-surface-2);border:1px solid var(--b-border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.visit-meta{flex:1;min-width:0}
+.visit-meta-info{flex:1;min-width:0}
 .visit-client{font-size:14px;font-weight:500;margin-bottom:3px}
 .visit-text{font-size:12px;color:var(--b-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.visit-date{font-family:var(--font-mono);font-size:11px;color:var(--b-text-muted);flex-shrink:0}
 
-/* VENDOR ROW */
-.vendor-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border)}
-.vendor-row:last-child{border:none;padding-bottom:0}
-.vendor-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;flex-shrink:0}
-.vendor-rank.top{background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)}
-.vendor-rank.other{background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)}
-.vendor-info{flex:1;min-width:0}
-.vendor-name{font-size:14px;font-weight:500;margin-bottom:4px}
-.vendor-bar-wrap{display:flex;align-items:center;gap:10px}
-.vendor-bar-track{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.06)}
-.vendor-bar-fill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s ease, background 0.5s}
-.vendor-pct{font-family:var(--font-mono);font-size:12px;font-weight:500;width:36px;text-align:right;flex-shrink:0}
-
-/* SECTION TITLE */
+/* SECTION HEAD */
 .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.section-head-title{font-family:var(--font-display);font-size:24px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase}
-.section-head-link{font-size:12px;color:var(--brand);font-family:var(--font-mono);cursor:pointer;letter-spacing:0.05em;transition:color 0.5s}
+.section-head-title{font-family:var(--font-display);font-size:24px;letter-spacing:0.08em;text-transform:uppercase}
+.section-head-link{font-size:12px;color:var(--brand);font-family:var(--font-mono);cursor:pointer;letter-spacing:0.05em}
 
-/* BTN */
-.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);border:none}
-.btn-brand{background:var(--brand);color:#fff;transition:background 0.5s, opacity 0.2s}
-.btn-brand:hover{opacity:0.88}
-.btn-ghost{background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)}
-.btn-ghost:hover{color:var(--b-text);border-color:var(--b-border-strong)}
+/* BTNS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);border:none;text-decoration:none}
+.btn-brand{background:var(--brand);color:#fff}.btn-brand:hover{opacity:0.88}
+.btn-ghost{background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)}.btn-ghost:hover{color:var(--b-text)}
+.btn-sm{padding:6px 14px;font-size:12px}
 
-/* LOADING */
-.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.filter-chip{padding:5px 14px;border-radius:99px;border:1px solid var(--b-border);background:var(--b-surface);color:var(--b-text-muted);font-size:11px;font-family:var(--font-mono);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em}
+.filter-chip:hover{border-color:var(--b-border-strong);color:var(--b-text)}
+.filter-chip.active{border-color:var(--brand);color:var(--brand);background:var(--brand-dim)}
+.filter-search{flex:1;min-width:180px;max-width:260px;padding:6px 14px;background:rgba(255,255,255,0.04);border:1px solid var(--b-border);border-radius:99px;color:var(--b-text);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color 0.2s}
+.filter-search:focus{border-color:var(--brand)}.filter-search::placeholder{color:var(--b-text-muted)}
 
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:40px;color:var(--b-text-muted);font-size:13px}
-.empty-state-icon{font-size:32px;margin-bottom:12px}
+/* PRIO DOT */
+.prio{width:8px;height:8px;border-radius:50%;flex-shrink:0;display:inline-block}
+.prio-alta{background:#f05050}.prio-media{background:#f0a050}.prio-baixa{background:#4fc87a}
+
+/* CONV BARS */
+.conv-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.conv-row:last-child{margin-bottom:0}
+.conv-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.05em;color:var(--b-text-muted);width:90px;flex-shrink:0}
+.conv-track{flex:1;height:5px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden}
+.conv-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.conv-pct{font-family:var(--font-mono);font-size:11px;width:30px;text-align:right;flex-shrink:0}
+
+/* PROGRESS */
+.progress-track{height:6px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s ease}
 
 /* MODAL */
-.modal-overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.7);
-  backdrop-filter:blur(4px);z-index:200;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;pointer-events:none;transition:opacity 0.2s;
-}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.2s}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{
-  width:460px;background:#0f0f1a;
-  border:1px solid var(--b-border-strong);border-radius:var(--radius-lg);
-  padding:32px;position:relative;
-  transform:translateY(10px);transition:transform 0.2s;
-}
+.modal{width:520px;max-height:90vh;overflow-y:auto;background:#0f0f1a;border:1px solid var(--b-border-strong);border-radius:var(--radius-lg);padding:32px;position:relative;transform:translateY(10px);transition:transform 0.2s}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-title{font-family:var(--font-display);font-size:28px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--b-text-muted);cursor:pointer;font-size:18px;transition:color 0.2s}
 .modal-close:hover{color:var(--b-text)}
 .form-group{margin-bottom:14px}
 .form-label{font-size:11px;font-family:var(--font-mono);letter-spacing:0.1em;text-transform:uppercase;color:var(--b-text-muted);margin-bottom:6px;display:block}
-.form-input,.form-select,.form-textarea{
-  width:100%;padding:10px 13px;
-  background:rgba(255,255,255,0.05);
-  border:1px solid var(--b-border);border-radius:var(--radius-sm);
-  color:var(--b-text);font-family:var(--font-body);font-size:13px;
-  outline:none;transition:border-color 0.2s;
-}
+.form-input,.form-select,.form-textarea{width:100%;padding:10px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--b-border);border-radius:var(--radius-sm);color:var(--b-text);font-family:var(--font-body);font-size:13px;outline:none;transition:border-color 0.2s}
 .form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--brand)}
-.form-select{cursor:pointer}
-.form-select option{background:#0f0f1a}
-.form-textarea{resize:vertical;min-height:80px}
+.form-select option{background:#0f0f1a}.form-textarea{resize:vertical;min-height:80px}
 .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+.modal-section{font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--b-text-muted);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--b-border)}
+
+/* DETAIL PANEL */
+.detail-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:150;opacity:0;pointer-events:none;transition:opacity 0.2s}
+.detail-overlay.open{opacity:1;pointer-events:all}
+.detail-panel{position:fixed;right:0;top:0;bottom:0;width:440px;background:#0c0c18;border-left:1px solid var(--b-border);z-index:160;padding:32px;overflow-y:auto;transform:translateX(100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1)}
+.detail-panel.open{transform:translateX(0)}
+.detail-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--b-text-muted);cursor:pointer;font-size:18px}
+.detail-close:hover{color:var(--b-text)}
+.detail-name{font-family:var(--font-display);font-size:32px;letter-spacing:0.06em;text-transform:uppercase;line-height:1;margin-bottom:4px}
+.detail-company{font-size:14px;color:var(--b-text-muted);margin-bottom:20px}
+.detail-field{margin-bottom:14px}
+.detail-field-label{font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--b-text-muted);margin-bottom:4px}
+.detail-section{font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;text-transform:uppercase;color:var(--b-text-muted);margin:20px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--b-border)}
+.detail-actions{display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap}
+.ai-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);color:#c084fc;font-size:11px;font-family:var(--font-mono)}
+.ai-chip::before{content:'✦';font-size:10px}
+.alert-box{display:flex;gap:12px;align-items:flex-start;padding:14px;background:rgba(240,160,80,0.06);border:1px solid rgba(240,160,80,0.2);border-radius:var(--radius-sm);margin-bottom:8px}
+.alert-icon{font-size:20px;flex-shrink:0}
+.alert-title{font-size:13px;font-weight:500;margin-bottom:2px}
+.alert-sub{font-size:12px;color:var(--b-text-muted)}
 
 /* TOAST */
-.toast{
-  position:fixed;bottom:24px;right:24px;z-index:999;
-  background:rgba(15,15,26,0.95);border:1px solid var(--b-border);
-  border-radius:var(--radius-sm);padding:12px 18px;
-  font-size:13px;font-family:var(--font-mono);
-  transform:translateY(20px);opacity:0;
-  transition:all 0.3s;pointer-events:none;
-}
+.toast{position:fixed;bottom:24px;right:24px;z-index:999;background:rgba(15,15,26,0.95);border:1px solid var(--b-border);border-radius:var(--radius-sm);padding:12px 18px;font-size:13px;font-family:var(--font-mono);transform:translateY(20px);opacity:0;transition:all 0.3s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.success{border-color:rgba(79,200,122,0.4);color:var(--b-success)}
 .toast.error{border-color:rgba(240,80,80,0.4);color:var(--b-danger)}
 
-/* PAGE */
-.page{animation:pageIn 0.3s ease forwards}
-@keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* MISC */
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+.empty-state{text-align:center;padding:48px;color:var(--b-text-muted);font-size:13px}
+.empty-state-icon{font-size:32px;margin-bottom:12px}
 </style>
 </head>
 <body class="theme-braavos">
 
-<!-- LOGIN SCREEN -->
+<!-- LOGIN -->
 <div id="login-screen">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
+  <div class="orb orb-1"></div><div class="orb orb-2"></div>
   <div class="login-box">
-    <div class="login-logo"><span style="color:var(--b-gold)">B</span><span style="color:var(--brand)">raavos</span></div>
-    <div class="login-sub">Sales Intelligence · Login</div>
+    <div class="login-logo"><span style="color:var(--b-gold)">B</span><span style="color:var(--brand)" id="login-brand-r">raavos</span></div>
+    <div class="login-sub" id="login-brand-sub">Sales Intelligence · Login</div>
     <div class="login-label">Email</div>
-    <input type="email" class="login-input" id="login-email" placeholder="seu@email.com" autocomplete="email"/>
+    <input type="email" class="login-input" id="login-email" placeholder="seu@email.com"/>
     <div class="login-label">Senha</div>
-    <input type="password" class="login-input" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
+    <input type="password" class="login-input" id="login-password" placeholder="••••••••"/>
     <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar</button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<!-- THEME SWITCHER -->
-<div class="theme-switcher">
-  <span class="switcher-label">White Label</span>
-  <button class="theme-btn active" data-theme="theme-braavos" onclick="setTheme(this)"><span class="dot" style="background:#c9a84c"></span>Braavos</button>
-  <button class="theme-btn" data-theme="theme-techwave" onclick="setTheme(this)"><span class="dot" style="background:#0ea5e9"></span>TechWave</button>
-  <button class="theme-btn" data-theme="theme-logistica" onclick="setTheme(this)"><span class="dot" style="background:#f97316"></span>LogExpress</button>
-  <button class="theme-btn" data-theme="theme-fintech" onclick="setTheme(this)"><span class="dot" style="background:#10b981"></span>FinCore</button>
-  <button class="theme-btn" data-theme="theme-saude" onclick="setTheme(this)"><span class="dot" style="background:#a855f7"></span>SaúdePro</button>
-  <div class="switcher-right">
-    <button class="logout-btn" onclick="doLogout()">↪ Sair</button>
-  </div>
-</div>
-
-<div class="app" id="app">
-  <div class="orb orb-1"></div>
-  <div class="orb orb-2"></div>
-
-  <!-- SIDEBAR -->
+<!-- APP -->
+<div class="app">
+  <div class="orb orb-1"></div><div class="orb orb-2"></div>
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div><span class="b-gold">B</span><span class="brand-color" id="brand-name-sidebar">raavos</span></div>
+      <div><span class="sg">B</span><span class="sr" id="brand-name-sidebar">raavos</span></div>
       <small id="brand-tagline">Sales Intelligence</small>
     </div>
-    <div class="nav-item active" onclick="setPage('dashboard', this)"><span class="nav-icon">⬡</span> Dashboard</div>
-    <div class="nav-item" onclick="setPage('clientes', this)"><span class="nav-icon">◈</span> Clientes</div>
-    <div class="nav-item" onclick="setPage('visitas', this)"><span class="nav-icon">◉</span> Visitas</div>
-    <div class="nav-item" onclick="setPage('equipe', this)"><span class="nav-icon">◎</span> Equipe</div>
+    <div class="nav-item active" onclick="setPage('dashboard',this)"><span class="nav-icon">⬡</span> Dashboard</div>
+    <div class="nav-item" onclick="setPage('leads',this)"><span class="nav-icon">◈</span> Leads</div>
+    <div class="nav-item" onclick="setPage('clientes',this)"><span class="nav-icon">◉</span> Clientes</div>
+    <div class="nav-item" onclick="setPage('visitas',this)"><span class="nav-icon">◎</span> Visitas</div>
     <div class="nav-spacer"></div>
     <div style="padding:0 12px">
       <div class="sidebar-user">
         <div class="sidebar-user-name" id="sidebar-user-name">—</div>
-        <div class="sidebar-user-role" id="brand-role-label">vendedor · braavos</div>
+        <div class="sidebar-user-role" id="sidebar-user-role">—</div>
+        <span class="sidebar-logout" onclick="doLogout()">↪ sair</span>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main" id="main-content">
+  <div class="main">
 
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page">
       <div class="page-header">
-        <div class="page-eyebrow" id="dash-eyebrow">Carregando...</div>
+        <div class="page-eyebrow" id="dash-eyebrow">—</div>
         <div class="page-title" id="dash-greeting">Bem-vindo 👋</div>
       </div>
-      <div class="grid-3">
-        <div class="card card-shine">
-          <div class="metric-label">Visitas no Mês</div>
-          <div class="metric-value" id="dash-visitas-mes" style="color:var(--brand)">—</div>
-          <div class="metric-sub" id="dash-visitas-sub">carregando...</div>
-        </div>
-        <div class="card card-shine">
-          <div class="metric-label">Clientes Ativos</div>
-          <div class="metric-value" id="dash-clientes-ativos">—</div>
-          <div class="metric-sub" id="dash-clientes-sub">carregando...</div>
-        </div>
-        <div class="card card-shine">
-          <div class="metric-label">Total de Visitas</div>
-          <div class="metric-value" id="dash-visitas-total">—</div>
-          <div class="metric-sub">histórico completo</div>
-        </div>
+      <div class="grid-4">
+        <div class="card card-shine"><div class="metric-label">Total Leads</div><div class="metric-value" id="m-total" style="color:var(--brand)">—</div><div class="metric-sub" id="m-total-sub">carregando...</div></div>
+        <div class="card card-shine"><div class="metric-label">Novos (mês)</div><div class="metric-value" id="m-novos">—</div><div class="metric-sub">este mês</div></div>
+        <div class="card card-shine"><div class="metric-label">Taxa Conversão</div><div class="metric-value" id="m-conv" style="color:var(--b-success)">—</div><div class="metric-sub">lead → ganho</div></div>
+        <div class="card card-shine"><div class="metric-label">Em Negociação</div><div class="metric-value" id="m-neg" style="color:var(--b-warning)">—</div><div class="metric-sub">em andamento</div></div>
       </div>
       <div class="section-head">
-        <div class="section-head-title">Últimas Visitas</div>
-        <span class="section-head-link" onclick="setPage('visitas', document.querySelectorAll('.nav-item')[2])">Ver todas →</span>
+        <div class="section-head-title">Funil de Leads</div>
+        <span class="section-head-link" onclick="setPage('leads',document.querySelectorAll('.nav-item')[1])">Ver todos →</span>
       </div>
-      <div class="card" id="dash-visitas-list">
-        <div class="empty-state"><div class="loading-dot"></div></div>
+      <div class="funil-wrap">
+        <div class="funil-stage" style="--stage-color:#6366f1"><div class="funil-stage-label">Novo</div><div class="funil-stage-count" id="f-novo">—</div><div class="funil-stage-sub">leads</div></div>
+        <div class="funil-stage" style="--stage-color:#0ea5e9"><div class="funil-stage-label">Qualificado</div><div class="funil-stage-count" id="f-qual">—</div><div class="funil-stage-sub">leads</div></div>
+        <div class="funil-stage" style="--stage-color:#f0a050"><div class="funil-stage-label">Negociação</div><div class="funil-stage-count" id="f-neg2">—</div><div class="funil-stage-sub">leads</div></div>
+        <div class="funil-stage" style="--stage-color:#4fc87a"><div class="funil-stage-label">Ganho</div><div class="funil-stage-count" id="f-ganho">—</div><div class="funil-stage-sub">fechados</div></div>
+        <div class="funil-stage" style="--stage-color:#f05050"><div class="funil-stage-label">Perdido</div><div class="funil-stage-count" id="f-perdido">—</div><div class="funil-stage-sub">leads</div></div>
       </div>
+      <div class="grid-2">
+        <div>
+          <div class="section-head"><div class="section-head-title">Próximos Contatos</div></div>
+          <div class="card" id="dash-proximos"><div class="empty-state"><div class="loading-dot"></div></div></div>
+        </div>
+        <div>
+          <div class="section-head"><div class="section-head-title">Por Origem</div></div>
+          <div class="card" id="dash-origens"><div class="empty-state"><div class="loading-dot"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="page-leads" class="page" style="display:none">
+      <div class="page-header">
+        <div class="page-eyebrow">Pipeline</div>
+        <div class="page-title">Leads</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:12px;flex-wrap:wrap">
+        <div class="filter-bar">
+          <input class="filter-search" id="lead-search" placeholder="Buscar nome ou empresa..." oninput="renderLeads()"/>
+          <span class="filter-chip active" data-status="todos" onclick="filterChip(this)">Todos</span>
+          <span class="filter-chip" data-status="novo" onclick="filterChip(this)">Novo</span>
+          <span class="filter-chip" data-status="qualificado" onclick="filterChip(this)">Qualificado</span>
+          <span class="filter-chip" data-status="negociacao" onclick="filterChip(this)">Negociação</span>
+          <span class="filter-chip" data-status="ganho" onclick="filterChip(this)">Ganho</span>
+          <span class="filter-chip" data-status="perdido" onclick="filterChip(this)">Perdido</span>
+        </div>
+        <button class="btn btn-brand btn-sm" onclick="openModal('modal-lead')">+ Novo Lead</button>
+      </div>
+      <div class="card" id="leads-list"><div class="empty-state"><div class="loading-dot"></div></div></div>
     </div>
 
     <!-- CLIENTES -->
     <div id="page-clientes" class="page" style="display:none">
-      <div class="page-header">
-        <div class="page-eyebrow">Carteira</div>
-        <div class="page-title">Clientes</div>
-      </div>
+      <div class="page-header"><div class="page-eyebrow">Carteira</div><div class="page-title">Clientes</div></div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="btn btn-brand" onclick="openModal('modal-cliente')">+ Novo Cliente</button>
+        <button class="btn btn-brand btn-sm" onclick="openModal('modal-cliente')">+ Novo Cliente</button>
       </div>
-      <div class="grid-2" id="clientes-grid">
-        <div class="empty-state" style="grid-column:1/-1"><div class="loading-dot"></div></div>
-      </div>
+      <div class="grid-2" id="clientes-grid"><div class="empty-state" style="grid-column:1/-1"><div class="loading-dot"></div></div></div>
     </div>
 
     <!-- VISITAS -->
     <div id="page-visitas" class="page" style="display:none">
-      <div class="page-header">
-        <div class="page-eyebrow">Campo</div>
-        <div class="page-title">Visitas</div>
-      </div>
+      <div class="page-header"><div class="page-eyebrow">Campo</div><div class="page-title">Visitas</div></div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="btn btn-brand" onclick="openModal('modal-visita')">+ Nova Visita</button>
+        <button class="btn btn-brand btn-sm" onclick="openModal('modal-visita')">+ Nova Visita</button>
       </div>
-      <div class="card" id="visitas-list">
-        <div class="empty-state"><div class="loading-dot"></div></div>
-      </div>
+      <div class="card" id="visitas-list"><div class="empty-state"><div class="loading-dot"></div></div></div>
     </div>
-
-    <!-- EQUIPE -->
-    <div id="page-equipe" class="page" style="display:none">
-      <div class="page-header">
-        <div class="page-eyebrow">Ranking</div>
-        <div class="page-title">Equipe</div>
-      </div>
-      <div class="grid-3" style="margin-bottom:20px">
-        <div class="card"><div class="metric-label">Vendedores</div><div class="metric-value" id="equipe-vendedores">—</div></div>
-        <div class="card"><div class="metric-label">Visitas totais</div><div class="metric-value" id="equipe-visitas">—</div></div>
-        <div class="card"><div class="metric-label">Clientes</div><div class="metric-value" id="equipe-clientes" style="color:var(--brand)">—</div></div>
-      </div>
-      <div class="card" id="equipe-list">
-        <div class="empty-state"><div class="loading-dot"></div></div>
-      </div>
-    </div>
-
   </div>
 </div>
 
-<!-- MODAL NOVO CLIENTE -->
+<!-- DETAIL PANEL -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail()"></div>
+<div class="detail-panel" id="detail-panel">
+  <button class="detail-close" onclick="closeDetail()">✕</button>
+  <div id="detail-content"></div>
+</div>
+
+<!-- MODAL LEAD -->
+<div class="modal-overlay" id="modal-lead">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-lead')">✕</button>
+    <div class="modal-title">Novo Lead</div>
+    <div class="modal-section">Contato</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Nome *</label><input type="text" class="form-input" id="l-nome" placeholder="Nome completo"/></div>
+      <div class="form-group"><label class="form-label">Empresa</label><input type="text" class="form-input" id="l-empresa" placeholder="Empresa Ltda"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-input" id="l-tel" placeholder="(11) 99999-9999"/></div>
+      <div class="form-group"><label class="form-label">Email</label><input type="email" class="form-input" id="l-email" placeholder="contato@empresa.com"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Cargo</label><input type="text" class="form-input" id="l-cargo" placeholder="Diretor, Gerente..."/></div>
+      <div class="form-group"><label class="form-label">CNPJ</label><input type="text" class="form-input" id="l-cnpj" placeholder="00.000.000/0001-00"/></div>
+    </div>
+    <div class="modal-section">Classificação</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Status</label>
+        <select class="form-select" id="l-status">
+          <option value="novo">Novo</option><option value="qualificado">Qualificado</option>
+          <option value="negociacao">Negociação</option><option value="ganho">Ganho</option><option value="perdido">Perdido</option>
+        </select>
+      </div>
+      <div class="form-group"><label class="form-label">Prioridade</label>
+        <select class="form-select" id="l-prioridade">
+          <option value="media">Média</option><option value="alta">Alta</option><option value="baixa">Baixa</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Segmento</label>
+        <select class="form-select" id="l-segmento"><option value="">Selecionar</option><option>Tecnologia</option><option>Logística</option><option>Financeiro</option><option>Saúde</option><option>Varejo</option><option>Indústria</option><option>Outro</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Origem</label>
+        <select class="form-select" id="l-origem"><option value="">Selecionar</option><option>Indicação</option><option>Cold Call</option><option>LinkedIn</option><option>Site</option><option>Evento</option><option>WhatsApp</option><option>Outro</option></select>
+      </div>
+    </div>
+    <div class="modal-section">Localização &amp; Agenda</div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Cidade</label><input type="text" class="form-input" id="l-cidade" placeholder="São Paulo"/></div>
+      <div class="form-group"><label class="form-label">Estado</label><input type="text" class="form-input" id="l-estado" placeholder="SP" maxlength="2"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Região</label><input type="text" class="form-input" id="l-regiao" placeholder="Sul, Centro..."/></div>
+      <div class="form-group"><label class="form-label">Próximo Contato</label><input type="date" class="form-input" id="l-proximo"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="l-notas" placeholder="Contexto, observações..."></textarea></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-lead')">Cancelar</button>
+      <button class="btn btn-brand" onclick="salvarLead()">Salvar Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE -->
 <div class="modal-overlay" id="modal-cliente">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
     <div class="modal-title">Novo Cliente</div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Nome</label>
-        <input type="text" class="form-input" id="c-nome" placeholder="Nome completo"/>
-      </div>
-      <div class="form-group">
-        <label class="form-label">Empresa</label>
-        <input type="text" class="form-input" id="c-empresa" placeholder="Empresa Ltda"/>
-      </div>
+      <div class="form-group"><label class="form-label">Nome *</label><input type="text" class="form-input" id="c-nome"/></div>
+      <div class="form-group"><label class="form-label">Empresa</label><input type="text" class="form-input" id="c-empresa"/></div>
     </div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Segmento</label>
-        <select class="form-select" id="c-segmento">
-          <option value="">Selecionar</option>
-          <option>Tecnologia</option><option>Logística</option><option>Financeiro</option>
-          <option>Saúde</option><option>Varejo</option><option>Indústria</option><option>Outro</option>
-        </select>
+      <div class="form-group"><label class="form-label">Segmento</label>
+        <select class="form-select" id="c-segmento"><option value="">Selecionar</option><option>Tecnologia</option><option>Logística</option><option>Financeiro</option><option>Saúde</option><option>Varejo</option><option>Indústria</option><option>Outro</option></select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Telefone</label>
-        <input type="text" class="form-input" id="c-telefone" placeholder="(11) 99999-9999"/>
-      </div>
+      <div class="form-group"><label class="form-label">Telefone</label><input type="text" class="form-input" id="c-telefone"/></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Status</label>
-      <select class="form-select" id="c-status">
-        <option value="ativo">Ativo</option>
-        <option value="proposta">Proposta</option>
-        <option value="negociacao">Negociação</option>
-        <option value="inativo">Inativo</option>
-      </select>
+    <div class="form-group"><label class="form-label">Status</label>
+      <select class="form-select" id="c-status"><option value="ativo">Ativo</option><option value="proposta">Proposta</option><option value="negociacao">Negociação</option><option value="inativo">Inativo</option></select>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button>
-      <button class="btn btn-brand" onclick="salvarCliente()">Salvar Cliente</button>
+      <button class="btn btn-brand" onclick="salvarCliente()">Salvar</button>
     </div>
   </div>
 </div>
 
-<!-- MODAL NOVA VISITA -->
+<!-- MODAL VISITA -->
 <div class="modal-overlay" id="modal-visita">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('modal-visita')">✕</button>
     <div class="modal-title">Nova Visita</div>
-    <div class="form-group">
-      <label class="form-label">Cliente</label>
-      <select class="form-select" id="v-cliente"></select>
-    </div>
+    <div class="form-group"><label class="form-label">Cliente</label><select class="form-select" id="v-cliente"></select></div>
     <div class="form-row">
-      <div class="form-group">
-        <label class="form-label">Tipo</label>
-        <select class="form-select" id="v-tipo">
-          <option value="presencial">🏢 Presencial</option>
-          <option value="remota">💻 Remota</option>
-          <option value="ligacao">📞 Ligação</option>
-        </select>
+      <div class="form-group"><label class="form-label">Tipo</label>
+        <select class="form-select" id="v-tipo"><option value="presencial">🏢 Presencial</option><option value="remota">💻 Remota</option><option value="ligacao">📞 Ligação</option></select>
       </div>
-      <div class="form-group">
-        <label class="form-label">Data</label>
-        <input type="date" class="form-input" id="v-data"/>
-      </div>
+      <div class="form-group"><label class="form-label">Data</label><input type="date" class="form-input" id="v-data"/></div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Notas</label>
-      <textarea class="form-textarea" id="v-notas" placeholder="O que aconteceu nessa visita?"></textarea>
-    </div>
+    <div class="form-group"><label class="form-label">Notas</label><textarea class="form-textarea" id="v-notas" placeholder="O que aconteceu?"></textarea></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" onclick="closeModal('modal-visita')">Cancelar</button>
-      <button class="btn btn-brand" onclick="salvarVisita()">Registrar Visita</button>
+      <button class="btn btn-brand" onclick="salvarVisita()">Registrar</button>
     </div>
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── SUPABASE ───────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://wufkytnlhiscyzatumvc.supabase.co';
-const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1Zmt5dG5saGlzY3l6YXR1bXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Nzc5OTcsImV4cCI6MjA4NjI1Mzk5N30.2IdxHQWDPjk4_pW2aNyIob2khIrW5ajYHXKYIIBu2xE';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+const SURL='https://wufkytnlhiscyzatumvc.supabase.co';
+const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1Zmt5dG5saGlzY3l6YXR1bXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Nzc5OTcsImV4cCI6MjA4NjI1Mzk5N30.2IdxHQWDPjk4_pW2aNyIob2khIrW5ajYHXKYIIBu2xE';
+const sb=supabase.createClient(SURL,SKEY);
 
-let currentUser = null;
+let currentUser=null,currentProfile=null,allLeads=[],activeFilter='todos';
 
-// ─── AUTH ─────────────────────────────────────────────────────────────
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  const btn = document.getElementById('login-btn');
-  const err = document.getElementById('login-error');
-  err.textContent = '';
-  btn.disabled = true;
-  btn.textContent = 'Entrando...';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) {
-    err.textContent = 'Email ou senha incorretos.';
-    btn.disabled = false;
-    btn.textContent = 'Entrar';
-  } else {
-    onLogin(data.user);
-  }
+// ── TENANT / TEMA ────────────────────────────────────────────────────────
+const TENANTS={
+  braavos:   {theme:'theme-braavos',  r:'raavos',   tagline:'Sales Intelligence',brandFull:'Braavos'},
+  techwave:  {theme:'theme-techwave', r:'echWave',  tagline:'Portal de Vendas',  brandFull:'TechWave'},
+  logistica: {theme:'theme-logistica',r:'ogExpress',tagline:'Força de Vendas',   brandFull:'LogExpress'},
+  fintech:   {theme:'theme-fintech',  r:'inCore',   tagline:'Sales Platform',    brandFull:'FinCore'},
+  saude:     {theme:'theme-saude',    r:'aúdePro',  tagline:'Gestão Comercial',  brandFull:'SaúdePro'},
+};
+(function applyTenant(){
+  const p=new URLSearchParams(window.location.search);
+  const t=TENANTS[p.get('tenant')]||TENANTS.braavos;
+  Object.values(TENANTS).forEach(x=>document.body.classList.remove(x.theme));
+  document.body.classList.add(t.theme);
+  document.getElementById('brand-name-sidebar').textContent=t.r;
+  document.getElementById('brand-tagline').textContent=t.tagline;
+  document.getElementById('login-brand-r').textContent=t.r;
+  document.getElementById('login-brand-sub').textContent=t.brandFull+' · Login';
+  document.title=t.brandFull+' — Sales Intelligence';
+})();
+
+// ── AUTH ─────────────────────────────────────────────────────────────────
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const btn=document.getElementById('login-btn');
+  const err=document.getElementById('login-error');
+  err.textContent=''; btn.disabled=true; btn.textContent='Entrando...';
+  const {data,error}=await sb.auth.signInWithPassword({email,password:pw});
+  if(error){err.textContent='Email ou senha incorretos.';btn.disabled=false;btn.textContent='Entrar';}
+  else await onLogin(data.user);
 }
+document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
-document.getElementById('login-password').addEventListener('keydown', e => {
-  if (e.key === 'Enter') doLogin();
-});
-
-async function doLogout() {
-  await sb.auth.signOut();
-  currentUser = null;
-  document.getElementById('login-screen').classList.remove('hidden');
-  document.getElementById('login-email').value = '';
-  document.getElementById('login-password').value = '';
-  document.getElementById('login-error').textContent = '';
-  document.getElementById('login-btn').disabled = false;
-  document.getElementById('login-btn').textContent = 'Entrar';
-}
-
-function onLogin(user) {
-  currentUser = user;
+async function onLogin(user){
+  currentUser=user;
+  const {data:profile}=await sb.from('profiles').select('*').eq('user_id',user.id).single();
+  currentProfile=profile;
+  const nome=profile?.nome||user.email.split('@')[0];
+  const primeiroNome=nome.split(' ')[0];
+  document.getElementById('sidebar-user-name').textContent=nome;
+  document.getElementById('sidebar-user-role').textContent=(profile?.cargo||'vendedor')+' · '+(profile?.regiao||'—');
+  const h=new Date().getHours();
+  const s=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
+  document.getElementById('dash-greeting').textContent=`${s}, ${primeiroNome} 👋`;
+  const now=new Date();
+  document.getElementById('dash-eyebrow').textContent=now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   document.getElementById('login-screen').classList.add('hidden');
-  const name = user.email.split('@')[0];
-  const display = name.charAt(0).toUpperCase() + name.slice(1);
-  document.getElementById('sidebar-user-name').textContent = display;
-  document.getElementById('dash-greeting').textContent = `Bom dia, ${display} 👋`;
-  const now = new Date();
-  document.getElementById('dash-eyebrow').textContent = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   loadAll();
   setupRealtime();
 }
 
-// Check session on load
-sb.auth.getSession().then(({ data: { session } }) => {
-  if (session) onLogin(session.user);
-});
+async function doLogout(){
+  await sb.auth.signOut();
+  currentUser=null;currentProfile=null;allLeads=[];
+  document.getElementById('login-screen').classList.remove('hidden');
+  ['login-email','login-password'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('login-error').textContent='';
+  document.getElementById('login-btn').disabled=false;
+  document.getElementById('login-btn').textContent='Entrar';
+}
+sb.auth.getSession().then(({data:{session}})=>{if(session)onLogin(session.user);});
 
-// ─── LOAD ALL ─────────────────────────────────────────────────────────
-async function loadAll() {
-  await Promise.all([loadDashboard(), loadClientes(), loadVisitas()]);
-  loadEquipe();
+// ── LOAD ─────────────────────────────────────────────────────────────────
+async function loadAll(){
+  await Promise.all([loadLeads(),loadClientes(),loadVisitas()]);
+  loadDashboard();
 }
 
-// ─── DASHBOARD ────────────────────────────────────────────────────────
-async function loadDashboard() {
-  const now = new Date();
-  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+// ── DASHBOARD ────────────────────────────────────────────────────────────
+function loadDashboard(){
+  const now=new Date();
+  const startMes=new Date(now.getFullYear(),now.getMonth(),1).toISOString();
+  const counts={};
+  ['novo','qualificado','negociacao','ganho','perdido'].forEach(s=>counts[s]=allLeads.filter(l=>l.status===s).length);
 
-  const [{ data: visitasMes }, { data: visitasAll }, { data: clientesAll }] = await Promise.all([
-    sb.from('visitas').select('id, tipo').gte('data', startOfMonth).eq('user_id', currentUser.id),
-    sb.from('visitas').select('id').eq('user_id', currentUser.id),
-    sb.from('clientes').select('id, status').eq('user_id', currentUser.id),
-  ]);
+  document.getElementById('f-novo').textContent=counts.novo||0;
+  document.getElementById('f-qual').textContent=counts.qualificado||0;
+  document.getElementById('f-neg2').textContent=counts.negociacao||0;
+  document.getElementById('f-ganho').textContent=counts.ganho||0;
+  document.getElementById('f-perdido').textContent=counts.perdido||0;
 
-  const ativos = (clientesAll || []).filter(c => c.status === 'ativo').length;
-  document.getElementById('dash-visitas-mes').textContent = (visitasMes || []).length;
-  document.getElementById('dash-visitas-sub').textContent = `este mês`;
-  document.getElementById('dash-clientes-ativos').textContent = ativos;
-  document.getElementById('dash-clientes-sub').textContent = `de ${(clientesAll || []).length} no total`;
-  document.getElementById('dash-visitas-total').textContent = (visitasAll || []).length;
+  const total=allLeads.length;
+  const ganhos=counts.ganho||0;
+  const conv=total>0?Math.round((ganhos/total)*100):0;
+  const novos=allLeads.filter(l=>l.created_at>=startMes).length;
 
-  // Últimas visitas
-  const { data: ultimas } = await sb.from('visitas')
-    .select('*, clientes(nome, empresa)')
-    .eq('user_id', currentUser.id)
-    .order('data', { ascending: false })
-    .limit(4);
+  document.getElementById('m-total').textContent=total;
+  document.getElementById('m-total-sub').textContent=ganhos+' ganhos';
+  document.getElementById('m-novos').textContent=novos;
+  document.getElementById('m-neg').textContent=counts.negociacao||0;
+  document.getElementById('m-conv').textContent=conv+'%';
 
-  const icons = { presencial:'🏢', remota:'💻', ligacao:'📞' };
-  const list = document.getElementById('dash-visitas-list');
-  if (!ultimas || ultimas.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◉</div>Nenhuma visita registrada ainda.</div>';
-    return;
+  // Próximos contatos (7 dias)
+  const hoje=new Date().toISOString().split('T')[0];
+  const em7=new Date(Date.now()+7*86400000).toISOString().split('T')[0];
+  const proximos=allLeads.filter(l=>l.proximo_contato&&l.proximo_contato>=hoje&&l.proximo_contato<=em7)
+    .sort((a,b)=>a.proximo_contato.localeCompare(b.proximo_contato)).slice(0,5);
+
+  const proxEl=document.getElementById('dash-proximos');
+  if(!proximos.length){
+    proxEl.innerHTML='<div class="empty-state" style="padding:24px"><div class="empty-state-icon">📅</div>Nenhum nos próximos 7 dias</div>';
+  } else {
+    proxEl.innerHTML=proximos.map(l=>`
+      <div class="lead-row" onclick="openDetail(${esc(l)})">
+        <div class="lead-avatar">${(l.nome||'?')[0].toUpperCase()}</div>
+        <div class="lead-info"><div class="lead-name">${l.nome||'—'}</div><div class="lead-company">${l.empresa_cliente||'—'}</div></div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:var(--font-mono);font-size:11px;color:var(--b-warning)">${fmtDate(l.proximo_contato)}</div>
+          ${statusBadge(l.status)}
+        </div>
+      </div>`).join('');
   }
-  list.innerHTML = ultimas.map(v => `
-    <div class="visit-row">
-      <div class="visit-icon">${icons[v.tipo] || '📋'}</div>
-      <div class="visit-meta">
-        <div class="visit-client">${v.clientes?.nome || '—'} ${v.clientes?.empresa ? '— ' + v.clientes.empresa : ''}</div>
-        <div class="visit-text">${v.notas || 'Sem anotações.'}</div>
+
+  // Por origem
+  const origens={};
+  allLeads.forEach(l=>{if(l.origem)origens[l.origem]=(origens[l.origem]||0)+1;});
+  const topO=Object.entries(origens).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxO=topO[0]?.[1]||1;
+  const origEl=document.getElementById('dash-origens');
+  if(!topO.length){
+    origEl.innerHTML='<div class="empty-state" style="padding:24px"><div class="empty-state-icon">◈</div>Sem dados de origem ainda</div>';
+  } else {
+    origEl.innerHTML=topO.map(([orig,cnt])=>`
+      <div class="conv-row">
+        <span class="conv-label">${orig}</span>
+        <div class="conv-track"><div class="conv-fill" style="width:${Math.round(cnt/maxO*100)}%;background:var(--brand)"></div></div>
+        <span class="conv-pct" style="color:var(--brand)">${cnt}</span>
+      </div>`).join('');
+  }
+}
+
+// ── LEADS ────────────────────────────────────────────────────────────────
+async function loadLeads(){
+  const {data}=await sb.from('leads').select('*').order('created_at',{ascending:false});
+  allLeads=data||[];
+  renderLeads();
+}
+
+function renderLeads(){
+  const search=(document.getElementById('lead-search')?.value||'').toLowerCase();
+  let f=allLeads;
+  if(activeFilter!=='todos')f=f.filter(l=>l.status===activeFilter);
+  if(search)f=f.filter(l=>(l.nome||'').toLowerCase().includes(search)||(l.empresa_cliente||'').toLowerCase().includes(search));
+  const list=document.getElementById('leads-list');
+  if(!f.length){list.innerHTML='<div class="empty-state"><div class="empty-state-icon">◈</div>Nenhum lead encontrado.</div>';return;}
+  list.innerHTML=f.map(l=>`
+    <div class="lead-row" onclick="openDetail(${esc(l)})">
+      <span class="prio prio-${l.prioridade||'media'}"></span>
+      <div class="lead-avatar">${(l.nome||'?')[0].toUpperCase()}</div>
+      <div class="lead-info">
+        <div class="lead-name">${l.nome||'—'}</div>
+        <div class="lead-company">${l.empresa_cliente||'—'}${l.cidade?' · '+l.cidade:''}</div>
       </div>
-      <div class="visit-date">${fmtDate(v.data)}</div>
-    </div>
-  `).join('');
+      <div class="lead-meta">
+        ${statusBadge(l.status)}
+        ${l.origem?`<span class="badge badge-muted">${l.origem}</span>`:''}
+        ${l.proximo_contato?`<span style="font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted)">📅 ${fmtDate(l.proximo_contato)}</span>`:''}
+      </div>
+    </div>`).join('');
 }
 
-// ─── CLIENTES ─────────────────────────────────────────────────────────
-async function loadClientes() {
-  const { data } = await sb.from('clientes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-  const grid = document.getElementById('clientes-grid');
-  if (!data || data.length === 0) {
-    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">◈</div>Nenhum cliente ainda. Adicione o primeiro!</div>';
-    return;
-  }
-  const badgeMap = { ativo:'badge-success', proposta:'badge-brand', negociacao:'badge-warning', inativo:'badge-muted' };
-  const labelMap = { ativo:'Ativo', proposta:'Proposta', negociacao:'Negociação', inativo:'Inativo' };
-  grid.innerHTML = data.map(c => `
+function filterChip(el){
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  activeFilter=el.dataset.status;
+  renderLeads();
+}
+
+// ── DETAIL PANEL ─────────────────────────────────────────────────────────
+function openDetail(lead){
+  if(typeof lead==='string')lead=JSON.parse(lead);
+  const hasAI=lead.intent||lead.suggested_next_action||lead.confidence_score!=null;
+  document.getElementById('detail-content').innerHTML=`
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+      ${statusBadge(lead.status)}
+      ${lead.prioridade?`<span class="badge badge-${lead.prioridade==='alta'?'danger':lead.prioridade==='media'?'warning':'success'}">${lead.prioridade}</span>`:''}
+      ${lead.segmento?`<span class="badge badge-muted">${lead.segmento}</span>`:''}
+    </div>
+    <div class="detail-name">${lead.nome||'—'}</div>
+    <div class="detail-company">${lead.empresa_cliente||'—'}${lead.cargo_cliente?' · '+lead.cargo_cliente:''}</div>
+    <div class="detail-actions">
+      ${lead.telefone?`<a href="tel:${lead.telefone}" class="btn btn-brand btn-sm">📞 Ligar</a>`:''}
+      ${lead.telefone?`<a href="https://wa.me/55${lead.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost btn-sm">💬 WhatsApp</a>`:''}
+      ${lead.email?`<a href="mailto:${lead.email}" class="btn btn-ghost btn-sm">✉️ Email</a>`:''}
+    </div>
+    ${hasAI?`
+    <div class="detail-section">✦ Inteligência IA</div>
+    ${lead.confidence_score!=null?`<div class="detail-field"><div class="detail-field-label">Score de Confiança</div><div style="display:flex;align-items:center;gap:10px;margin-top:6px"><div class="progress-track" style="flex:1"><div class="progress-fill" style="width:${Math.round(lead.confidence_score*100)}%"></div></div><span style="font-family:var(--font-mono);font-size:12px;color:var(--brand)">${Math.round(lead.confidence_score*100)}%</span></div></div>`:''}
+    ${lead.intent?`<div class="detail-field"><div class="detail-field-label">Intenção Detectada</div><span class="ai-chip">${lead.intent}</span></div>`:''}
+    ${lead.suggested_next_action?`<div class="detail-field"><div class="detail-field-label">Próxima Ação Sugerida</div><div class="alert-box"><span class="alert-icon">🤖</span><div><div class="alert-title">${lead.suggested_next_action}</div></div></div></div>`:''}
+    `:''}
+    <div class="detail-section">Contato</div>
+    ${lead.telefone?`<div class="detail-field"><div class="detail-field-label">Telefone</div><div>${lead.telefone}</div></div>`:''}
+    ${lead.telefone_alt?`<div class="detail-field"><div class="detail-field-label">Tel. Alternativo</div><div>${lead.telefone_alt}</div></div>`:''}
+    ${lead.email?`<div class="detail-field"><div class="detail-field-label">Email</div><div>${lead.email}</div></div>`:''}
+    ${lead.cnpj?`<div class="detail-field"><div class="detail-field-label">CNPJ</div><div>${lead.cnpj}</div></div>`:''}
+    ${lead.cidade||lead.estado||lead.regiao?`
+    <div class="detail-section">Localização</div>
+    ${lead.cidade||lead.estado?`<div class="detail-field"><div class="detail-field-label">Cidade/Estado</div><div>${[lead.cidade,lead.estado].filter(Boolean).join(' — ')}</div></div>`:''}
+    ${lead.regiao?`<div class="detail-field"><div class="detail-field-label">Região</div><div>${lead.regiao}</div></div>`:''}
+    `:''}
+    ${lead.proximo_contato||lead.ultima_visita||lead.origem?`
+    <div class="detail-section">Acompanhamento</div>
+    ${lead.ultima_visita?`<div class="detail-field"><div class="detail-field-label">Última Visita</div><div>${fmtDateLong(lead.ultima_visita)}</div></div>`:''}
+    ${lead.proximo_contato?`<div class="detail-field"><div class="detail-field-label">Próximo Contato</div><div class="alert-box"><span class="alert-icon">📅</span><div><div class="alert-title">${fmtDateLong(lead.proximo_contato)}</div></div></div></div>`:''}
+    ${lead.origem?`<div class="detail-field"><div class="detail-field-label">Origem</div><div>${lead.origem}</div></div>`:''}
+    `:''}
+    ${lead.notas?`<div class="detail-section">Notas</div><div style="font-size:13px;color:var(--b-text-muted);line-height:1.6">${lead.notas}</div>`:''}
+    <div style="margin-top:24px;font-family:var(--font-mono);font-size:9px;color:var(--b-text-muted)">Criado em ${fmtDateLong(lead.created_at)}</div>`;
+  document.getElementById('detail-overlay').classList.add('open');
+  document.getElementById('detail-panel').classList.add('open');
+}
+function closeDetail(){
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.getElementById('detail-panel').classList.remove('open');
+}
+
+// ── CLIENTES ─────────────────────────────────────────────────────────────
+async function loadClientes(){
+  const {data}=await sb.from('clientes').select('*').eq('user_id',currentUser.id).order('created_at',{ascending:false});
+  const grid=document.getElementById('clientes-grid');
+  if(!data?.length){grid.innerHTML='<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">◉</div>Nenhum cliente ainda.</div>';return;}
+  const bm={ativo:'badge-success',proposta:'badge-brand',negociacao:'badge-warning',inativo:'badge-muted'};
+  const lm={ativo:'Ativo',proposta:'Proposta',negociacao:'Negociação',inativo:'Inativo'};
+  grid.innerHTML=data.map(c=>`
     <div class="card clickable">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-        <div>
-          <div style="font-weight:500;margin-bottom:3px">${c.nome || '—'}</div>
-          <div style="font-size:12px;color:var(--b-text-muted)">${c.empresa || ''}</div>
-        </div>
-        <span class="badge ${badgeMap[c.status] || 'badge-muted'}">${labelMap[c.status] || c.status}</span>
+        <div><div style="font-weight:500;margin-bottom:3px">${c.nome||'—'}</div><div style="font-size:12px;color:var(--b-text-muted)">${c.empresa||''}</div></div>
+        <span class="badge ${bm[c.status]||'badge-muted'}">${lm[c.status]||c.status}</span>
       </div>
-      <div style="font-size:12px;color:var(--b-text-muted)">
-        ${c.segmento ? '🏷️ ' + c.segmento : ''}${c.segmento && c.telefone ? ' · ' : ''}${c.telefone ? '📞 ' + c.telefone : ''}
-      </div>
-    </div>
-  `).join('');
+      <div style="font-size:12px;color:var(--b-text-muted)">${c.segmento?'🏷️ '+c.segmento:''}${c.segmento&&c.telefone?' · ':''}${c.telefone?'📞 '+c.telefone:''}</div>
+    </div>`).join('');
 }
 
-// ─── VISITAS ──────────────────────────────────────────────────────────
-async function loadVisitas() {
-  const { data } = await sb.from('visitas')
-    .select('*, clientes(nome)')
-    .eq('user_id', currentUser.id)
-    .order('data', { ascending: false });
-
-  const list = document.getElementById('visitas-list');
-  if (!data || data.length === 0) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◉</div>Nenhuma visita registrada ainda.</div>';
-    return;
-  }
-  const icons = { presencial:'🏢', remota:'💻', ligacao:'📞' };
-  const badgeMap = { presencial:'badge-brand', remota:'badge-muted', ligacao:'badge-muted' };
-  const labelMap = { presencial:'Presencial', remota:'Remota', ligacao:'Ligação' };
-  list.innerHTML = data.map(v => `
+// ── VISITAS ──────────────────────────────────────────────────────────────
+async function loadVisitas(){
+  const {data}=await sb.from('visitas').select('*, clientes(nome)').eq('user_id',currentUser.id).order('data',{ascending:false});
+  const list=document.getElementById('visitas-list');
+  if(!data?.length){list.innerHTML='<div class="empty-state"><div class="empty-state-icon">◎</div>Nenhuma visita ainda.</div>';return;}
+  const icons={presencial:'🏢',remota:'💻',ligacao:'📞'};
+  const bm={presencial:'badge-brand',remota:'badge-muted',ligacao:'badge-muted'};
+  const lm={presencial:'Presencial',remota:'Remota',ligacao:'Ligação'};
+  list.innerHTML=data.map(v=>`
     <div class="visit-row">
-      <div class="visit-icon">${icons[v.tipo] || '📋'}</div>
-      <div class="visit-meta">
-        <div class="visit-client">${v.clientes?.nome || '—'}</div>
-        <div class="visit-text">${v.notas || 'Sem anotações.'}</div>
+      <div class="visit-icon">${icons[v.tipo]||'📋'}</div>
+      <div class="visit-meta-info">
+        <div class="visit-client">${v.clientes?.nome||'—'}</div>
+        <div class="visit-text">${v.notas||'Sem anotações.'}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-        <div class="visit-date">${fmtDate(v.data)}</div>
-        <span class="badge ${badgeMap[v.tipo] || 'badge-muted'}">${labelMap[v.tipo] || v.tipo}</span>
+        <span style="font-family:var(--font-mono);font-size:11px;color:var(--b-text-muted)">${fmtDate(v.data)}</span>
+        <span class="badge ${bm[v.tipo]||'badge-muted'}">${lm[v.tipo]||v.tipo}</span>
       </div>
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ─── EQUIPE ───────────────────────────────────────────────────────────
-async function loadEquipe() {
-  const [{ data: visitas }, { data: clientes }] = await Promise.all([
-    sb.from('visitas').select('user_id').eq('user_id', currentUser.id),
-    sb.from('clientes').select('id, status').eq('user_id', currentUser.id),
-  ]);
-  document.getElementById('equipe-vendedores').textContent = '1';
-  document.getElementById('equipe-visitas').textContent = (visitas || []).length;
-  document.getElementById('equipe-clientes').textContent = (clientes || []).filter(c => c.status === 'ativo').length;
-
-  const name = currentUser.email.split('@')[0];
-  const display = name.charAt(0).toUpperCase() + name.slice(1);
-  document.getElementById('equipe-list').innerHTML = `
-    <div class="vendor-row">
-      <div class="vendor-rank top">1</div>
-      <div class="vendor-info">
-        <div class="vendor-name">${display}</div>
-        <div class="vendor-bar-wrap">
-          <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:100%"></div></div>
-          <div class="vendor-pct" style="color:var(--brand)">—</div>
-        </div>
-      </div>
-      <span class="badge badge-brand">${(visitas || []).length} vis.</span>
-    </div>
-  `;
-}
-
-// ─── REALTIME ─────────────────────────────────────────────────────────
-function setupRealtime() {
-  sb.channel('db-changes')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => { loadClientes(); loadDashboard(); loadEquipe(); })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'visitas' }, () => { loadVisitas(); loadDashboard(); loadEquipe(); })
+// ── REALTIME ─────────────────────────────────────────────────────────────
+function setupRealtime(){
+  sb.channel('rt')
+    .on('postgres_changes',{event:'*',schema:'public',table:'leads'},()=>loadLeads().then(loadDashboard))
+    .on('postgres_changes',{event:'*',schema:'public',table:'clientes'},()=>loadClientes())
+    .on('postgres_changes',{event:'*',schema:'public',table:'visitas'},()=>loadVisitas())
     .subscribe();
 }
 
-// ─── MODAIS ───────────────────────────────────────────────────────────
-function openModal(id) {
-  if (id === 'modal-visita') {
-    // Preenche select de clientes
-    sb.from('clientes').select('id, nome').eq('user_id', currentUser.id).then(({ data }) => {
-      const sel = document.getElementById('v-cliente');
-      sel.innerHTML = data && data.length
-        ? data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
-        : '<option value="">Nenhum cliente cadastrado</option>';
+// ── SALVAR LEAD ──────────────────────────────────────────────────────────
+async function salvarLead(){
+  const nome=document.getElementById('l-nome').value.trim();
+  if(!nome){showToast('Informe o nome do lead','error');return;}
+  const payload={
+    nome,
+    empresa_cliente:document.getElementById('l-empresa').value.trim(),
+    telefone:document.getElementById('l-tel').value.trim(),
+    email:document.getElementById('l-email').value.trim(),
+    cargo_cliente:document.getElementById('l-cargo').value.trim(),
+    cnpj:document.getElementById('l-cnpj').value.trim(),
+    status:document.getElementById('l-status').value,
+    prioridade:document.getElementById('l-prioridade').value,
+    segmento:document.getElementById('l-segmento').value,
+    origem:document.getElementById('l-origem').value,
+    cidade:document.getElementById('l-cidade').value.trim(),
+    estado:document.getElementById('l-estado').value.trim(),
+    proximo_contato:document.getElementById('l-proximo').value||null,
+    regiao:document.getElementById('l-regiao').value.trim(),
+    notas:document.getElementById('l-notas').value.trim(),
+  };
+  if(currentProfile?.vendedor_id)payload.vendedor_id=currentProfile.vendedor_id;
+  if(currentProfile?.empresa_id)payload.empresa_id=currentProfile.empresa_id;
+  const {error}=await sb.from('leads').insert(payload);
+  if(error){showToast('Erro: '+error.message,'error');return;}
+  closeModal('modal-lead');
+  showToast('Lead salvo!','success');
+  ['l-nome','l-empresa','l-tel','l-email','l-cargo','l-cnpj','l-cidade','l-estado','l-regiao','l-notas'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── SALVAR CLIENTE ────────────────────────────────────────────────────────
+async function salvarCliente(){
+  const nome=document.getElementById('c-nome').value.trim();
+  if(!nome){showToast('Informe o nome','error');return;}
+  const {error}=await sb.from('clientes').insert({
+    user_id:currentUser.id,nome,
+    empresa:document.getElementById('c-empresa').value.trim(),
+    segmento:document.getElementById('c-segmento').value,
+    telefone:document.getElementById('c-telefone').value.trim(),
+    status:document.getElementById('c-status').value,
+  });
+  if(error){showToast('Erro: '+error.message,'error');return;}
+  closeModal('modal-cliente');showToast('Cliente salvo!','success');
+  ['c-nome','c-empresa','c-telefone'].forEach(id=>document.getElementById(id).value='');
+}
+
+// ── SALVAR VISITA ────────────────────────────────────────────────────────
+async function salvarVisita(){
+  const cid=document.getElementById('v-cliente').value;
+  if(!cid){showToast('Selecione um cliente','error');return;}
+  const {error}=await sb.from('visitas').insert({
+    user_id:currentUser.id,cliente_id:cid,
+    tipo:document.getElementById('v-tipo').value,
+    data:document.getElementById('v-data').value,
+    notas:document.getElementById('v-notas').value.trim(),
+  });
+  if(error){showToast('Erro: '+error.message,'error');return;}
+  closeModal('modal-visita');showToast('Visita registrada!','success');
+  document.getElementById('v-notas').value='';
+}
+
+// ── MODAIS ────────────────────────────────────────────────────────────────
+function openModal(id){
+  if(id==='modal-visita'){
+    sb.from('clientes').select('id,nome').eq('user_id',currentUser.id).then(({data})=>{
+      const sel=document.getElementById('v-cliente');
+      sel.innerHTML=data?.length?data.map(c=>`<option value="${c.id}">${c.nome}</option>`).join(''):'<option>Nenhum cliente</option>';
     });
-    document.getElementById('v-data').value = new Date().toISOString().split('T')[0];
+    document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
   }
   document.getElementById(id).classList.add('open');
 }
-function closeModal(id) { document.getElementById(id).classList.remove('open') }
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
 
-async function salvarCliente() {
-  const nome = document.getElementById('c-nome').value.trim();
-  if (!nome) { showToast('Informe o nome do cliente', 'error'); return; }
-  const { error } = await sb.from('clientes').insert({
-    user_id: currentUser.id,
-    nome,
-    empresa: document.getElementById('c-empresa').value.trim(),
-    segmento: document.getElementById('c-segmento').value,
-    telefone: document.getElementById('c-telefone').value.trim(),
-    status: document.getElementById('c-status').value,
-  });
-  if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
-  closeModal('modal-cliente');
-  showToast('Cliente salvo!', 'success');
-  ['c-nome','c-empresa','c-telefone'].forEach(id => document.getElementById(id).value = '');
+// ── NAV ───────────────────────────────────────────────────────────────────
+function setPage(page,navEl){
+  document.querySelectorAll('[id^="page-"]').forEach(el=>el.style.display='none');
+  const t=document.getElementById('page-'+page);
+  if(t){t.style.display='block';t.style.animation='none';t.offsetHeight;t.style.animation='pageIn 0.3s ease forwards';}
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  if(navEl)navEl.classList.add('active');
 }
 
-async function salvarVisita() {
-  const cid = document.getElementById('v-cliente').value;
-  if (!cid) { showToast('Selecione um cliente', 'error'); return; }
-  const { error } = await sb.from('visitas').insert({
-    user_id: currentUser.id,
-    cliente_id: cid,
-    tipo: document.getElementById('v-tipo').value,
-    data: document.getElementById('v-data').value,
-    notas: document.getElementById('v-notas').value.trim(),
-  });
-  if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
-  closeModal('modal-visita');
-  showToast('Visita registrada!', 'success');
-  document.getElementById('v-notas').value = '';
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function fmtDate(d){if(!d)return'—';return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'});}
+function fmtDateLong(d){if(!d)return'—';return new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric'});}
+function esc(obj){return JSON.stringify(obj).replace(/"/g,'&quot;');}
+function statusBadge(s){
+  const m={novo:'badge-muted',qualificado:'badge-brand',negociacao:'badge-warning',ganho:'badge-success',perdido:'badge-danger'};
+  const l={novo:'Novo',qualificado:'Qualificado',negociacao:'Negociação',ganho:'Ganho',perdido:'Perdido'};
+  return`<span class="badge ${m[s]||'badge-muted'}">${l[s]||s||'—'}</span>`;
 }
-
-// ─── UTILS ────────────────────────────────────────────────────────────
-function fmtDate(d) {
-  if (!d) return '—';
-  const dt = new Date(d);
-  return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+function showToast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
 }
-
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-// ─── TEMAS ────────────────────────────────────────────────────────────
-const themes = {
-  'theme-braavos':  { name:'raavos', tagline:'Sales Intelligence', role:'vendedor · braavos' },
-  'theme-techwave': { name:'echWave', tagline:'Portal de Vendas', role:'vendedor · techwave' },
-  'theme-logistica':{ name:'ogExpress', tagline:'Força de Vendas', role:'vendedor · logexpress' },
-  'theme-fintech':  { name:'inCore', tagline:'Sales Platform', role:'vendedor · fincore' },
-  'theme-saude':    { name:'aúdePro', tagline:'Gestão Comercial', role:'vendedor · saúdepro' },
-};
-function setTheme(btn) {
-  const theme = btn.dataset.theme;
-  Object.keys(themes).forEach(t => document.body.classList.remove(t));
-  document.body.classList.add(theme);
-  document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  const t = themes[theme];
-  document.getElementById('brand-name-sidebar').textContent = t.name;
-  document.getElementById('brand-tagline').textContent = t.tagline;
-  document.getElementById('brand-role-label').textContent = t.role;
-}
-
-// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────
-function setPage(page, navEl) {
-  document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
-  const target = document.getElementById('page-' + page);
-  if (target) {
-    target.style.display = 'block';
-    target.style.animation = 'none';
-    target.offsetHeight;
-    target.style.animation = 'pageIn 0.3s ease forwards';
-  }
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-  if (navEl) navEl.classList.add('active');
-}
-
-// Fechar modal ao clicar fora
-document.querySelectorAll('.modal-overlay').forEach(overlay => {
-  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
-});
 </script>
 </body>
 </html>
