@@ -212,6 +212,73 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 @keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
 .empty-state{text-align:center;padding:48px;color:var(--b-text-muted);font-size:13px}
 .empty-state-icon{font-size:32px;margin-bottom:12px}
+
+/* BADGE COUNTER */
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;border-radius:99px;background:var(--b-danger);color:#fff;font-size:10px;font-family:var(--font-mono);font-weight:700;padding:0 5px;margin-left:auto;animation:badgePop 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+@keyframes badgePop{from{transform:scale(0)}to{transform:scale(1)}}
+.nav-badge.hidden{display:none}
+
+/* ALERT CARDS */
+.alert-group-title{font-family:var(--font-display);font-size:22px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:10px}
+.alert-card{display:flex;gap:14px;padding:16px;border-radius:var(--radius-sm);border:1px solid var(--b-border);background:var(--b-surface);margin-bottom:10px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden}
+.alert-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--alert-color)}
+.alert-card:hover{border-color:var(--alert-color);transform:translateX(3px)}
+.alert-card.lido{opacity:0.45}
+.alert-card.lido:hover{opacity:0.7}
+.alert-icon-wrap{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;background:color-mix(in srgb,var(--alert-color) 12%,transparent);border:1px solid color-mix(in srgb,var(--alert-color) 30%,transparent)}
+.alert-body{flex:1;min-width:0}
+.alert-titulo{font-size:14px;font-weight:500;margin-bottom:3px}
+.alert-msg{font-size:12px;color:var(--b-text-muted);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.alert-footer{display:flex;align-items:center;justify-content:space-between;margin-top:8px}
+.alert-time{font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted)}
+.alert-unread-dot{width:7px;height:7px;border-radius:50%;background:var(--alert-color);flex-shrink:0;animation:pulse 1.5s ease-in-out infinite}
+
+/* ALERT TIPOS */
+.alert-pedido_fechado{--alert-color:#4fc87a}
+.alert-follow_up{--alert-color:#f0a050}
+.alert-atendimento_humano{--alert-color:#f05050}
+.alert-orcamento_pendente{--alert-color:#0ea5e9}
+.alert-outros{--alert-color:#a855f7}
+
+/* HAMBURGER / MOBILE TOPBAR */
+.mobile-topbar{display:none;position:fixed;top:0;left:0;right:0;height:56px;background:rgba(10,10,15,0.95);backdrop-filter:var(--blur-3);border-bottom:1px solid var(--b-border);z-index:20;align-items:center;padding:0 16px;gap:12px}
+.hamburger{background:none;border:none;color:var(--b-text);cursor:pointer;padding:8px;display:flex;flex-direction:column;gap:5px;flex-shrink:0}
+.hamburger span{display:block;width:22px;height:2px;background:var(--b-text);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-logo{font-family:var(--font-display);font-size:24px;letter-spacing:0.1em;text-transform:uppercase;flex:1}
+.mobile-logo .mg{color:var(--b-gold)}.mobile-logo .mr{color:var(--brand)}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9;backdrop-filter:blur(2px)}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .mobile-topbar{display:flex}
+  .sidebar{transform:translateX(-100%);transition:transform 0.3s cubic-bezier(0.4,0,0.2,1);top:0;z-index:15}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{display:block;opacity:0;pointer-events:none;transition:opacity 0.3s}
+  .sidebar-overlay.open{opacity:1;pointer-events:all}
+  .main{margin-left:0;padding:80px 16px 24px;overflow-y:auto}
+  .app{height:auto;min-height:100vh;overflow:visible}
+  html,body{overflow:auto}
+  .grid-4{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr}
+  .grid-2{grid-template-columns:1fr}
+  .funil-wrap{grid-template-columns:repeat(3,1fr)}
+  .funil-stage:nth-child(4),.funil-stage:nth-child(5){grid-column:span 1}
+  .page-title{font-size:32px}
+  .detail-panel{width:100%;border-left:none;border-top:1px solid var(--b-border)}
+  .modal{width:calc(100vw - 32px);padding:24px}
+  .form-row{grid-template-columns:1fr}
+  .filter-bar{gap:6px}
+  .filter-search{max-width:100%;min-width:0;width:100%}
+  .lead-meta{display:none}
+}
+@media(max-width:480px){
+  .grid-4{grid-template-columns:1fr}
+  .grid-3{grid-template-columns:1fr}
+  .funil-wrap{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body class="theme-braavos">
@@ -231,10 +298,20 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   </div>
 </div>
 
+<!-- MOBILE TOPBAR -->
+<div class="mobile-topbar">
+  <button class="hamburger" id="hamburger" onclick="toggleSidebar()">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="mobile-logo"><span class="mg">B</span><span class="mr" id="mobile-brand-r">raavos</span></div>
+  <span id="mobile-alert-badge" class="nav-badge hidden">0</span>
+</div>
+<div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
 <!-- APP -->
 <div class="app">
   <div class="orb orb-1"></div><div class="orb orb-2"></div>
-  <div class="sidebar">
+  <div class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <div><span class="sg">B</span><span class="sr" id="brand-name-sidebar">raavos</span></div>
       <small id="brand-tagline">Sales Intelligence</small>
@@ -243,6 +320,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-item" onclick="setPage('leads',this)"><span class="nav-icon">◈</span> Leads</div>
     <div class="nav-item" onclick="setPage('clientes',this)"><span class="nav-icon">◉</span> Clientes</div>
     <div class="nav-item" onclick="setPage('visitas',this)"><span class="nav-icon">◎</span> Visitas</div>
+    <div class="nav-item" id="nav-alertas" onclick="setPage('alertas',this)">
+      <span class="nav-icon">🔔</span> Alertas
+      <span class="nav-badge hidden" id="alertas-badge">0</span>
+    </div>
     <div class="nav-spacer"></div>
     <div style="padding:0 12px">
       <div class="sidebar-user">
@@ -327,6 +408,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button class="btn btn-brand btn-sm" onclick="openModal('modal-visita')">+ Nova Visita</button>
       </div>
       <div class="card" id="visitas-list"><div class="empty-state"><div class="loading-dot"></div></div></div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="page-alertas" class="page" style="display:none">
+      <div class="page-header">
+        <div class="page-eyebrow">Notificações</div>
+        <div class="page-title">Alertas</div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:20px">
+        <button class="btn btn-ghost btn-sm" onclick="marcarTodosLidos()">✓ Marcar todos como lidos</button>
+      </div>
+      <div class="alert-group-title">🎉 <span>Pedidos Fechados</span></div>
+      <div id="alertas-fechados"><div class="empty-state" style="padding:24px"><div class="loading-dot"></div></div></div>
+      <div class="alert-group-title" style="margin-top:28px">⚠️ <span>Atenção</span></div>
+      <div id="alertas-atencao"><div class="empty-state" style="padding:24px"><div class="loading-dot"></div></div></div>
     </div>
   </div>
 </div>
@@ -815,3 +911,131 @@ function showToast(msg,type='success'){
 </script>
 </body>
 </html>
+<script>
+// ── ALERTAS ───────────────────────────────────────────────────────────────
+const TIPOS_FECHADO=['pedido_fechado'];
+const TIPOS_ATENCAO=['follow_up','atendimento_humano','orcamento_pendente','outros'];
+const ICONES_TIPO={pedido_fechado:'🎉',follow_up:'🔄',atendimento_humano:'🙋',orcamento_pendente:'📋',outros:'📌'};
+const LABELS_TIPO={pedido_fechado:'Pedido Fechado',follow_up:'Follow Up',atendimento_humano:'Atendimento Humano',orcamento_pendente:'Orçamento Pendente',outros:'Atenção'};
+
+async function loadAlertas(){
+  if(!currentProfile?.vendedor_id) return;
+  const {data}=await sb.from('alertas').select('*').eq('vendedor_id',currentProfile.vendedor_id).order('criado_em',{ascending:false}).limit(60);
+  const alertas=data||[];
+  const naolidos=alertas.filter(a=>!a.lido).length;
+  atualizarBadge(naolidos);
+  renderGrupoAlertas('alertas-fechados',alertas.filter(a=>TIPOS_FECHADO.includes(a.tipo)));
+  renderGrupoAlertas('alertas-atencao',alertas.filter(a=>!TIPOS_FECHADO.includes(a.tipo)));
+}
+
+function renderGrupoAlertas(elId,alertas){
+  const el=document.getElementById(elId);if(!el)return;
+  if(!alertas.length){el.innerHTML='<div style="padding:16px;color:var(--b-text-muted);font-size:13px">Nenhum alerta nesta categoria.</div>';return;}
+  el.innerHTML=alertas.map(a=>`
+    <div class="alert-card alert-${a.tipo||'outros'} ${a.lido?'lido':''}" onclick="marcarLido('${a.alerta_id}',this)">
+      <div class="alert-icon-wrap">${ICONES_TIPO[a.tipo]||'📌'}</div>
+      <div class="alert-body">
+        <div class="alert-titulo">${a.titulo||LABELS_TIPO[a.tipo]||'Alerta'}</div>
+        <div class="alert-msg">${a.mensagem||'—'}</div>
+        <div class="alert-footer">
+          <span class="alert-time">${fmtTimeAgo(a.criado_em)}</span>
+          ${!a.lido?'<span class="alert-unread-dot"></span>':''}
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+async function marcarLido(alertaId,cardEl){
+  if(cardEl.classList.contains('lido'))return;
+  cardEl.classList.add('lido');cardEl.querySelector('.alert-unread-dot')?.remove();
+  await sb.from('alertas').update({lido:true}).eq('alerta_id',alertaId);
+  const {count}=await sb.from('alertas').select('*',{count:'exact',head:true}).eq('vendedor_id',currentProfile.vendedor_id).eq('lido',false);
+  atualizarBadge(count||0);
+}
+
+async function marcarTodosLidos(){
+  if(!currentProfile?.vendedor_id)return;
+  await sb.from('alertas').update({lido:true}).eq('vendedor_id',currentProfile.vendedor_id).eq('lido',false);
+  showToast('Todos marcados como lidos','success');loadAlertas();
+}
+
+function atualizarBadge(count){
+  ['alertas-badge','mobile-alert-badge'].forEach(id=>{
+    const b=document.getElementById(id);if(!b)return;
+    if(count>0){b.textContent=count>99?'99+':count;b.classList.remove('hidden');}
+    else b.classList.add('hidden');
+  });
+}
+
+function fmtTimeAgo(d){
+  if(!d)return'—';
+  const diff=Date.now()-new Date(d).getTime();
+  const mins=Math.floor(diff/60000);
+  if(mins<1)return'agora';if(mins<60)return`${mins}min atrás`;
+  const hrs=Math.floor(mins/60);if(hrs<24)return`${hrs}h atrás`;
+  const days=Math.floor(hrs/24);if(days<7)return`${days}d atrás`;
+  return fmtDate(d);
+}
+
+// ── SOM ───────────────────────────────────────────────────────────────────
+function tocarSomAlerta(){
+  try{
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    [523,659,784].forEach((freq,i)=>{
+      const osc=ctx.createOscillator(),gain=ctx.createGain();
+      osc.connect(gain);gain.connect(ctx.destination);
+      osc.frequency.value=freq;osc.type='sine';
+      gain.gain.setValueAtTime(0,ctx.currentTime+i*0.12);
+      gain.gain.linearRampToValueAtTime(0.3,ctx.currentTime+i*0.12+0.05);
+      gain.gain.linearRampToValueAtTime(0,ctx.currentTime+i*0.12+0.25);
+      osc.start(ctx.currentTime+i*0.12);osc.stop(ctx.currentTime+i*0.12+0.3);
+    });
+  }catch(e){}
+}
+
+// ── PUSH ──────────────────────────────────────────────────────────────────
+function pedirPermissaoPush(){if('Notification' in window&&Notification.permission==='default')Notification.requestPermission();}
+function enviarPush(titulo,msg){if('Notification' in window&&Notification.permission==='granted')new Notification(titulo,{body:msg});}
+
+// ── MOBILE SIDEBAR ────────────────────────────────────────────────────────
+function toggleSidebar(){
+  const s=document.getElementById('sidebar'),o=document.getElementById('sidebar-overlay'),h=document.getElementById('hamburger');
+  s.classList.toggle('open');o.classList.toggle('open');h.classList.toggle('open');
+}
+
+// ── PATCH SETPAGE: fechar sidebar mobile + carregar alertas ───────────────
+const _origSetPage=setPage;
+setPage=function(page,navEl){
+  _origSetPage(page,navEl);
+  const s=document.getElementById('sidebar');
+  if(s?.classList.contains('open')){
+    s.classList.remove('open');
+    document.getElementById('sidebar-overlay')?.classList.remove('open');
+    document.getElementById('hamburger')?.classList.remove('open');
+  }
+  if(page==='alertas')loadAlertas();
+};
+
+// ── REALTIME ALERTAS ──────────────────────────────────────────────────────
+function setupRealtimeAlertas(){
+  if(!currentProfile?.vendedor_id)return;
+  sb.channel('rt-alertas')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'alertas',filter:`vendedor_id=eq.${currentProfile.vendedor_id}`},
+      payload=>{
+        tocarSomAlerta();
+        enviarPush(payload.new.titulo||'Novo Alerta',payload.new.mensagem||'');
+        showToast('🔔 '+(payload.new.titulo||'Novo alerta'),'success');
+        loadAlertas();
+      })
+    .subscribe();
+}
+
+// ── PATCH onLogin ─────────────────────────────────────────────────────────
+const _baseOnLogin=onLogin;
+onLogin=async function(user){
+  await _baseOnLogin(user);
+  pedirPermissaoPush();
+  await loadAlertas();
+  setupRealtimeAlertas();
+};
+</script>
