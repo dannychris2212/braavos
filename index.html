@@ -1102,7 +1102,7 @@ async function salvarLead(){
   if(prox)payload.proximo_contato=prox;
   console.log('Inserindo lead:',payload);
   // insert sem .select() para evitar conflito com nome da PK
-  const {error}=await sb.from('leads').insert(payload);
+  const {error}=await sb.from('leads').insert(payload,{returning:'minimal'});
   if(error){console.error('Erro lead:',error);showToast('Erro: '+error.message,'er');return;}
   // Se marcou cliente, busca o lead recém criado pelo vendedor_id + nome
   let leadId=null;
