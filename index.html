@@ -320,11 +320,27 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-item" onclick="setPage('leads',this)"><span class="nav-icon">◈</span> Leads</div>
     <div class="nav-item" onclick="setPage('clientes',this)"><span class="nav-icon">◉</span> Clientes</div>
     <div class="nav-item" onclick="setPage('visitas',this)"><span class="nav-icon">◎</span> Visitas</div>
-    <div class="nav-item" onclick="setPage('equipe',this)"><span class="nav-icon">👥</span> Equipe</div>
+   <div class="nav-item" onclick="setPage('equipe',this)">
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+      <rect x="3" y="3" width="7" height="7"/>
+      <rect x="14" y="3" width="7" height="7"/>
+      <rect x="3" y="14" width="7" height="7"/>
+      <rect x="14" y="14" width="7" height="7"/>
+    </svg>
+  </span> 
+  Equipe
+</div>
     <div class="nav-item" id="nav-alertas" onclick="setPage('alertas',this)">
-      <span class="nav-icon">🔔</span> Alertas
-      <span class="nav-badge hidden" id="alertas-badge">0</span>
-    </div>
+  <span class="nav-icon">
+    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8">
+      <path d="M6 8a6 6 0 1 1 12 0c0 7 3 7 3 7H3s3 0 3-7"/>
+      <path d="M10 21a2 2 0 0 0 4 0"/>
+    </svg>
+  </span>
+  Alertas
+  <span class="nav-badge hidden" id="alertas-badge">0</span>
+</div>
     <div class="nav-spacer"></div>
     <div style="padding:0 12px">
       <div class="sidebar-user">
@@ -411,6 +427,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="card" id="visitas-list"><div class="empty-state"><div class="loading-dot"></div></div></div>
     </div>
 
+    <!-- PEDIDOS -->
+<div id="page-pedidos" class="page" style="display:none">
+  <div class="page-header">
+    <div class="page-eyebrow">Comercial</div>
+    <div class="page-title">Pedidos</div>
+  </div>
+
+  <div class="card" id="pedidos-list">
+    <div class="empty-state">
+      <div class="empty-state-icon">⬢</div>
+      Nenhum pedido ainda.
+    </div>
+  </div>
+</div>
+
     <!-- EQUIPE -->
     <div id="page-equipe" class="page" style="display:none">
       <div class="page-header">
@@ -428,6 +459,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="card" id="eq-ranking-visitas" style="margin-bottom:16px"><div class="empty-state"><div class="loading-dot"></div></div></div>
       <div class="section-head"><div class="section-head-title">Vendedores</div></div>
       <div class="grid-2" id="eq-vendedores-grid"><div class="empty-state" style="grid-column:1/-1"><div class="loading-dot"></div></div></div>
+      <div class="section-head" style="margin-top:28px">
+  <div class="section-head-title">Metas da Equipe</div>
+</div>
+
+<div class="card" id="metas-equipe">
+  <div class="empty-state">
+    <div class="empty-state-icon">◈</div>
+    Metas ainda não configuradas.
+  </div>
     </div>
 
     <!-- ALERTAS -->
