@@ -6,10 +6,10 @@
 <title>Braavos — White Label Demo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-/* BASE BRAAVOS — nunca muda */
 :root{
   --b-obsidian:#0a0a0f;
   --b-void:#0f0f1a;
@@ -33,203 +33,142 @@
   --radius:16px;
   --radius-sm:10px;
   --radius-lg:24px;
-
-  /* BRAND — substituído por empresa */
   --brand:#c9a84c;
   --brand-dim:rgba(201,168,76,0.12);
   --brand-bg:#0a0a0f;
   --brand-bg-2:#0f0f1a;
-  --brand-name:"Braavos";
 }
 
-/* TEMAS DAS EMPRESAS */
-.theme-braavos{
-  --brand:#c9a84c;
-  --brand-dim:rgba(201,168,76,0.12);
-  --brand-bg:#0a0a0f;
-  --brand-bg-2:#0f0f1a;
-  --brand-name:"Braavos";
-}
-.theme-techwave{
-  --brand:#0ea5e9;
-  --brand-dim:rgba(14,165,233,0.12);
-  --brand-bg:#070d14;
-  --brand-bg-2:#0a1520;
-  --brand-name:"TechWave";
-}
-.theme-logistica{
-  --brand:#f97316;
-  --brand-dim:rgba(249,115,22,0.12);
-  --brand-bg:#0f0a06;
-  --brand-bg-2:#1a1008;
-  --brand-name:"LogExpress";
-}
-.theme-fintech{
-  --brand:#10b981;
-  --brand-dim:rgba(16,185,129,0.12);
-  --brand-bg:#060f0a;
-  --brand-bg-2:#081a10;
-  --brand-name:"FinCore";
-}
-.theme-saude{
-  --brand:#a855f7;
-  --brand-dim:rgba(168,85,247,0.12);
-  --brand-bg:#0c0714;
-  --brand-bg-2:#130d1f;
-  --brand-name:"SaúdePro";
-}
+.theme-braavos{--brand:#c9a84c;--brand-dim:rgba(201,168,76,0.12);--brand-bg:#0a0a0f;--brand-bg-2:#0f0f1a}
+.theme-techwave{--brand:#0ea5e9;--brand-dim:rgba(14,165,233,0.12);--brand-bg:#070d14;--brand-bg-2:#0a1520}
+.theme-logistica{--brand:#f97316;--brand-dim:rgba(249,115,22,0.12);--brand-bg:#0f0a06;--brand-bg-2:#1a1008}
+.theme-fintech{--brand:#10b981;--brand-dim:rgba(16,185,129,0.12);--brand-bg:#060f0a;--brand-bg-2:#081a10}
+.theme-saude{--brand:#a855f7;--brand-dim:rgba(168,85,247,0.12);--brand-bg:#0c0714;--brand-bg-2:#130d1f}
 
 html,body{height:100%;overflow:hidden}
-body{
-  font-family:var(--font-body);
-  color:var(--b-text);
+body{font-family:var(--font-body);color:var(--b-text);background:var(--brand-bg);transition:background 0.6s ease}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.5}
+
+/* LOGIN */
+#login-screen{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
   background:var(--brand-bg);
-  transition:background 0.6s ease;
+  z-index:500;
+  transition:opacity 0.4s ease;
+}
+#login-screen.hidden{opacity:0;pointer-events:none}
+.login-box{
+  width:380px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--b-border);
+  border-radius:var(--radius-lg);
+  padding:40px;
+  backdrop-filter:var(--blur-2);
+  -webkit-backdrop-filter:var(--blur-2);
+  position:relative;
+  overflow:hidden;
+}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent)}
+.login-logo{
+  font-family:var(--font-display);
+  font-size:42px;letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:6px;
+}
+.login-logo span{color:var(--brand)}
+.login-sub{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--b-text-muted);text-transform:uppercase;margin-bottom:32px}
+.login-label{font-size:12px;color:var(--b-text-muted);margin-bottom:6px;font-family:var(--font-mono);letter-spacing:0.05em;text-transform:uppercase}
+.login-input{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--b-border);
+  border-radius:var(--radius-sm);
+  color:var(--b-text);font-family:var(--font-body);font-size:14px;
+  outline:none;transition:border-color 0.2s;margin-bottom:16px;
+}
+.login-input:focus{border-color:var(--brand)}
+.login-input::placeholder{color:var(--b-text-muted)}
+.login-btn{
+  width:100%;padding:12px;
+  background:var(--brand);color:#fff;
+  border:none;border-radius:99px;
+  font-family:var(--font-body);font-size:14px;font-weight:600;
+  cursor:pointer;transition:opacity 0.2s;margin-top:4px;
+  letter-spacing:0.05em;
+}
+.login-btn:hover{opacity:0.88}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed}
+.login-error{
+  font-size:12px;color:var(--b-danger);
+  font-family:var(--font-mono);text-align:center;
+  margin-top:12px;min-height:16px;
 }
 
-/* NOISE */
-body::before{
-  content:'';position:fixed;inset:0;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  pointer-events:none;z-index:999;opacity:0.5;
-}
-
-/* LAYOUT */
-.app{display:flex;height:100vh;overflow:hidden;position:relative}
-
-/* ORBS */
-.orb{
-  position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;
-  transition:background 0.8s ease;
-}
-.orb-1{
-  width:500px;height:500px;top:-150px;left:-100px;
-  background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);
-  animation:orb1 14s ease-in-out infinite alternate;
-}
-.orb-2{
-  width:400px;height:400px;bottom:-100px;right:-80px;
-  background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);
-  animation:orb2 18s ease-in-out infinite alternate;
-}
+/* APP */
+.app{display:flex;height:100vh;overflow:hidden;position:relative;padding-top:52px}
+.orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;transition:background 0.8s ease}
+.orb-1{width:500px;height:500px;top:-150px;left:-100px;background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);animation:orb1 14s ease-in-out infinite alternate}
+.orb-2{width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle,var(--brand-dim) 0%,transparent 70%);animation:orb2 18s ease-in-out infinite alternate}
 @keyframes orb1{from{transform:translate(0,0)}to{transform:translate(50px,30px)}}
 @keyframes orb2{from{transform:translate(0,0)}to{transform:translate(-40px,-50px)}}
 
+/* THEME SWITCHER */
+.theme-switcher{
+  position:fixed;top:0;left:0;right:0;height:52px;
+  background:rgba(10,10,15,0.85);backdrop-filter:var(--blur-3);-webkit-backdrop-filter:var(--blur-3);
+  border-bottom:1px solid var(--b-border);
+  display:flex;align-items:center;padding:0 24px;gap:12px;z-index:100;
+}
+.switcher-label{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--b-text-muted);text-transform:uppercase;margin-right:4px;white-space:nowrap}
+.theme-btn{display:flex;align-items:center;gap:8px;padding:6px 14px;border-radius:99px;border:1px solid var(--b-border);background:var(--b-surface);color:var(--b-text-muted);cursor:pointer;font-size:12px;font-family:var(--font-body);transition:all 0.2s;white-space:nowrap}
+.theme-btn:hover{border-color:var(--b-border-strong);color:var(--b-text)}
+.theme-btn.active{border-color:var(--brand);color:var(--brand);background:var(--brand-dim)}
+.theme-btn .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.switcher-right{margin-left:auto;display:flex;align-items:center;gap:12px}
+.logout-btn{font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted);letter-spacing:0.1em;cursor:pointer;padding:5px 10px;border:1px solid var(--b-border);border-radius:99px;background:transparent;transition:all 0.2s}
+.logout-btn:hover{color:var(--b-danger);border-color:var(--b-danger)}
+
 /* SIDEBAR */
 .sidebar{
-  width:220px;
-  height:100vh;
+  width:220px;height:calc(100vh - 52px);
   background:rgba(255,255,255,0.025);
   border-right:1px solid var(--b-border);
-  backdrop-filter:var(--blur-2);
-  -webkit-backdrop-filter:var(--blur-2);
-  display:flex;
-  flex-direction:column;
-  padding:28px 0;
-  flex-shrink:0;
-  position:relative;
-  z-index:10;
-  transition:background 0.6s;
+  backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);
+  display:flex;flex-direction:column;padding:28px 0;
+  flex-shrink:0;position:fixed;left:0;top:52px;
+  z-index:10;transition:background 0.6s;
 }
-.sidebar-logo{
-  padding:0 24px 28px;
-  font-family:var(--font-display);
-  font-size:32px;
-  font-weight:400;
-  letter-spacing:0.1em;
-  text-transform:uppercase;
-  border-bottom:1px solid var(--b-border);
-  margin-bottom:12px;
-}
+.sidebar-logo{padding:0 24px 28px;font-family:var(--font-display);font-size:32px;font-weight:400;letter-spacing:0.1em;text-transform:uppercase;border-bottom:1px solid var(--b-border);margin-bottom:12px}
 .sidebar-logo .b-gold{color:var(--b-gold)}
 .sidebar-logo .brand-color{color:var(--brand);transition:color 0.5s}
-.sidebar-logo small{
-  display:block;
-  font-family:var(--font-mono);
-  font-size:9px;
-  letter-spacing:0.15em;
-  color:var(--b-text-muted);
-  text-transform:uppercase;
-  margin-top:4px;
-}
-.nav-item{
-  display:flex;align-items:center;gap:12px;
-  padding:11px 24px;
-  color:var(--b-text-muted);
-  cursor:pointer;
-  font-size:14px;font-weight:400;
-  border-left:2px solid transparent;
-  transition:all 0.2s;
-  user-select:none;
-}
+.sidebar-logo small{display:block;font-family:var(--font-mono);font-size:9px;letter-spacing:0.15em;color:var(--b-text-muted);text-transform:uppercase;margin-top:4px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;color:var(--b-text-muted);cursor:pointer;font-size:14px;font-weight:400;border-left:2px solid transparent;transition:all 0.2s;user-select:none}
 .nav-item:hover{color:var(--b-text);background:rgba(255,255,255,0.03)}
-.nav-item.active{
-  color:var(--b-text);
-  background:rgba(255,255,255,0.05);
-  border-left-color:var(--brand);
-  font-weight:500;
-}
+.nav-item.active{color:var(--b-text);background:rgba(255,255,255,0.05);border-left-color:var(--brand);font-weight:500}
 .nav-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
 .nav-spacer{flex:1}
-.sidebar-user{
-  margin:0 12px;
-  padding:14px;
-  background:var(--b-surface);
-  border:1px solid var(--b-border);
-  border-radius:var(--radius-sm);
-}
+.sidebar-user{margin:0 12px;padding:14px;background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius-sm)}
 .sidebar-user-name{font-size:13px;font-weight:500;margin-bottom:2px}
 .sidebar-user-role{font-family:var(--font-mono);font-size:10px;color:var(--brand);letter-spacing:0.1em;text-transform:uppercase;transition:color 0.5s}
 
 /* MAIN */
-.main{
-  flex:1;
-  overflow-y:auto;
-  padding:32px 28px;
-  position:relative;
-  z-index:1;
-}
+.main{flex:1;overflow-y:auto;padding:32px 28px;position:relative;z-index:1;margin-left:220px}
 ::-webkit-scrollbar{width:4px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--b-border);border-radius:2px}
 
 /* PAGE HEADER */
 .page-header{margin-bottom:28px}
-.page-eyebrow{
-  font-family:var(--font-mono);font-size:10px;
-  letter-spacing:0.2em;color:var(--brand);
-  text-transform:uppercase;margin-bottom:6px;
-  transition:color 0.5s;
-}
-.page-title{
-  font-family:var(--font-display);
-  font-size:44px;font-weight:400;
-  letter-spacing:0.08em;
-  text-transform:uppercase;
-  line-height:1;
-}
+.page-eyebrow{font-family:var(--font-mono);font-size:10px;letter-spacing:0.2em;color:var(--brand);text-transform:uppercase;margin-bottom:6px;transition:color 0.5s}
+.page-title{font-family:var(--font-display);font-size:44px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase;line-height:1}
 
 /* CARDS */
-.card{
-  background:var(--b-surface);
-  border:1px solid var(--b-border);
-  border-radius:var(--radius);
-  backdrop-filter:var(--blur-2);
-  -webkit-backdrop-filter:var(--blur-2);
-  padding:22px;
-  transition:border-color 0.2s, transform 0.15s, background 0.6s;
-  position:relative;
-  overflow:hidden;
-}
-.card::before{
-  content:'';
-  position:absolute;
-  top:0;left:0;right:0;height:1px;
-  background:linear-gradient(to right,transparent,rgba(255,255,255,0.08),transparent);
-}
+.card{background:var(--b-surface);border:1px solid var(--b-border);border-radius:var(--radius);backdrop-filter:var(--blur-2);-webkit-backdrop-filter:var(--blur-2);padding:22px;transition:border-color 0.2s, transform 0.15s, background 0.6s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.08),transparent)}
 .card:hover{border-color:var(--b-border-strong)}
 .card.clickable{cursor:pointer}
 .card.clickable:hover{transform:translateY(-2px);border-color:var(--brand)}
+.card-shine::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);pointer-events:none;border-radius:var(--radius)}
 
 /* GRID */
 .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:16px}
@@ -237,13 +176,7 @@ body::before{
 
 /* METRIC */
 .metric-label{font-size:12px;color:var(--b-text-muted);margin-bottom:10px;font-family:var(--font-mono);letter-spacing:0.05em;text-transform:uppercase}
-.metric-value{
-  font-family:var(--font-display);
-  font-size:48px;font-weight:400;
-  line-height:1;letter-spacing:0.05em;
-  text-transform:uppercase;
-  margin-bottom:6px;
-}
+.metric-value{font-family:var(--font-display);font-size:48px;font-weight:400;line-height:1;letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px}
 .metric-sub{font-size:12px;color:var(--b-text-muted)}
 
 /* PROGRESS */
@@ -251,44 +184,30 @@ body::before{
 .progress-header{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12px}
 .progress-label{color:var(--b-text-muted)}
 .progress-pct{font-weight:600;font-family:var(--font-mono)}
-.progress-track{
-  height:6px;border-radius:99px;
-  background:rgba(255,255,255,0.06);
-  overflow:hidden;
-}
-.progress-fill{
-  height:100%;border-radius:99px;
-  background:var(--brand);
-  transition:width 1s cubic-bezier(0.4,0,0.2,1), background 0.5s;
-}
+.progress-track{height:6px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden}
+.progress-fill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s cubic-bezier(0.4,0,0.2,1), background 0.5s}
 
 /* BADGE */
-.badge{
-  display:inline-flex;align-items:center;
-  padding:3px 10px;border-radius:99px;
-  font-size:11px;font-weight:500;
-  font-family:var(--font-mono);letter-spacing:0.06em;
-  text-transform:uppercase;
-  transition:background 0.5s, border-color 0.5s, color 0.5s;
-}
+.badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:11px;font-weight:500;font-family:var(--font-mono);letter-spacing:0.06em;text-transform:uppercase;transition:background 0.5s, border-color 0.5s, color 0.5s}
 .badge-brand{background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)}
 .badge-success{background:rgba(79,200,122,0.12);border:1px solid rgba(79,200,122,0.3);color:var(--b-success)}
 .badge-warning{background:rgba(240,160,80,0.12);border:1px solid rgba(240,160,80,0.3);color:var(--b-warning)}
 .badge-muted{background:rgba(255,255,255,0.05);border:1px solid var(--b-border);color:var(--b-text-muted)}
+.badge-danger{background:rgba(240,80,80,0.12);border:1px solid rgba(240,80,80,0.3);color:var(--b-danger)}
+
+/* VISIT ROW */
+.visit-row{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border)}
+.visit-row:last-child{border:none;padding-bottom:0}
+.visit-icon{width:38px;height:38px;border-radius:10px;background:var(--b-surface-2);border:1px solid var(--b-border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.visit-meta{flex:1;min-width:0}
+.visit-client{font-size:14px;font-weight:500;margin-bottom:3px}
+.visit-text{font-size:12px;color:var(--b-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.visit-date{font-family:var(--font-mono);font-size:11px;color:var(--b-text-muted);flex-shrink:0}
 
 /* VENDOR ROW */
-.vendor-row{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 0;
-  border-bottom:1px solid var(--b-border);
-}
+.vendor-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border)}
 .vendor-row:last-child{border:none;padding-bottom:0}
-.vendor-rank{
-  width:28px;height:28px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-mono);font-size:12px;font-weight:500;
-  flex-shrink:0;
-}
+.vendor-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;flex-shrink:0}
 .vendor-rank.top{background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)}
 .vendor-rank.other{background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)}
 .vendor-info{flex:1;min-width:0}
@@ -298,148 +217,107 @@ body::before{
 .vendor-bar-fill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s ease, background 0.5s}
 .vendor-pct{font-family:var(--font-mono);font-size:12px;font-weight:500;width:36px;text-align:right;flex-shrink:0}
 
-/* VISIT ROW */
-.visit-row{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--b-border)}
-.visit-row:last-child{border:none;padding-bottom:0}
-.visit-icon{
-  width:38px;height:38px;border-radius:10px;
-  background:var(--b-surface-2);
-  border:1px solid var(--b-border);
-  display:flex;align-items:center;justify-content:center;
-  font-size:16px;flex-shrink:0;
-}
-.visit-meta{flex:1;min-width:0}
-.visit-client{font-size:14px;font-weight:500;margin-bottom:3px}
-.visit-text{font-size:12px;color:var(--b-text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.visit-date{font-family:var(--font-mono);font-size:11px;color:var(--b-text-muted);flex-shrink:0}
-
-/* THEME SWITCHER */
-.theme-switcher{
-  position:fixed;
-  top:0;left:0;right:0;
-  height:52px;
-  background:rgba(10,10,15,0.85);
-  backdrop-filter:var(--blur-3);
-  -webkit-backdrop-filter:var(--blur-3);
-  border-bottom:1px solid var(--b-border);
-  display:flex;align-items:center;
-  padding:0 24px;
-  gap:12px;
-  z-index:100;
-}
-.switcher-label{
-  font-family:var(--font-mono);font-size:10px;
-  letter-spacing:0.2em;color:var(--b-text-muted);
-  text-transform:uppercase;margin-right:4px;
-  white-space:nowrap;
-}
-.theme-btn{
-  display:flex;align-items:center;gap:8px;
-  padding:6px 14px;
-  border-radius:99px;
-  border:1px solid var(--b-border);
-  background:var(--b-surface);
-  color:var(--b-text-muted);
-  cursor:pointer;font-size:12px;
-  font-family:var(--font-body);
-  transition:all 0.2s;white-space:nowrap;
-}
-.theme-btn:hover{border-color:var(--b-border-strong);color:var(--b-text)}
-.theme-btn.active{
-  border-color:var(--brand);
-  color:var(--brand);
-  background:var(--brand-dim);
-}
-.theme-btn .dot{
-  width:8px;height:8px;border-radius:50%;flex-shrink:0;
-}
-.switcher-right{margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--b-text-muted);letter-spacing:0.1em}
-
-/* WITH TOP BAR */
-.app{padding-top:52px}
-.sidebar{height:calc(100vh - 52px);top:52px;position:fixed;left:0}
-.main{margin-left:220px}
-
 /* SECTION TITLE */
-.section-head{
-  display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:16px;
-}
-.section-head-title{
-  font-family:var(--font-display);
-  font-size:24px;font-weight:400;
-  letter-spacing:0.08em;text-transform:uppercase;
-}
-.section-head-link{
-  font-size:12px;color:var(--brand);
-  font-family:var(--font-mono);cursor:pointer;
-  letter-spacing:0.05em;transition:color 0.5s;
-}
+.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-head-title{font-family:var(--font-display);font-size:24px;font-weight:400;letter-spacing:0.08em;text-transform:uppercase}
+.section-head-link{font-size:12px;color:var(--brand);font-family:var(--font-mono);cursor:pointer;letter-spacing:0.05em;transition:color 0.5s}
 
 /* BTN */
-.btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:9px 20px;border-radius:99px;
-  font-size:13px;font-weight:500;
-  cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-body);
-  border:none;
-}
-.btn-brand{
-  background:var(--brand);color:#fff;
-  transition:background 0.5s, opacity 0.2s;
-}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 20px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);border:none}
+.btn-brand{background:var(--brand);color:#fff;transition:background 0.5s, opacity 0.2s}
 .btn-brand:hover{opacity:0.88}
-.btn-ghost{
-  background:var(--b-surface);
-  border:1px solid var(--b-border);
-  color:var(--b-text-muted);
-}
+.btn-ghost{background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)}
 .btn-ghost:hover{color:var(--b-text);border-color:var(--b-border-strong)}
 
-/* PAGE TRANSITION */
+/* LOADING */
+.loading-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:0.3}50%{opacity:1}}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:40px;color:var(--b-text-muted);font-size:13px}
+.empty-state-icon{font-size:32px;margin-bottom:12px}
+
+/* MODAL */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.7);
+  backdrop-filter:blur(4px);z-index:200;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity 0.2s;
+}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{
+  width:460px;background:#0f0f1a;
+  border:1px solid var(--b-border-strong);border-radius:var(--radius-lg);
+  padding:32px;position:relative;
+  transform:translateY(10px);transition:transform 0.2s;
+}
+.modal-overlay.open .modal{transform:translateY(0)}
+.modal-title{font-family:var(--font-display);font-size:28px;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:20px}
+.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--b-text-muted);cursor:pointer;font-size:18px;transition:color 0.2s}
+.modal-close:hover{color:var(--b-text)}
+.form-group{margin-bottom:14px}
+.form-label{font-size:11px;font-family:var(--font-mono);letter-spacing:0.1em;text-transform:uppercase;color:var(--b-text-muted);margin-bottom:6px;display:block}
+.form-input,.form-select,.form-textarea{
+  width:100%;padding:10px 13px;
+  background:rgba(255,255,255,0.05);
+  border:1px solid var(--b-border);border-radius:var(--radius-sm);
+  color:var(--b-text);font-family:var(--font-body);font-size:13px;
+  outline:none;transition:border-color 0.2s;
+}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--brand)}
+.form-select{cursor:pointer}
+.form-select option{background:#0f0f1a}
+.form-textarea{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+
+/* TOAST */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:999;
+  background:rgba(15,15,26,0.95);border:1px solid var(--b-border);
+  border-radius:var(--radius-sm);padding:12px 18px;
+  font-size:13px;font-family:var(--font-mono);
+  transform:translateY(20px);opacity:0;
+  transition:all 0.3s;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{border-color:rgba(79,200,122,0.4);color:var(--b-success)}
+.toast.error{border-color:rgba(240,80,80,0.4);color:var(--b-danger)}
+
+/* PAGE */
 .page{animation:pageIn 0.3s ease forwards}
 @keyframes pageIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-
-/* CARD SHINE */
-.card-shine::after{
-  content:'';
-  position:absolute;
-  inset:0;
-  background:linear-gradient(135deg,rgba(255,255,255,0.03) 0%,transparent 60%);
-  pointer-events:none;
-  border-radius:var(--radius);
-}
 </style>
 </head>
 <body class="theme-braavos">
 
+<!-- LOGIN SCREEN -->
+<div id="login-screen">
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+  <div class="login-box">
+    <div class="login-logo"><span style="color:var(--b-gold)">B</span><span style="color:var(--brand)">raavos</span></div>
+    <div class="login-sub">Sales Intelligence · Login</div>
+    <div class="login-label">Email</div>
+    <input type="email" class="login-input" id="login-email" placeholder="seu@email.com" autocomplete="email"/>
+    <div class="login-label">Senha</div>
+    <input type="password" class="login-input" id="login-password" placeholder="••••••••" autocomplete="current-password"/>
+    <button class="login-btn" id="login-btn" onclick="doLogin()">Entrar</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
 <!-- THEME SWITCHER -->
 <div class="theme-switcher">
-  <span class="switcher-label">White Label Demo</span>
-
-  <button class="theme-btn active" data-theme="theme-braavos" onclick="setTheme(this)" style="--dot:#c9a84c">
-    <span class="dot" style="background:#c9a84c"></span>
-    Braavos
-  </button>
-  <button class="theme-btn" data-theme="theme-techwave" onclick="setTheme(this)">
-    <span class="dot" style="background:#0ea5e9"></span>
-    TechWave
-  </button>
-  <button class="theme-btn" data-theme="theme-logistica" onclick="setTheme(this)">
-    <span class="dot" style="background:#f97316"></span>
-    LogExpress
-  </button>
-  <button class="theme-btn" data-theme="theme-fintech" onclick="setTheme(this)">
-    <span class="dot" style="background:#10b981"></span>
-    FinCore
-  </button>
-  <button class="theme-btn" data-theme="theme-saude" onclick="setTheme(this)">
-    <span class="dot" style="background:#a855f7"></span>
-    SaúdePro
-  </button>
-
-  <span class="switcher-right">Estrutura Glass · Sempre Braavos</span>
+  <span class="switcher-label">White Label</span>
+  <button class="theme-btn active" data-theme="theme-braavos" onclick="setTheme(this)"><span class="dot" style="background:#c9a84c"></span>Braavos</button>
+  <button class="theme-btn" data-theme="theme-techwave" onclick="setTheme(this)"><span class="dot" style="background:#0ea5e9"></span>TechWave</button>
+  <button class="theme-btn" data-theme="theme-logistica" onclick="setTheme(this)"><span class="dot" style="background:#f97316"></span>LogExpress</button>
+  <button class="theme-btn" data-theme="theme-fintech" onclick="setTheme(this)"><span class="dot" style="background:#10b981"></span>FinCore</button>
+  <button class="theme-btn" data-theme="theme-saude" onclick="setTheme(this)"><span class="dot" style="background:#a855f7"></span>SaúdePro</button>
+  <div class="switcher-right">
+    <button class="logout-btn" onclick="doLogout()">↪ Sair</button>
+  </div>
 </div>
 
 <div class="app" id="app">
@@ -449,109 +327,54 @@ body::before{
   <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-logo">
-      <div>
-        <span class="b-gold">B</span><span class="brand-color" id="brand-name-sidebar">raavos</span>
-      </div>
+      <div><span class="b-gold">B</span><span class="brand-color" id="brand-name-sidebar">raavos</span></div>
       <small id="brand-tagline">Sales Intelligence</small>
     </div>
-
-    <div class="nav-item active" onclick="setPage('dashboard', this)">
-      <span class="nav-icon">⬡</span> Dashboard
-    </div>
-    <div class="nav-item" onclick="setPage('clientes', this)">
-      <span class="nav-icon">◈</span> Clientes
-    </div>
-    <div class="nav-item" onclick="setPage('visitas', this)">
-      <span class="nav-icon">◉</span> Visitas
-    </div>
-    <div class="nav-item" onclick="setPage('equipe', this)">
-      <span class="nav-icon">◎</span> Equipe
-    </div>
-
+    <div class="nav-item active" onclick="setPage('dashboard', this)"><span class="nav-icon">⬡</span> Dashboard</div>
+    <div class="nav-item" onclick="setPage('clientes', this)"><span class="nav-icon">◈</span> Clientes</div>
+    <div class="nav-item" onclick="setPage('visitas', this)"><span class="nav-icon">◉</span> Visitas</div>
+    <div class="nav-item" onclick="setPage('equipe', this)"><span class="nav-icon">◎</span> Equipe</div>
     <div class="nav-spacer"></div>
-
     <div style="padding:0 12px">
       <div class="sidebar-user">
-        <div class="sidebar-user-name">Ana Costa</div>
+        <div class="sidebar-user-name" id="sidebar-user-name">—</div>
         <div class="sidebar-user-role" id="brand-role-label">vendedor · braavos</div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN CONTENT -->
+  <!-- MAIN -->
   <div class="main" id="main-content">
+
     <!-- DASHBOARD -->
     <div id="page-dashboard" class="page">
       <div class="page-header">
-        <div class="page-eyebrow" id="page-eyebrow-dash">Fevereiro 2025</div>
-        <div class="page-title">Bom dia, Ana 👋</div>
+        <div class="page-eyebrow" id="dash-eyebrow">Carregando...</div>
+        <div class="page-title" id="dash-greeting">Bem-vindo 👋</div>
       </div>
-
       <div class="grid-3">
         <div class="card card-shine">
-          <div class="metric-label">Meta do Mês</div>
-          <div class="metric-value" style="color:var(--brand);transition:color 0.5s">R$ 69,6k</div>
-          <div class="metric-sub">de R$ 80.000</div>
-          <div class="progress-wrap">
-            <div class="progress-header">
-              <span class="progress-label">Progresso</span>
-              <span class="progress-pct" style="color:var(--brand);transition:color 0.5s">87%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" style="width:87%"></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card card-shine">
           <div class="metric-label">Visitas no Mês</div>
-          <div class="metric-value">23</div>
-          <div style="display:flex;gap:12px;margin-top:16px;flex-wrap:wrap">
-            <span style="font-size:12px;color:var(--b-text-muted)">🏢 9 presencial</span>
-            <span style="font-size:12px;color:var(--b-text-muted)">💻 8 remota</span>
-            <span style="font-size:12px;color:var(--b-text-muted)">📞 6 ligação</span>
-          </div>
+          <div class="metric-value" id="dash-visitas-mes" style="color:var(--brand)">—</div>
+          <div class="metric-sub" id="dash-visitas-sub">carregando...</div>
         </div>
-
         <div class="card card-shine">
           <div class="metric-label">Clientes Ativos</div>
-          <div class="metric-value">12</div>
-          <div class="metric-sub">18 no total</div>
-          <div style="margin-top:16px">
-            <span class="badge badge-brand" id="badge-status">↑ +3 este mês</span>
-          </div>
+          <div class="metric-value" id="dash-clientes-ativos">—</div>
+          <div class="metric-sub" id="dash-clientes-sub">carregando...</div>
+        </div>
+        <div class="card card-shine">
+          <div class="metric-label">Total de Visitas</div>
+          <div class="metric-value" id="dash-visitas-total">—</div>
+          <div class="metric-sub">histórico completo</div>
         </div>
       </div>
-
       <div class="section-head">
         <div class="section-head-title">Últimas Visitas</div>
-        <span class="section-head-link">Ver todas →</span>
+        <span class="section-head-link" onclick="setPage('visitas', document.querySelectorAll('.nav-item')[2])">Ver todas →</span>
       </div>
-      <div class="card">
-        <div class="visit-row">
-          <div class="visit-icon">🏢</div>
-          <div class="visit-meta">
-            <div class="visit-client">Marcos Souza — Techwave Ltda</div>
-            <div class="visit-text">Apresentação da proposta comercial. Cliente demonstrou interesse no plano Enterprise.</div>
-          </div>
-          <div class="visit-date">20/02</div>
-        </div>
-        <div class="visit-row">
-          <div class="visit-icon">💻</div>
-          <div class="visit-meta">
-            <div class="visit-client">Juliana Ferreira — Logística Express</div>
-            <div class="visit-text">Reunião de alinhamento sobre integração com sistema legado.</div>
-          </div>
-          <div class="visit-date">18/02</div>
-        </div>
-        <div class="visit-row">
-          <div class="visit-icon">📞</div>
-          <div class="visit-meta">
-            <div class="visit-client">Roberto Alves — FinTech Solutions</div>
-            <div class="visit-text">Follow-up pós-demonstração. Cliente pediu ajuste no prazo.</div>
-          </div>
-          <div class="visit-date">12/02</div>
-        </div>
+      <div class="card" id="dash-visitas-list">
+        <div class="empty-state"><div class="loading-dot"></div></div>
       </div>
     </div>
 
@@ -561,47 +384,11 @@ body::before{
         <div class="page-eyebrow">Carteira</div>
         <div class="page-title">Clientes</div>
       </div>
-      <div class="grid-2">
-        <div class="card clickable">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div>
-              <div style="font-weight:500;margin-bottom:3px">Marcos Souza</div>
-              <div style="font-size:12px;color:var(--b-text-muted)">Techwave Ltda</div>
-            </div>
-            <span class="badge badge-success">Ativo</span>
-          </div>
-          <div style="font-size:12px;color:var(--b-text-muted)">🏷️ Tecnologia · 📞 (11) 98765-4321</div>
-        </div>
-        <div class="card clickable">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div>
-              <div style="font-weight:500;margin-bottom:3px">Juliana Ferreira</div>
-              <div style="font-size:12px;color:var(--b-text-muted)">Logística Express</div>
-            </div>
-            <span class="badge badge-brand">Proposta</span>
-          </div>
-          <div style="font-size:12px;color:var(--b-text-muted)">🏷️ Logística · 📞 (11) 91234-5678</div>
-        </div>
-        <div class="card clickable">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div>
-              <div style="font-weight:500;margin-bottom:3px">Roberto Alves</div>
-              <div style="font-size:12px;color:var(--b-text-muted)">FinTech Solutions</div>
-            </div>
-            <span class="badge badge-warning">Negociação</span>
-          </div>
-          <div style="font-size:12px;color:var(--b-text-muted)">🏷️ Financeiro · 📞 (11) 94321-8765</div>
-        </div>
-        <div class="card clickable">
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
-            <div>
-              <div style="font-weight:500;margin-bottom:3px">Patrícia Gomes</div>
-              <div style="font-size:12px;color:var(--b-text-muted)">Saúde Total</div>
-            </div>
-            <span class="badge badge-muted">Inativo</span>
-          </div>
-          <div style="font-size:12px;color:var(--b-text-muted)">🏷️ Saúde · 📞 (11) 96789-0123</div>
-        </div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
+        <button class="btn btn-brand" onclick="openModal('modal-cliente')">+ Novo Cliente</button>
+      </div>
+      <div class="grid-2" id="clientes-grid">
+        <div class="empty-state" style="grid-column:1/-1"><div class="loading-dot"></div></div>
       </div>
     </div>
 
@@ -612,42 +399,10 @@ body::before{
         <div class="page-title">Visitas</div>
       </div>
       <div style="display:flex;justify-content:flex-end;margin-bottom:16px">
-        <button class="btn btn-brand">+ Nova Visita</button>
+        <button class="btn btn-brand" onclick="openModal('modal-visita')">+ Nova Visita</button>
       </div>
-      <div class="card">
-        <div class="visit-row">
-          <div class="visit-icon">🏢</div>
-          <div class="visit-meta">
-            <div class="visit-client">Marcos Souza</div>
-            <div class="visit-text">Apresentação da proposta. Interesse no plano Enterprise confirmado.</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <div class="visit-date">20/02</div>
-            <span class="badge badge-brand">Presencial</span>
-          </div>
-        </div>
-        <div class="visit-row">
-          <div class="visit-icon">💻</div>
-          <div class="visit-meta">
-            <div class="visit-client">Juliana Ferreira</div>
-            <div class="visit-text">Alinhamento sobre integração. Próximo passo: visita técnica.</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <div class="visit-date">18/02</div>
-            <span class="badge badge-muted">Remota</span>
-          </div>
-        </div>
-        <div class="visit-row">
-          <div class="visit-icon">📞</div>
-          <div class="visit-meta">
-            <div class="visit-client">Roberto Alves</div>
-            <div class="visit-text">Follow-up pós-demonstração. Aguarda ajuste de prazo.</div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <div class="visit-date">12/02</div>
-            <span class="badge badge-muted">Ligação</span>
-          </div>
-        </div>
+      <div class="card" id="visitas-list">
+        <div class="empty-state"><div class="loading-dot"></div></div>
       </div>
     </div>
 
@@ -658,52 +413,364 @@ body::before{
         <div class="page-title">Equipe</div>
       </div>
       <div class="grid-3" style="margin-bottom:20px">
-        <div class="card"><div class="metric-label">Vendedores</div><div class="metric-value">3</div></div>
-        <div class="card"><div class="metric-label">Visitas totais</div><div class="metric-value">69</div></div>
-        <div class="card"><div class="metric-label">Média meta</div><div class="metric-value" style="color:var(--brand);transition:color 0.5s">85%</div></div>
+        <div class="card"><div class="metric-label">Vendedores</div><div class="metric-value" id="equipe-vendedores">—</div></div>
+        <div class="card"><div class="metric-label">Visitas totais</div><div class="metric-value" id="equipe-visitas">—</div></div>
+        <div class="card"><div class="metric-label">Clientes</div><div class="metric-value" id="equipe-clientes" style="color:var(--brand)">—</div></div>
       </div>
-      <div class="card">
-        <div class="vendor-row">
-          <div class="vendor-rank top">1</div>
-          <div class="vendor-info">
-            <div class="vendor-name">Carla Neves</div>
-            <div class="vendor-bar-wrap">
-              <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:100%"></div></div>
-              <div class="vendor-pct" style="color:var(--b-success)">105%</div>
-            </div>
-          </div>
-          <span class="badge badge-success">31 vis.</span>
-        </div>
-        <div class="vendor-row">
-          <div class="vendor-rank other">2</div>
-          <div class="vendor-info">
-            <div class="vendor-name">Ana Costa</div>
-            <div class="vendor-bar-wrap">
-              <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:87%"></div></div>
-              <div class="vendor-pct" style="color:var(--brand);transition:color 0.5s">87%</div>
-            </div>
-          </div>
-          <span class="badge badge-brand">23 vis.</span>
-        </div>
-        <div class="vendor-row">
-          <div class="vendor-rank other">3</div>
-          <div class="vendor-info">
-            <div class="vendor-name">Bruno Lima</div>
-            <div class="vendor-bar-wrap">
-              <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:62%"></div></div>
-              <div class="vendor-pct" style="color:var(--b-text-muted)">62%</div>
-            </div>
-          </div>
-          <span class="badge badge-muted">15 vis.</span>
-        </div>
+      <div class="card" id="equipe-list">
+        <div class="empty-state"><div class="loading-dot"></div></div>
       </div>
     </div>
 
-  </div><!-- /main -->
-</div><!-- /app -->
+  </div>
+</div>
+
+<!-- MODAL NOVO CLIENTE -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-cliente')">✕</button>
+    <div class="modal-title">Novo Cliente</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Nome</label>
+        <input type="text" class="form-input" id="c-nome" placeholder="Nome completo"/>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Empresa</label>
+        <input type="text" class="form-input" id="c-empresa" placeholder="Empresa Ltda"/>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Segmento</label>
+        <select class="form-select" id="c-segmento">
+          <option value="">Selecionar</option>
+          <option>Tecnologia</option><option>Logística</option><option>Financeiro</option>
+          <option>Saúde</option><option>Varejo</option><option>Indústria</option><option>Outro</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone</label>
+        <input type="text" class="form-input" id="c-telefone" placeholder="(11) 99999-9999"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Status</label>
+      <select class="form-select" id="c-status">
+        <option value="ativo">Ativo</option>
+        <option value="proposta">Proposta</option>
+        <option value="negociacao">Negociação</option>
+        <option value="inativo">Inativo</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-cliente')">Cancelar</button>
+      <button class="btn btn-brand" onclick="salvarCliente()">Salvar Cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVA VISITA -->
+<div class="modal-overlay" id="modal-visita">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-visita')">✕</button>
+    <div class="modal-title">Nova Visita</div>
+    <div class="form-group">
+      <label class="form-label">Cliente</label>
+      <select class="form-select" id="v-cliente"></select>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Tipo</label>
+        <select class="form-select" id="v-tipo">
+          <option value="presencial">🏢 Presencial</option>
+          <option value="remota">💻 Remota</option>
+          <option value="ligacao">📞 Ligação</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Data</label>
+        <input type="date" class="form-input" id="v-data"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notas</label>
+      <textarea class="form-textarea" id="v-notas" placeholder="O que aconteceu nessa visita?"></textarea>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-visita')">Cancelar</button>
+      <button class="btn btn-brand" onclick="salvarVisita()">Registrar Visita</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-// TEMAS
+// ─── SUPABASE ───────────────────────────────────────────────────────────
+const SUPABASE_URL = 'https://wufkytnlhiscyzatumvc.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1Zmt5dG5saGlzY3l6YXR1bXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Nzc5OTcsImV4cCI6MjA4NjI1Mzk5N30.2IdxHQWDPjk4_pW2aNyIob2khIrW5ajYHXKYIIBu2xE';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let currentUser = null;
+
+// ─── AUTH ─────────────────────────────────────────────────────────────
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('login-error');
+  err.textContent = '';
+  btn.disabled = true;
+  btn.textContent = 'Entrando...';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (error) {
+    err.textContent = 'Email ou senha incorretos.';
+    btn.disabled = false;
+    btn.textContent = 'Entrar';
+  } else {
+    onLogin(data.user);
+  }
+}
+
+document.getElementById('login-password').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogout() {
+  await sb.auth.signOut();
+  currentUser = null;
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-email').value = '';
+  document.getElementById('login-password').value = '';
+  document.getElementById('login-error').textContent = '';
+  document.getElementById('login-btn').disabled = false;
+  document.getElementById('login-btn').textContent = 'Entrar';
+}
+
+function onLogin(user) {
+  currentUser = user;
+  document.getElementById('login-screen').classList.add('hidden');
+  const name = user.email.split('@')[0];
+  const display = name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('sidebar-user-name').textContent = display;
+  document.getElementById('dash-greeting').textContent = `Bom dia, ${display} 👋`;
+  const now = new Date();
+  document.getElementById('dash-eyebrow').textContent = now.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  loadAll();
+  setupRealtime();
+}
+
+// Check session on load
+sb.auth.getSession().then(({ data: { session } }) => {
+  if (session) onLogin(session.user);
+});
+
+// ─── LOAD ALL ─────────────────────────────────────────────────────────
+async function loadAll() {
+  await Promise.all([loadDashboard(), loadClientes(), loadVisitas()]);
+  loadEquipe();
+}
+
+// ─── DASHBOARD ────────────────────────────────────────────────────────
+async function loadDashboard() {
+  const now = new Date();
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+  const [{ data: visitasMes }, { data: visitasAll }, { data: clientesAll }] = await Promise.all([
+    sb.from('visitas').select('id, tipo').gte('data', startOfMonth).eq('user_id', currentUser.id),
+    sb.from('visitas').select('id').eq('user_id', currentUser.id),
+    sb.from('clientes').select('id, status').eq('user_id', currentUser.id),
+  ]);
+
+  const ativos = (clientesAll || []).filter(c => c.status === 'ativo').length;
+  document.getElementById('dash-visitas-mes').textContent = (visitasMes || []).length;
+  document.getElementById('dash-visitas-sub').textContent = `este mês`;
+  document.getElementById('dash-clientes-ativos').textContent = ativos;
+  document.getElementById('dash-clientes-sub').textContent = `de ${(clientesAll || []).length} no total`;
+  document.getElementById('dash-visitas-total').textContent = (visitasAll || []).length;
+
+  // Últimas visitas
+  const { data: ultimas } = await sb.from('visitas')
+    .select('*, clientes(nome, empresa)')
+    .eq('user_id', currentUser.id)
+    .order('data', { ascending: false })
+    .limit(4);
+
+  const icons = { presencial:'🏢', remota:'💻', ligacao:'📞' };
+  const list = document.getElementById('dash-visitas-list');
+  if (!ultimas || ultimas.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◉</div>Nenhuma visita registrada ainda.</div>';
+    return;
+  }
+  list.innerHTML = ultimas.map(v => `
+    <div class="visit-row">
+      <div class="visit-icon">${icons[v.tipo] || '📋'}</div>
+      <div class="visit-meta">
+        <div class="visit-client">${v.clientes?.nome || '—'} ${v.clientes?.empresa ? '— ' + v.clientes.empresa : ''}</div>
+        <div class="visit-text">${v.notas || 'Sem anotações.'}</div>
+      </div>
+      <div class="visit-date">${fmtDate(v.data)}</div>
+    </div>
+  `).join('');
+}
+
+// ─── CLIENTES ─────────────────────────────────────────────────────────
+async function loadClientes() {
+  const { data } = await sb.from('clientes').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+  const grid = document.getElementById('clientes-grid');
+  if (!data || data.length === 0) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">◈</div>Nenhum cliente ainda. Adicione o primeiro!</div>';
+    return;
+  }
+  const badgeMap = { ativo:'badge-success', proposta:'badge-brand', negociacao:'badge-warning', inativo:'badge-muted' };
+  const labelMap = { ativo:'Ativo', proposta:'Proposta', negociacao:'Negociação', inativo:'Inativo' };
+  grid.innerHTML = data.map(c => `
+    <div class="card clickable">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-weight:500;margin-bottom:3px">${c.nome || '—'}</div>
+          <div style="font-size:12px;color:var(--b-text-muted)">${c.empresa || ''}</div>
+        </div>
+        <span class="badge ${badgeMap[c.status] || 'badge-muted'}">${labelMap[c.status] || c.status}</span>
+      </div>
+      <div style="font-size:12px;color:var(--b-text-muted)">
+        ${c.segmento ? '🏷️ ' + c.segmento : ''}${c.segmento && c.telefone ? ' · ' : ''}${c.telefone ? '📞 ' + c.telefone : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── VISITAS ──────────────────────────────────────────────────────────
+async function loadVisitas() {
+  const { data } = await sb.from('visitas')
+    .select('*, clientes(nome)')
+    .eq('user_id', currentUser.id)
+    .order('data', { ascending: false });
+
+  const list = document.getElementById('visitas-list');
+  if (!data || data.length === 0) {
+    list.innerHTML = '<div class="empty-state"><div class="empty-state-icon">◉</div>Nenhuma visita registrada ainda.</div>';
+    return;
+  }
+  const icons = { presencial:'🏢', remota:'💻', ligacao:'📞' };
+  const badgeMap = { presencial:'badge-brand', remota:'badge-muted', ligacao:'badge-muted' };
+  const labelMap = { presencial:'Presencial', remota:'Remota', ligacao:'Ligação' };
+  list.innerHTML = data.map(v => `
+    <div class="visit-row">
+      <div class="visit-icon">${icons[v.tipo] || '📋'}</div>
+      <div class="visit-meta">
+        <div class="visit-client">${v.clientes?.nome || '—'}</div>
+        <div class="visit-text">${v.notas || 'Sem anotações.'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        <div class="visit-date">${fmtDate(v.data)}</div>
+        <span class="badge ${badgeMap[v.tipo] || 'badge-muted'}">${labelMap[v.tipo] || v.tipo}</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── EQUIPE ───────────────────────────────────────────────────────────
+async function loadEquipe() {
+  const [{ data: visitas }, { data: clientes }] = await Promise.all([
+    sb.from('visitas').select('user_id').eq('user_id', currentUser.id),
+    sb.from('clientes').select('id, status').eq('user_id', currentUser.id),
+  ]);
+  document.getElementById('equipe-vendedores').textContent = '1';
+  document.getElementById('equipe-visitas').textContent = (visitas || []).length;
+  document.getElementById('equipe-clientes').textContent = (clientes || []).filter(c => c.status === 'ativo').length;
+
+  const name = currentUser.email.split('@')[0];
+  const display = name.charAt(0).toUpperCase() + name.slice(1);
+  document.getElementById('equipe-list').innerHTML = `
+    <div class="vendor-row">
+      <div class="vendor-rank top">1</div>
+      <div class="vendor-info">
+        <div class="vendor-name">${display}</div>
+        <div class="vendor-bar-wrap">
+          <div class="vendor-bar-track"><div class="vendor-bar-fill" style="width:100%"></div></div>
+          <div class="vendor-pct" style="color:var(--brand)">—</div>
+        </div>
+      </div>
+      <span class="badge badge-brand">${(visitas || []).length} vis.</span>
+    </div>
+  `;
+}
+
+// ─── REALTIME ─────────────────────────────────────────────────────────
+function setupRealtime() {
+  sb.channel('db-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'clientes' }, () => { loadClientes(); loadDashboard(); loadEquipe(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'visitas' }, () => { loadVisitas(); loadDashboard(); loadEquipe(); })
+    .subscribe();
+}
+
+// ─── MODAIS ───────────────────────────────────────────────────────────
+function openModal(id) {
+  if (id === 'modal-visita') {
+    // Preenche select de clientes
+    sb.from('clientes').select('id, nome').eq('user_id', currentUser.id).then(({ data }) => {
+      const sel = document.getElementById('v-cliente');
+      sel.innerHTML = data && data.length
+        ? data.map(c => `<option value="${c.id}">${c.nome}</option>`).join('')
+        : '<option value="">Nenhum cliente cadastrado</option>';
+    });
+    document.getElementById('v-data').value = new Date().toISOString().split('T')[0];
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open') }
+
+async function salvarCliente() {
+  const nome = document.getElementById('c-nome').value.trim();
+  if (!nome) { showToast('Informe o nome do cliente', 'error'); return; }
+  const { error } = await sb.from('clientes').insert({
+    user_id: currentUser.id,
+    nome,
+    empresa: document.getElementById('c-empresa').value.trim(),
+    segmento: document.getElementById('c-segmento').value,
+    telefone: document.getElementById('c-telefone').value.trim(),
+    status: document.getElementById('c-status').value,
+  });
+  if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+  closeModal('modal-cliente');
+  showToast('Cliente salvo!', 'success');
+  ['c-nome','c-empresa','c-telefone'].forEach(id => document.getElementById(id).value = '');
+}
+
+async function salvarVisita() {
+  const cid = document.getElementById('v-cliente').value;
+  if (!cid) { showToast('Selecione um cliente', 'error'); return; }
+  const { error } = await sb.from('visitas').insert({
+    user_id: currentUser.id,
+    cliente_id: cid,
+    tipo: document.getElementById('v-tipo').value,
+    data: document.getElementById('v-data').value,
+    notas: document.getElementById('v-notas').value.trim(),
+  });
+  if (error) { showToast('Erro ao salvar: ' + error.message, 'error'); return; }
+  closeModal('modal-visita');
+  showToast('Visita registrada!', 'success');
+  document.getElementById('v-notas').value = '';
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────
+function fmtDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  return dt.toLocaleDateString('pt-BR', { day:'2-digit', month:'2-digit' });
+}
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── TEMAS ────────────────────────────────────────────────────────────
 const themes = {
   'theme-braavos':  { name:'raavos', tagline:'Sales Intelligence', role:'vendedor · braavos' },
   'theme-techwave': { name:'echWave', tagline:'Portal de Vendas', role:'vendedor · techwave' },
@@ -711,27 +778,19 @@ const themes = {
   'theme-fintech':  { name:'inCore', tagline:'Sales Platform', role:'vendedor · fincore' },
   'theme-saude':    { name:'aúdePro', tagline:'Gestão Comercial', role:'vendedor · saúdepro' },
 };
-
 function setTheme(btn) {
   const theme = btn.dataset.theme;
-  const body = document.body;
-
-  // Remove classes de tema
-  Object.keys(themes).forEach(t => body.classList.remove(t));
-  body.classList.add(theme);
-
-  // Atualiza botões
+  Object.keys(themes).forEach(t => document.body.classList.remove(t));
+  document.body.classList.add(theme);
   document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-
-  // Atualiza textos
   const t = themes[theme];
   document.getElementById('brand-name-sidebar').textContent = t.name;
   document.getElementById('brand-tagline').textContent = t.tagline;
   document.getElementById('brand-role-label').textContent = t.role;
 }
 
-// NAVEGAÇÃO
+// ─── NAVEGAÇÃO ────────────────────────────────────────────────────────
 function setPage(page, navEl) {
   document.querySelectorAll('[id^="page-"]').forEach(el => el.style.display = 'none');
   const target = document.getElementById('page-' + page);
@@ -744,6 +803,11 @@ function setPage(page, navEl) {
   document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
 }
+
+// Fechar modal ao clicar fora
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
 </script>
 </body>
 </html>
