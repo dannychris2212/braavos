@@ -320,6 +320,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-item" onclick="setPage('leads',this)"><span class="nav-icon">◈</span> Leads</div>
     <div class="nav-item" onclick="setPage('clientes',this)"><span class="nav-icon">◉</span> Clientes</div>
     <div class="nav-item" onclick="setPage('visitas',this)"><span class="nav-icon">◎</span> Visitas</div>
+    <div class="nav-item" onclick="setPage('equipe',this)"><span class="nav-icon">👥</span> Equipe</div>
     <div class="nav-item" id="nav-alertas" onclick="setPage('alertas',this)">
       <span class="nav-icon">🔔</span> Alertas
       <span class="nav-badge hidden" id="alertas-badge">0</span>
@@ -408,6 +409,25 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button class="btn btn-brand btn-sm" onclick="openModal('modal-visita')">+ Nova Visita</button>
       </div>
       <div class="card" id="visitas-list"><div class="empty-state"><div class="loading-dot"></div></div></div>
+    </div>
+
+    <!-- EQUIPE -->
+    <div id="page-equipe" class="page" style="display:none">
+      <div class="page-header">
+        <div class="page-eyebrow" id="equipe-eyebrow">Sua Empresa</div>
+        <div class="page-title">Equipe</div>
+      </div>
+      <div class="grid-3" id="equipe-metrics">
+        <div class="card card-shine"><div class="metric-label">Vendedores</div><div class="metric-value" id="eq-vendedores" style="color:var(--brand)">—</div><div class="metric-sub">ativos</div></div>
+        <div class="card card-shine"><div class="metric-label">Leads Ganhos</div><div class="metric-value" id="eq-ganhos" style="color:var(--b-success)">—</div><div class="metric-sub">total da equipe</div></div>
+        <div class="card card-shine"><div class="metric-label">Visitas Totais</div><div class="metric-value" id="eq-visitas">—</div><div class="metric-sub">total da equipe</div></div>
+      </div>
+      <div class="section-head"><div class="section-head-title">Ranking — Leads Ganhos</div></div>
+      <div class="card" id="eq-ranking-leads" style="margin-bottom:16px"><div class="empty-state"><div class="loading-dot"></div></div></div>
+      <div class="section-head"><div class="section-head-title">Ranking — Visitas</div></div>
+      <div class="card" id="eq-ranking-visitas" style="margin-bottom:16px"><div class="empty-state"><div class="loading-dot"></div></div></div>
+      <div class="section-head"><div class="section-head-title">Vendedores</div></div>
+      <div class="grid-2" id="eq-vendedores-grid"><div class="empty-state" style="grid-column:1/-1"><div class="loading-dot"></div></div></div>
     </div>
 
     <!-- ALERTAS -->
@@ -1037,5 +1057,149 @@ onLogin=async function(user){
   pedirPermissaoPush();
   await loadAlertas();
   setupRealtimeAlertas();
+};
+</script>
+<script>
+// ── EQUIPE ────────────────────────────────────────────────────────────────
+async function loadEquipe(){
+  if(!currentProfile?.empresa_id) return;
+
+  // Busca todos os profiles da empresa
+  const {data:profiles}=await sb.from('profiles').select('*').eq('empresa_id',currentProfile.empresa_id).eq('ativo',true);
+  if(!profiles?.length) return;
+
+  const vendedorIds=profiles.map(p=>p.vendedor_id);
+
+  // Busca leads ganhos e visitas em paralelo
+  const [{data:leadsGanhos},{data:todasVisitas}]=await Promise.all([
+    sb.from('leads').select('vendedor_id').eq('empresa_id',currentProfile.empresa_id).eq('status','ganho'),
+    sb.from('visitas').select('user_id').in('user_id', profiles.map(p=>p.user_id)),
+  ]);
+
+  // Métricas gerais
+  document.getElementById('eq-vendedores').textContent=profiles.filter(p=>p.cargo!=='gerente').length||profiles.length;
+  document.getElementById('eq-ganhos').textContent=(leadsGanhos||[]).length;
+  document.getElementById('eq-visitas').textContent=(todasVisitas||[]).length;
+
+  // Conta por vendedor
+  const ganhosPorVendedor={};
+  (leadsGanhos||[]).forEach(l=>{ ganhosPorVendedor[l.vendedor_id]=(ganhosPorVendedor[l.vendedor_id]||0)+1; });
+
+  const visitasPorUser={};
+  (todasVisitas||[]).forEach(v=>{ visitasPorUser[v.user_id]=(visitasPorUser[v.user_id]||0)+1; });
+
+  // Mapeia user_id -> vendedor_id para visitas
+  const userToVendedor={};
+  profiles.forEach(p=>{ userToVendedor[p.user_id]=p.vendedor_id; });
+  const visitasPorVendedor={};
+  Object.entries(visitasPorUser).forEach(([uid,cnt])=>{
+    const vid=userToVendedor[uid];
+    if(vid) visitasPorVendedor[vid]=(visitasPorVendedor[vid]||0)+cnt;
+  });
+
+  // Ranking leads ganhos
+  const rankLeads=[...profiles].sort((a,b)=>(ganhosPorVendedor[b.vendedor_id]||0)-(ganhosPorVendedor[a.vendedor_id]||0));
+  const maxLeads=ganhosPorVendedor[rankLeads[0]?.vendedor_id]||1;
+
+  document.getElementById('eq-ranking-leads').innerHTML=rankLeads.map((p,i)=>{
+    const cnt=ganhosPorVendedor[p.vendedor_id]||0;
+    const meta=p.meta_mensal_leads||20;
+    const pct=Math.min(Math.round((cnt/meta)*100),100);
+    const isTop=i===0&&cnt>0;
+    return `
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--b-border)${i===rankLeads.length-1?';border:none':''}">
+        <div class="vendor-rank ${isTop?'top':'other'}" style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;flex-shrink:0;${isTop?'background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)':'background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)'}">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px">${p.nome||'—'} ${p.regiao?'<span style="font-size:11px;color:var(--b-text-muted)">· '+p.regiao+'</span>':''}</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden">
+              <div style="height:100%;border-radius:99px;background:var(--brand);width:${Math.round((cnt/Math.max(maxLeads,1))*100)}%;transition:width 1s ease"></div>
+            </div>
+            <span style="font-family:var(--font-mono);font-size:11px;color:${pct>=100?'var(--b-success)':pct>=70?'var(--brand)':'var(--b-text-muted)'}">${pct}%</span>
+          </div>
+          <div style="font-size:11px;color:var(--b-text-muted);margin-top:2px">${cnt} ganhos de ${meta} meta</div>
+        </div>
+        <span class="badge ${cnt>0?'badge-success':'badge-muted'}">${cnt} leads</span>
+      </div>`;
+  }).join('');
+
+  // Ranking visitas
+  const rankVisitas=[...profiles].sort((a,b)=>(visitasPorVendedor[b.vendedor_id]||0)-(visitasPorVendedor[a.vendedor_id]||0));
+  const maxVisitas=visitasPorVendedor[rankVisitas[0]?.vendedor_id]||1;
+
+  document.getElementById('eq-ranking-visitas').innerHTML=rankVisitas.map((p,i)=>{
+    const cnt=visitasPorVendedor[p.vendedor_id]||0;
+    const meta=p.meta_mensal_visitas||30;
+    const pct=Math.min(Math.round((cnt/meta)*100),100);
+    const isTop=i===0&&cnt>0;
+    return `
+      <div style="display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--b-border)${i===rankVisitas.length-1?';border:none':''}">
+        <div style="width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:12px;font-weight:500;flex-shrink:0;${isTop?'background:var(--brand-dim);border:1px solid var(--brand);color:var(--brand)':'background:var(--b-surface);border:1px solid var(--b-border);color:var(--b-text-muted)'}">${i+1}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:500;margin-bottom:2px">${p.nome||'—'} ${p.regiao?'<span style="font-size:11px;color:var(--b-text-muted)">· '+p.regiao+'</span>':''}</div>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div style="flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden">
+              <div style="height:100%;border-radius:99px;background:var(--brand);width:${Math.round((cnt/Math.max(maxVisitas,1))*100)}%;transition:width 1s ease"></div>
+            </div>
+            <span style="font-family:var(--font-mono);font-size:11px;color:${pct>=100?'var(--b-success)':pct>=70?'var(--brand)':'var(--b-text-muted)'}">${pct}%</span>
+          </div>
+          <div style="font-size:11px;color:var(--b-text-muted);margin-top:2px">${cnt} visitas de ${meta} meta</div>
+        </div>
+        <span class="badge ${cnt>=meta?'badge-success':cnt>0?'badge-brand':'badge-muted'}">${cnt} vis.</span>
+      </div>`;
+  }).join('');
+
+  // Cards de vendedores
+  document.getElementById('eq-vendedores-grid').innerHTML=profiles.map(p=>{
+    const leads=ganhosPorVendedor[p.vendedor_id]||0;
+    const visitas=visitasPorVendedor[p.vendedor_id]||0;
+    const metaL=p.meta_mensal_leads||20;
+    const metaV=p.meta_mensal_visitas||30;
+    const pctL=Math.min(Math.round((leads/metaL)*100),100);
+    const pctV=Math.min(Math.round((visitas/metaV)*100),100);
+    return `
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+          <div>
+            <div style="font-size:15px;font-weight:500;margin-bottom:3px">${p.nome||'—'}</div>
+            <div style="font-size:11px;color:var(--b-text-muted);font-family:var(--font-mono)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
+          </div>
+          <span class="badge ${p.cargo==='gerente'?'badge-brand':'badge-muted'}">${p.cargo||'vendedor'}</span>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span style="color:var(--b-text-muted)">Leads ganhos</span>
+            <span style="font-family:var(--font-mono);color:${pctL>=100?'var(--b-success)':'var(--brand)'}">${leads}/${metaL}</span>
+          </div>
+          <div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden">
+            <div style="height:100%;border-radius:99px;background:${pctL>=100?'var(--b-success)':'var(--brand)'};width:${pctL}%"></div>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
+            <span style="color:var(--b-text-muted)">Visitas</span>
+            <span style="font-family:var(--font-mono);color:${pctV>=100?'var(--b-success)':'var(--b-text-muted)'}">${visitas}/${metaV}</span>
+          </div>
+          <div style="height:4px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden">
+            <div style="height:100%;border-radius:99px;background:${pctV>=100?'var(--b-success)':'rgba(255,255,255,0.2)'};width:${pctV}%"></div>
+          </div>
+        </div>
+        ${p.whatsapp_pessoal?`<div style="margin-top:12px"><a href="https://wa.me/55${p.whatsapp_pessoal.replace(/\D/g,'')}" target="_blank" class="btn btn-ghost btn-sm" style="font-size:11px">💬 WhatsApp</a></div>`:''}
+      </div>`;
+  }).join('');
+}
+
+// Patch setPage para carregar equipe
+const _sp2=setPage;
+setPage=function(page,navEl){
+  _sp2(page,navEl);
+  if(page==='equipe')loadEquipe();
+};
+
+// Patch loadAll para incluir equipe se for gerente
+const _origLoadAll=loadAll;
+loadAll=async function(){
+  await _origLoadAll();
+  if(currentProfile?.cargo==='gerente') loadEquipe();
 };
 </script>
