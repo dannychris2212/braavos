@@ -843,9 +843,7 @@ async function loadClientes(){
 
 // ── VISITAS ───────────────────────────────────────────────────────
 async function loadVisitas(){
-  const q=sb.from('visitas').select('*, leads(nome)').order('data',{ascending:false});
-  if(P?.cargo!=='gerente') q.eq('user_id',U.id);
-  const {data}=await q;
+  const {data}=await sb.from('visitas').select('*, leads(nome)').order('data',{ascending:false});
   const el=document.getElementById('visitas-list');
   if(!data?.length){el.innerHTML='<div class="empty"><i>◎</i>Nenhuma visita ainda.</div>';return;}
   const icons={presencial:'⬡',remota:'◈',ligacao:'◉'};
@@ -1135,15 +1133,19 @@ async function salvarLead(){
 async function salvarVisita(){
   const lid=document.getElementById('v-lead').value;
   if(!lid){showToast('Selecione um lead','er');return;}
-  const {error}=await sb.from('visitas').insert({
-    user_id:U.id,lead_id:lid,
+  const payload={
+    user_id:U.id,
+    lead_id:lid,
     tipo:document.getElementById('v-tipo').value,
     data:document.getElementById('v-data').value,
     notas:document.getElementById('v-notas').value.trim(),
-  });
-  if(error){showToast('Erro: '+error.message,'er');return;}
+    empresa_id:P.empresa_id,
+  };
+  const {error}=await sb.rpc('inserir_visita',{payload});
+  if(error){console.error('Erro visita:',error);showToast('Erro: '+error.message,'er');return;}
   closeM('m-visita');showToast('◎ Visita registrada!','ok');
   document.getElementById('v-notas').value='';
+  loadVisitas();
 }
 
 // ── REALTIME ──────────────────────────────────────────────────────
