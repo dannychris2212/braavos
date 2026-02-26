@@ -391,10 +391,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <input class="fsearch" id="lead-q" placeholder="Buscar nome ou empresa..." oninput="renderLeads()"/>
           <span class="chip on" data-s="todos" onclick="chipLead(this)">Todos</span>
           <span class="chip" data-s="novo" onclick="chipLead(this)">Novo</span>
-          <span class="chip" data-s="qualificado" onclick="chipLead(this)">Qualificado</span>
-          <span class="chip" data-s="negociacao" onclick="chipLead(this)">Negociação</span>
-          <span class="chip" data-s="ganho" onclick="chipLead(this)">Ganho</span>
-          <span class="chip" data-s="perdido" onclick="chipLead(this)">Perdido</span>
+          <span class="chip" data-s="qualificando" onclick="chipLead(this)">Qualificando</span>
+          <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)">Aguardando</span>
+          <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)">Pronto</span>
+          <span class="chip" data-s="em_negocicao" onclick="chipLead(this)">Negociação</span>
+          <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
+          <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
         </div>
         <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
       </div>
@@ -506,13 +508,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="fr">
       <div class="fg"><label class="fl">Status</label>
         <select class="fs" id="l-status">
-          <option value="novo">Novo</option><option value="qualificado">Qualificado</option>
-          <option value="negociacao">Negociação</option><option value="ganho">Ganho</option><option value="perdido">Perdido</option>
+          <option value="novo">Novo</option>
+          <option value="qualificando">Qualificando</option>
+          <option value="aguardando_cliente">Aguardando Cliente</option>
+          <option value="pronto_para_compra">Pronto para Compra</option>
+          <option value="em_negocicao">Em Negociação</option>
+          <option value="fechado_ganho">Fechado Ganho</option>
+          <option value="fechado_perdido">Fechado Perdido</option>
         </select>
       </div>
       <div class="fg"><label class="fl">Prioridade</label>
         <select class="fs" id="l-prio">
-          <option value="media">Média</option><option value="alta">Alta</option><option value="baixa">Baixa</option>
+          <option value="normal">Normal</option>
+          <option value="alta">Alta</option>
+          <option value="baixa">Baixa</option>
+          <option value="vip">VIP</option>
         </select>
       </div>
     </div>
@@ -665,19 +675,19 @@ async function loadAll(){
 function loadDashboard(){
   const startMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString();
   const cnt={};
-  ['novo','qualificado','negociacao','ganho','perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
-  document.getElementById('f-novo').textContent=cnt.novo||0;
-  document.getElementById('f-qual').textContent=cnt.qualificado||0;
-  document.getElementById('f-neg').textContent=cnt.negociacao||0;
-  document.getElementById('f-ganho').textContent=cnt.ganho||0;
-  document.getElementById('f-perd').textContent=cnt.perdido||0;
+  ['novo','qualificando','em_negocicao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
+  document.getElementById('f-novo').textContent=(cnt.novo||0)+(allLeads.filter(l=>l.status==='qualificando'||l.status==='aguardando_cliente'||l.status==='pronto_para_compra').length);
+  document.getElementById('f-qual').textContent=allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length;
+  document.getElementById('f-neg').textContent=cnt.em_negocicao||0;
+  document.getElementById('f-ganho').textContent=cnt.fechado_ganho||0;
+  document.getElementById('f-perd').textContent=cnt.fechado_perdido||0;
   const total=allLeads.length;
-  const conv=total>0?Math.round(((cnt.ganho||0)/total)*100):0;
+  const conv=total>0?Math.round(((cnt.fechado_ganho||0)/total)*100):0;
   document.getElementById('d-total').textContent=total;
-  document.getElementById('d-total-s').textContent=(cnt.ganho||0)+' ganhos';
+  document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
   document.getElementById('d-novos').textContent=allLeads.filter(l=>l.created_at>=startMes).length;
   document.getElementById('d-conv').textContent=conv+'%';
-  document.getElementById('d-neg').textContent=cnt.negociacao||0;
+  document.getElementById('d-neg').textContent=cnt.em_negocicao||0;
 
   // Próximos contatos
   const hoje=new Date().toISOString().split('T')[0];
@@ -758,7 +768,7 @@ function openDP(lead){
       ${lead.telefone?`<a href="tel:${lead.telefone}" class="btn btn-p btn-sm">◉ Ligar</a>`:''}
       ${lead.telefone?`<a href="https://wa.me/55${lead.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
       ${lead.email?`<a href="mailto:${lead.email}" class="btn btn-g btn-sm">◎ Email</a>`:''}
-      <button class="btn btn-ok btn-sm" onclick="promoverCliente('${lead.id||lead.alerta_id}')">⊕ Promover para Cliente</button>
+      <button class="btn btn-ok btn-sm" onclick="promoverCliente(getPK(${esc(lead)}))">⊕ Promover para Cliente</button>
     </div>
     ${hasAI?`
     <div class="dp-sec">✦ Inteligência IA</div>
@@ -788,14 +798,15 @@ function closeDP(){
 // ── PROMOVER LEAD → CLIENTE ────────────────────────────────────────
 async function promoverCliente(leadId){
   if(!P?.empresa_id){showToast('Empresa não identificada','er');return;}
+  if(!leadId||leadId==='undefined'){showToast('ID do lead não encontrado','er');return;}
   // Verifica se já existe
-  const {data:exist}=await sb.from('customers').select('id').eq('lead_id',leadId).single();
+  const {data:exist}=await sb.from('customers').select('lead_id').eq('lead_id',leadId).maybeSingle();
   if(exist){showToast('Lead já é cliente!','ok');closeDP();return;}
   const {error}=await sb.from('customers').insert({
     lead_id:leadId,empresa_id:P.empresa_id,
     assigned_to:P.vendedor_id,customer_status:'ativo',origem:'app'
   });
-  if(error){showToast('Erro: '+error.message,'er');return;}
+  if(error){console.error('Erro promover:',error);showToast('Erro: '+error.message,'er');return;}
   showToast('◉ Lead promovido a cliente!','ok');
   closeDP();loadClientes();
 }
@@ -899,7 +910,7 @@ async function loadEquipe(){
   if(!profs?.length) return;
 
   const [{data:ganhos},{data:visitas}]=await Promise.all([
-    sb.from('leads').select('vendedor_id').eq('empresa_id',P.empresa_id).eq('status','ganho'),
+    sb.from('leads').select('vendedor_id').eq('empresa_id',P.empresa_id).eq('status','fechado_ganho'),
     sb.from('visitas').select('user_id').in('user_id',profs.map(p=>p.user_id)),
   ]);
 
@@ -1078,19 +1089,34 @@ async function salvarLead(){
   if(!P?.vendedor_id||!P?.empresa_id){showToast('Sessão inválida, faça login novamente','er');return;}
   const isCliente=document.getElementById('lead-is-cliente').checked;
   const payload={nome,telefone,vendedor_id:P.vendedor_id,empresa_id:P.empresa_id};
-  payload.status=isCliente?'ganho':document.getElementById('l-status').value;
-  const opt={empresa_cliente:'l-emp',email:'l-email',cargo_cliente:'l-cargo',cnpj:'l-cnpj',cidade:'l-cid',estado:'l-est',regiao:'l-reg',notas:'l-notas',segmento:'l-seg',origem:'l-orig',prioridade:'l-prio'};
+  const statusVal=document.getElementById('l-status').value;
+  const validStatus=['novo','qualificando','aguardando_cliente','pronto_para_compra','em_negocicao','fechado_ganho','fechado_perdido'];
+  payload.status=isCliente?'fechado_ganho':(validStatus.includes(statusVal)?statusVal:'novo');
+  const opt={empresa_cliente:'l-emp',email:'l-email',cargo_cliente:'l-cargo',cnpj:'l-cnpj',cidade:'l-cid',estado:'l-est',regiao:'l-reg',notas:'l-notas',segmento:'l-seg',origem:'l-orig'};
   Object.entries(opt).forEach(([field,elId])=>{const v=document.getElementById(elId)?.value?.trim();if(v)payload[field]=v;});
+  // prioridade: só manda se for valor válido
+  const prioVal=document.getElementById('l-prio')?.value?.trim();
+  if(['baixa','normal','alta','vip'].includes(prioVal)) payload.prioridade=prioVal;
+  else payload.prioridade='normal';
   const prox=document.getElementById('l-prox').value;
   if(prox)payload.proximo_contato=prox;
   console.log('Inserindo lead:',payload);
-  const {data:lead,error}=await sb.from('leads').insert(payload).select().single();
+  // insert sem .select() para evitar conflito com nome da PK
+  const {error}=await sb.from('leads').insert(payload);
   if(error){console.error('Erro lead:',error);showToast('Erro: '+error.message,'er');return;}
+  // Se marcou cliente, busca o lead recém criado pelo vendedor_id + nome
+  let leadId=null;
+  if(isCliente){
+    const {data:novo}=await sb.from('leads')
+      .select('*').eq('vendedor_id',P.vendedor_id).eq('nome',nome)
+      .order('created_at',{ascending:false}).limit(1).single();
+    leadId=novo?.lead_id||novo?.id||Object.values(novo||{})[0];
+  }
 
   // Se marcou "já é cliente", promove automaticamente
-  if(isCliente && lead){
+  if(isCliente && leadId){
     await sb.from('customers').insert({
-      lead_id:lead.id,empresa_id:P.empresa_id,
+      lead_id:leadId,empresa_id:P.empresa_id,
       assigned_to:P.vendedor_id,customer_status:'ativo',origem:'app'
     });
     showToast('◉ Lead criado e promovido a cliente!','ok');
@@ -1204,9 +1230,22 @@ function timeAgo(d){
   const h=Math.floor(m/60);if(h<24)return h+'h';
   const dy=Math.floor(h/24);return dy<7?dy+'d':fd(d);
 }
+// Pega a PK do lead independente do nome do campo
+function getPK(lead){
+  if(typeof lead==='string') lead=JSON.parse(lead);
+  // Tenta campos comuns primeiro
+  if(lead.lead_id) return lead.lead_id;
+  if(lead.id) return lead.id;
+  // Fallback: primeiro UUID que não seja empresa/vendedor
+  const skip=['empresa_id','vendedor_id'];
+  for(const [k,v] of Object.entries(lead)){
+    if(!skip.includes(k) && typeof v==='string' && /^[0-9a-f]{8}-/.test(v)) return v;
+  }
+  return null;
+}
 function sBadge(s){
-  const m={novo:'b-dim',qualificado:'b-brand',negociacao:'b-warn',ganho:'b-ok',perdido:'b-err'};
-  const l={novo:'Novo',qualificado:'Qualificado',negociacao:'Negociação',ganho:'Ganho',perdido:'Perdido'};
+  const m={novo:'b-dim',qualificando:'b-blue',aguardando_cliente:'b-warn',pronto_para_compra:'b-brand',em_negocicao:'b-warn',fechado_ganho:'b-ok',fechado_perdido:'b-err'};
+  const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negocicao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
   return`<span class="badge ${m[s]||'b-dim'}">${l[s]||s||'—'}</span>`;
 }
 function showToast(msg,type='ok'){
