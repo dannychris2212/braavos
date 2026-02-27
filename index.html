@@ -9,6 +9,31 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* LIGHT MODE */
+body.light{
+  --bs:rgba(0,0,0,0.04);--bs2:rgba(0,0,0,0.07);
+  --bb:rgba(0,0,0,0.10);--bb2:rgba(0,0,0,0.18);
+  --txt:#1a1a2e;--muted:rgba(26,26,46,0.45);
+  --bg:#f4f4f8;--bg2:#ebebf2;
+}
+body.light .sidebar{background:rgba(255,255,255,0.85);border-color:var(--bb)}
+body.light .card{background:rgba(255,255,255,0.9);border-color:var(--bb)}
+body.light .modal{background:#ffffff}
+body.light .dp{background:#f8f8fc}
+body.light .nav:hover{background:rgba(0,0,0,0.04)}
+body.light .nav.active{background:rgba(0,0,0,0.07)}
+body.light .linp,.light .fi,.light .fs,.light .fta{background:rgba(0,0,0,0.04);border-color:var(--bb);color:var(--txt)}
+body.light .fs option{background:#fff}
+body.light .topbar{background:rgba(244,244,248,0.95)}
+body.light .login-box{background:rgba(255,255,255,0.9)}
+body.light .s-user{background:rgba(0,0,0,0.04)}
+body.light .toast{background:rgba(255,255,255,0.97)}
+body.light .chip{background:rgba(0,0,0,0.04);border-color:var(--bb);color:var(--muted)}
+body.light .chip.on{background:var(--dim);border-color:var(--brand);color:var(--brand)}
+body.light .fsearch{background:rgba(0,0,0,0.04);border-color:var(--bb);color:var(--txt)}
+body.light .acard{background:rgba(255,255,255,0.9);border-color:var(--bb)}
+body.light .f-stage{background:rgba(255,255,255,0.8);border-color:var(--bb)}
+body.light .ped-card{border-color:var(--bb)}
 :root{
   --bs:rgba(255,255,255,0.04);--bs2:rgba(255,255,255,0.07);
   --bb:rgba(255,255,255,0.08);--bb2:rgba(255,255,255,0.14);
@@ -341,6 +366,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <span class="nbadge hide" id="sb-badge">0</span>
     </div>
     <div class="nav-spacer"></div>
+    <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
     <div style="padding:0 10px">
       <div class="s-user">
         <div class="s-user-name" id="sb-nome">—</div>
@@ -556,7 +582,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div class="modal">
     <button class="mcl" onclick="closeM('m-visita')">✕</button>
     <div class="modal-ti">◎ Nova Visita</div>
-    <div class="fg"><label class="fl">Lead / Cliente</label><select class="fs" id="v-lead"></select></div>
+    <div class="fg"><label class="fl">Cliente</label><select class="fs" id="v-cliente"></select></div>
     <div class="fr">
       <div class="fg"><label class="fl">Tipo</label>
         <select class="fs" id="v-tipo">
@@ -567,7 +593,27 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
       <div class="fg"><label class="fl">Data</label><input type="date" class="fi" id="v-data"/></div>
     </div>
-    <div class="fg"><label class="fl">Notas</label><textarea class="fta" id="v-notas" placeholder="O que aconteceu?"></textarea></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Hora</label><input type="time" class="fi" id="v-hora"/></div>
+      <div class="fg"><label class="fl">Duração (min)</label><input type="number" class="fi" id="v-duracao" placeholder="60"/></div>
+    </div>
+    <div class="fg"><label class="fl">Resumo</label><textarea class="fta" id="v-resumo" placeholder="O que aconteceu?"></textarea></div>
+    <div class="fg"><label class="fl">Próximo Passo</label><input type="text" class="fi" id="v-proximo-passo" placeholder="Ex: Enviar proposta"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Data Follow-up</label><input type="date" class="fi" id="v-followup"/></div>
+      <div class="fg"><label class="fl">Resultado</label>
+        <select class="fs" id="v-resultado">
+          <option value="">Selecionar</option>
+          <option value="positivo">Positivo</option>
+          <option value="neutro">Neutro</option>
+          <option value="negativo">Negativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="v-pedido"/>
+      <label for="v-pedido">Gerou pedido nesta visita</label>
+    </div>
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeM('m-visita')">Cancelar</button>
       <button class="btn btn-p" onclick="salvarVisita()">Registrar</button>
@@ -843,24 +889,32 @@ async function loadClientes(){
 
 // ── VISITAS ───────────────────────────────────────────────────────
 async function loadVisitas(){
-  const {data}=await sb.from('visitas').select('*, leads(nome)').order('data',{ascending:false});
+  const {data}=await sb.from('visitas')
+    .select('*, customers(leads(nome, empresa_cliente))')
+    .order('data',{ascending:false});
   const el=document.getElementById('visitas-list');
   if(!data?.length){el.innerHTML='<div class="empty"><i>◎</i>Nenhuma visita ainda.</div>';return;}
   const icons={presencial:'⬡',remota:'◈',ligacao:'◉'};
   const bl={presencial:'b-brand',remota:'b-dim',ligacao:'b-dim'};
   const ll={presencial:'Presencial',remota:'Remota',ligacao:'Ligação'};
-  el.innerHTML=data.map(v=>`
-    <div style="display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bb)">
+  const rl={positivo:'b-ok',neutro:'b-dim',negativo:'b-err'};
+  el.innerHTML=data.map(v=>{
+    const nome=v.customers?.leads?.nome||'—';
+    const emp=v.customers?.leads?.empresa_cliente||'';
+    return `<div style="display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bb)">
       <div class="av" style="border-color:var(--bb);background:var(--bs2);color:var(--muted)">${icons[v.tipo]||'◎'}</div>
       <div style="flex:1;min-width:0">
-        <div style="font-size:14px;font-weight:500;margin-bottom:2px">${v.leads?.nome||'—'}</div>
-        <div style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.notas||'Sem anotações.'}</div>
+        <div style="font-size:14px;font-weight:500;margin-bottom:2px">${nome}${emp?' <span style="color:var(--muted);font-size:12px">· '+emp+'</span>':''}</div>
+        <div style="font-size:12px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.resumo||v.proximo_passo||'Sem resumo.'}</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0">
-        <span style="font-family:var(--FM);font-size:11px;color:var(--muted)">${fd(v.data)}</span>
+        <span style="font-family:var(--FM);font-size:11px;color:var(--muted)">${fd(v.data)}${v.hora?' '+v.hora.slice(0,5):''}</span>
         <span class="badge ${bl[v.tipo]||'b-dim'}">${ll[v.tipo]||v.tipo}</span>
+        ${v.resultado?`<span class="badge ${rl[v.resultado]||'b-dim'}">${v.resultado}</span>`:''}
+        ${v.pedido_gerado?'<span class="badge b-ok">◫ Pedido</span>':''}
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 // ── PEDIDOS ───────────────────────────────────────────────────────
@@ -1131,20 +1185,35 @@ async function salvarLead(){
 
 // ── SALVAR VISITA ─────────────────────────────────────────────────
 async function salvarVisita(){
-  const lid=document.getElementById('v-lead').value;
-  if(!lid){showToast('Selecione um lead','er');return;}
+  const cid=document.getElementById('v-cliente').value;
+  if(!cid){showToast('Selecione um cliente','er');return;}
+  const dt=document.getElementById('v-data').value;
+  if(!dt){showToast('Informe a data','er');return;}
   const payload={
-    user_id:U.id,
-    lead_id:lid,
-    tipo:document.getElementById('v-tipo').value,
-    data:document.getElementById('v-data').value,
-    notas:document.getElementById('v-notas').value.trim(),
+    vendedor_id:P.vendedor_id,
+    cliente_id:cid,
     empresa_id:P.empresa_id,
+    tipo:document.getElementById('v-tipo').value,
+    data:dt,
+    resumo:document.getElementById('v-resumo').value.trim()||null,
+    proximo_passo:document.getElementById('v-proximo-passo').value.trim()||null,
+    resultado:document.getElementById('v-resultado').value||null,
+    pedido_gerado:document.getElementById('v-pedido').checked,
   };
+  const hora=document.getElementById('v-hora').value;
+  if(hora) payload.hora=hora;
+  const dur=document.getElementById('v-duracao').value;
+  if(dur) payload.duracao_min=parseInt(dur);
+  const fu=document.getElementById('v-followup').value;
+  if(fu) payload.data_followup=fu;
   const {error}=await sb.rpc('inserir_visita',{payload});
   if(error){console.error('Erro visita:',error);showToast('Erro: '+error.message,'er');return;}
-  closeM('m-visita');showToast('◎ Visita registrada!','ok');
-  document.getElementById('v-notas').value='';
+  closeM('m-visita');
+  showToast('◎ Visita registrada!','ok');
+  // limpar
+  ['v-resumo','v-proximo-passo','v-followup'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  document.getElementById('v-pedido').checked=false;
+  document.getElementById('v-resultado').value='';
   loadVisitas();
 }
 
@@ -1172,9 +1241,15 @@ function setupRT(){
 // ── MODAIS ────────────────────────────────────────────────────────
 function openM(id){
   if(id==='m-visita'){
-    sb.from('leads').select('id,nome').eq('empresa_id',P.empresa_id).then(({data})=>{
-      document.getElementById('v-lead').innerHTML=data?.length?data.map(l=>`<option value="${l.id}">${l.nome}</option>`).join(''):'<option>Nenhum lead</option>';
-    });
+    sb.from('customers')
+      .select('id, leads(nome, empresa_cliente)')
+      .eq('empresa_id',P.empresa_id)
+      .then(({data})=>{
+        const sel=document.getElementById('v-cliente');
+        sel.innerHTML=data?.length
+          ?data.map(c=>`<option value="${c.id}">${c.leads?.nome||'—'}${c.leads?.empresa_cliente?' · '+c.leads.empresa_cliente:''}</option>`).join('')
+          :'<option value="">Nenhum cliente cadastrado</option>';
+      });
     document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
   }
   document.getElementById(id).classList.add('open');
@@ -1252,6 +1327,20 @@ function sBadge(s){
   const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negocicao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
   return`<span class="badge ${m[s]||'b-dim'}">${l[s]||s||'—'}</span>`;
 }
+// ── TEMA ─────────────────────────────────────────────────────────
+function toggleTheme(){
+  const isLight=document.body.classList.toggle('light');
+  localStorage.setItem('theme',isLight?'light':'dark');
+  document.getElementById('theme-label').textContent=isLight?'Modo Escuro':'Modo Claro';
+}
+(()=>{
+  if(localStorage.getItem('theme')==='light'){
+    document.body.classList.add('light');
+    const el=document.getElementById('theme-label');
+    if(el) el.textContent='Modo Escuro';
+  }
+})();
+
 function showToast(msg,type='ok'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className=`toast ${type} show`;
