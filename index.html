@@ -454,10 +454,47 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-visitas" class="page" style="display:none">
       <div class="page-ey">Campo</div>
       <div class="page-ti">Visitas</div>
-      <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
-        <button class="btn btn-p btn-sm" onclick="openM('m-visita')">◎ Nova Visita</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;gap:6px">
+          <span class="chip on" id="vtab-roteiro" onclick="visTab('roteiro')">◱ Roteiro</span>
+          <span class="chip" id="vtab-historico" onclick="visTab('historico')">◎ Histórico</span>
+        </div>
+        <button class="btn btn-p btn-sm" id="btn-nova-visita" onclick="openM('m-visita')" style="display:none">◎ Registrar Visita</button>
       </div>
-      <div class="card" id="visitas-list"><div class="empty"><div class="dot"></div></div></div>
+
+      <!-- ABA ROTEIRO -->
+      <div id="vis-roteiro">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div>
+              <div class="m-lbl">Data do Roteiro</div>
+              <input type="date" class="fi" id="rot-data" style="margin-top:4px;width:160px" onchange="loadRoteiro()"/>
+            </div>
+            <div style="flex:1"></div>
+            <button class="btn btn-g btn-sm" onclick="abrirMaps()">↗ Abrir no Maps</button>
+            <button class="btn btn-p btn-sm" onclick="salvarRoteiro()">◈ Salvar Roteiro</button>
+          </div>
+        </div>
+
+        <!-- Sugestões -->
+        <div class="sh"><div class="sh-t">◬ Sugestões</div><span class="sh-l" onclick="toggleSugestoes()">ver todas →</span></div>
+        <div class="card" id="rot-sugestoes" style="margin-bottom:14px"><div class="empty"><div class="dot"></div></div></div>
+
+        <!-- Lista do roteiro -->
+        <div class="sh">
+          <div class="sh-t">◱ Paradas do Dia</div>
+          <button class="btn btn-g btn-sm" onclick="openAddParada()">+ Adicionar</button>
+        </div>
+        <div class="card" id="rot-lista"><div class="empty"><i>◱</i>Nenhuma parada adicionada ainda.</div></div>
+      </div>
+
+      <!-- ABA HISTÓRICO -->
+      <div id="vis-historico" style="display:none">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-p btn-sm" onclick="openM('m-visita')">◎ Registrar Visita</button>
+        </div>
+        <div class="card" id="visitas-list"><div class="empty"><div class="dot"></div></div></div>
+      </div>
     </div>
 
     <!-- PEDIDOS -->
@@ -587,6 +624,62 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeM('m-lead')">Cancelar</button>
       <button class="btn btn-p" onclick="salvarLead()">Salvar Lead</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: ADICIONAR PARADA ──────────────────────────────────── -->
+<div class="ov" id="m-parada">
+  <div class="modal" style="width:420px">
+    <button class="mcl" onclick="closeM('m-parada')">✕</button>
+    <div class="modal-ti">◱ Adicionar Parada</div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <span class="chip on" id="ptab-lead" onclick="ptab('lead')">◈ Lead</span>
+      <span class="chip" id="ptab-cliente" onclick="ptab('cliente')">◉ Cliente</span>
+    </div>
+    <div id="p-section-lead" class="fg"><label class="fl">Lead</label><select class="fs" id="p-lead-sel"></select></div>
+    <div id="p-section-cliente" class="fg" style="display:none"><label class="fl">Cliente</label><select class="fs" id="p-cliente-sel"></select></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeM('m-parada')">Cancelar</button>
+      <button class="btn btn-p" onclick="addParada()">Adicionar ao Roteiro</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: REGISTRAR VISITA DO ROTEIRO ────────────────────────── -->
+<div class="ov" id="m-check-visita">
+  <div class="modal" style="width:420px">
+    <button class="mcl" onclick="closeM('m-check-visita')">✕</button>
+    <div class="modal-ti">◎ Registrar Visita</div>
+    <input type="hidden" id="cv-cliente-id"/>
+    <input type="hidden" id="cv-parada-idx"/>
+    <div id="cv-nome" style="font-size:14px;color:var(--muted);margin-bottom:16px">—</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Resultado</label>
+        <select class="fs" id="cv-resultado">
+          <option value="">Selecionar</option>
+          <option value="positivo">Positivo</option>
+          <option value="neutro">Neutro</option>
+          <option value="negativo">Negativo</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Duração (min)</label>
+        <input type="number" class="fi" id="cv-duracao" placeholder="30"/>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Resumo *</label>
+      <textarea class="fta" id="cv-resumo" placeholder="O que aconteceu na visita?"></textarea>
+    </div>
+    <div class="fg"><label class="fl">Próximo Passo</label>
+      <input type="text" class="fi" id="cv-proximo" placeholder="Ex: Enviar proposta"/>
+    </div>
+    <div class="check-row">
+      <input type="checkbox" id="cv-pedido"/>
+      <label for="cv-pedido">Gerou pedido nesta visita</label>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeM('m-check-visita')">Cancelar</button>
+      <button class="btn btn-ok" onclick="concluirVisita()">✓ Marcar como Visitado</button>
     </div>
   </div>
 </div>
@@ -1443,6 +1536,248 @@ function sBadge(s){
   const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negociacao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
   return`<span class="badge ${m[s]||'b-dim'}">${l[s]||s||'—'}</span>`;
 }
+// ── ROTEIRO ──────────────────────────────────────────────────────
+let roteiro={data:'',itens:[]};
+let roteiroId=null;
+let mostrarTodasSugestoes=false;
+
+async function initRoteiro(){
+  const hoje=new Date().toISOString().split('T')[0];
+  document.getElementById('rot-data').value=hoje;
+  await loadRoteiro();
+  await loadSugestoes();
+}
+
+async function loadRoteiro(){
+  const data=document.getElementById('rot-data').value;
+  if(!data) return;
+  roteiro={data,itens:[]};roteiroId=null;
+  const {data:r}=await sb.from('roteiros')
+    .select('*').eq('vendedor_id',P.vendedor_id).eq('data',data).maybeSingle();
+  if(r){roteiroId=r.id;roteiro.itens=r.itens||[];}
+  renderRoteiro();
+}
+
+function renderRoteiro(){
+  const el=document.getElementById('rot-lista');
+  if(!roteiro.itens.length){
+    el.innerHTML='<div class="empty"><i>◱</i>Nenhuma parada. Adicione leads ou clientes abaixo.</div>';
+    return;
+  }
+  el.innerHTML=roteiro.itens.map((item,i)=>`
+    <div class="row" style="cursor:default;padding:12px 0" id="parada-${i}">
+      <div style="width:24px;height:24px;border-radius:7px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FM);font-size:11px;color:var(--brand);flex-shrink:0">${i+1}</div>
+      <div class="av" style="${item.visitado?'background:rgba(79,200,122,.15);border-color:var(--ok);color:var(--ok)':''}">
+        ${item.nome?.[0]?.toUpperCase()||'?'}
+      </div>
+      <div class="row-info">
+        <div class="row-name" style="${item.visitado?'text-decoration:line-through;color:var(--muted)':''}">
+          ${item.nome||'—'}
+          <span class="badge ${item.tipo==='cliente'?'b-ok':'b-brand'}" style="margin-left:6px;font-size:9px">${item.tipo}</span>
+        </div>
+        <div class="row-sub">${item.endereco||'Sem endereço'}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        ${item.visitado
+          ?'<span class="badge b-ok">✓ Visitado</span>'
+          :`<button class="btn btn-ok btn-sm" onclick="abrirCheckVisita(${i})">✓ Visitar</button>`
+        }
+        ${item.endereco?`<a href="https://www.google.com/maps/search/${encodeURIComponent(item.endereco)}" target="_blank" class="btn btn-g btn-sm">↗</a>`:''}
+        <button class="btn btn-g btn-sm" onclick="removerParada(${i})" style="padding:5px 8px;color:var(--err)">✕</button>
+      </div>
+    </div>`).join('');
+}
+
+async function salvarRoteiro(){
+  if(!roteiro.itens.length){showToast('Adicione ao menos uma parada','er');return;}
+  if(roteiroId){
+    await sb.from('roteiros').update({itens:roteiro.itens}).eq('id',roteiroId);
+  } else {
+    const {data:r}=await sb.from('roteiros')
+      .insert({vendedor_id:P.vendedor_id,empresa_id:P.empresa_id,data:roteiro.data,itens:roteiro.itens})
+      .select('id').single();
+    if(r) roteiroId=r.id;
+  }
+  showToast('◱ Roteiro salvo!','ok');
+}
+
+async function loadSugestoes(){
+  const hoje=new Date().toISOString().split('T')[0];
+  const em7=new Date(Date.now()+7*864e5).toISOString().split('T')[0];
+  // Leads com proximo_contato vencido ou próximo
+  const {data:leads}=await sb.from('leads')
+    .select('id,nome,empresa_cliente,cidade,estado,prioridade,proximo_contato,status')
+    .eq('empresa_id',P.empresa_id)
+    .lte('proximo_contato',em7)
+    .not('status','in','("fechado_ganho","fechado_perdido")')
+    .order('proximo_contato');
+  const el=document.getElementById('rot-sugestoes');
+  const lista=leads||[];
+  const exibir=mostrarTodasSugestoes?lista:lista.slice(0,4);
+  if(!exibir.length){el.innerHTML='<div class="empty"><i>◬</i>Nenhuma sugestão no momento.</div>';return;}
+  el.innerHTML=exibir.map(l=>{
+    const venc=l.proximo_contato&&l.proximo_contato<hoje;
+    const end=l.cidade?[l.cidade,l.estado].filter(Boolean).join(' — '):'';
+    return `<div class="row">
+      <span class="prio p-${l.prioridade||'normal'}"></span>
+      <div class="av">${l.nome?.[0]?.toUpperCase()||'?'}</div>
+      <div class="row-info">
+        <div class="row-name">${l.nome||'—'}</div>
+        <div class="row-sub">${l.empresa_cliente||''}${end?' · '+end:''}</div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+        ${venc?'<span class="badge b-err">Vencido</span>':'<span class="badge b-warn">Próximo</span>'}
+        <button class="btn btn-p btn-sm" onclick="addSugestao(${JSON.stringify(l).replace(/"/g,"'")})">+ Roteiro</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSugestoes(){
+  mostrarTodasSugestoes=!mostrarTodasSugestoes;
+  loadSugestoes();
+}
+
+function addSugestao(lead){
+  if(typeof lead==='string') lead=JSON.parse(lead.replace(/'/g,'"'));
+  const end=lead.cidade?[lead.cidade,lead.estado].filter(Boolean).join(', '):'';
+  if(roteiro.itens.find(x=>x.id===lead.id)){showToast('Já está no roteiro','er');return;}
+  roteiro.itens.push({tipo:'lead',id:lead.id,nome:lead.nome,endereco:end,visitado:false});
+  renderRoteiro();
+  showToast('◱ Adicionado ao roteiro!','ok');
+}
+
+function removerParada(i){
+  roteiro.itens.splice(i,1);
+  renderRoteiro();
+}
+
+function abrirCheckVisita(i){
+  const item=roteiro.itens[i];
+  document.getElementById('cv-cliente-id').value=item.clienteId||'';
+  document.getElementById('cv-parada-idx').value=i;
+  document.getElementById('cv-nome').textContent=item.nome||'—';
+  document.getElementById('cv-resumo').value='';
+  document.getElementById('cv-proximo').value='';
+  document.getElementById('cv-resultado').value='';
+  document.getElementById('cv-duracao').value='';
+  document.getElementById('cv-pedido').checked=false;
+  openM('m-check-visita');
+}
+
+async function concluirVisita(){
+  const resumo=document.getElementById('cv-resumo').value.trim();
+  if(!resumo){showToast('Preencha o resumo','er');return;}
+  const i=parseInt(document.getElementById('cv-parada-idx').value);
+  const item=roteiro.itens[i];
+
+  // Se for lead, cria/busca customer primeiro
+  let clienteId=item.clienteId||null;
+  if(item.tipo==='lead'&&!clienteId){
+    const {data:exist}=await sb.from('customers').select('id').eq('lead_id',item.id).maybeSingle();
+    if(exist){clienteId=exist.id;}
+    else{
+      const {data:novo}=await sb.from('customers')
+        .insert({lead_id:item.id,empresa_id:P.empresa_id,assigned_to:P.vendedor_id,customer_status:'ativo',origem:'app'})
+        .select('id').single();
+      clienteId=novo?.id;
+    }
+    roteiro.itens[i].clienteId=clienteId;
+  }
+
+  const payload={
+    vendedor_id:P.vendedor_id,
+    cliente_id:clienteId,
+    empresa_id:P.empresa_id,
+    tipo:'presencial',
+    data:roteiro.data,
+    resumo,
+    proximo_passo:document.getElementById('cv-proximo').value.trim(),
+    resultado:document.getElementById('cv-resultado').value,
+    pedido_gerado:document.getElementById('cv-pedido').checked,
+    hora:'',
+    duracao_min:document.getElementById('cv-duracao').value,
+    data_followup:'',
+  };
+  const {error}=await sb.rpc('inserir_visita',{payload});
+  if(error){showToast('Erro: '+error.message,'er');return;}
+
+  // Marca como visitado no roteiro
+  roteiro.itens[i].visitado=true;
+  await salvarRoteiro();
+  renderRoteiro();
+  closeM('m-check-visita');
+  showToast('✓ Visita registrada!','ok');
+  loadVisitas();
+}
+
+function abrirMaps(){
+  const enderecos=roteiro.itens.filter(x=>x.endereco).map(x=>encodeURIComponent(x.endereco));
+  if(!enderecos.length){showToast('Nenhum endereço no roteiro','er');return;}
+  if(enderecos.length===1){
+    window.open('https://www.google.com/maps/search/'+enderecos[0],'_blank');
+  } else {
+    const origem=enderecos[0];
+    const destino=enderecos[enderecos.length-1];
+    const waypoints=enderecos.slice(1,-1).join('/');
+    window.open(`https://www.google.com/maps/dir/${origem}${waypoints?'/'+waypoints:''}/${destino}`,'_blank');
+  }
+}
+
+// Parada modal tabs
+let pTabAtual='lead';
+function ptab(t){
+  pTabAtual=t;
+  document.getElementById('p-section-lead').style.display=t==='lead'?'':'none';
+  document.getElementById('p-section-cliente').style.display=t==='cliente'?'':'none';
+  document.getElementById('ptab-lead').classList.toggle('on',t==='lead');
+  document.getElementById('ptab-cliente').classList.toggle('on',t==='cliente');
+}
+
+async function openAddParada(){
+  // Carrega leads
+  const {data:leads}=await sb.from('leads').select('id,nome,empresa_cliente,cidade,estado')
+    .eq('empresa_id',P.empresa_id).not('status','in','("fechado_perdido")').order('nome');
+  document.getElementById('p-lead-sel').innerHTML=leads?.length
+    ?leads.map(l=>`<option value="${l.id}" data-end="${[l.cidade,l.estado].filter(Boolean).join(', ')}" data-nome="${l.nome||''}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+    :'<option>Nenhum lead</option>';
+  // Carrega clientes
+  const {data:clis}=await sb.from('customers').select('id,leads(nome,empresa_cliente,cidade,estado)')
+    .eq('empresa_id',P.empresa_id);
+  document.getElementById('p-cliente-sel').innerHTML=clis?.length
+    ?clis.map(c=>`<option value="${c.id}" data-end="${[c.leads?.cidade,c.leads?.estado].filter(Boolean).join(', ')}" data-nome="${c.leads?.nome||''}">${c.leads?.nome||'—'}${c.leads?.empresa_cliente?' · '+c.leads.empresa_cliente:''}</option>`).join('')
+    :'<option>Nenhum cliente</option>';
+  ptab('lead');
+  openM('m-parada');
+}
+
+function addParada(){
+  const isLead=pTabAtual==='lead';
+  const sel=document.getElementById(isLead?'p-lead-sel':'p-cliente-sel');
+  const opt=sel.options[sel.selectedIndex];
+  if(!opt?.value){showToast('Selecione um '+(isLead?'lead':'cliente'),'er');return;}
+  if(roteiro.itens.find(x=>x.id===opt.value)){showToast('Já está no roteiro','er');closeM('m-parada');return;}
+  roteiro.itens.push({
+    tipo:isLead?'lead':'cliente',
+    id:opt.value,
+    clienteId:isLead?null:opt.value,
+    nome:opt.dataset.nome||opt.text,
+    endereco:opt.dataset.end||'',
+    visitado:false
+  });
+  renderRoteiro();
+  closeM('m-parada');
+  showToast('◱ Adicionado!','ok');
+}
+
+function visTab(t){
+  document.getElementById('vis-roteiro').style.display=t==='roteiro'?'':'none';
+  document.getElementById('vis-historico').style.display=t==='historico'?'':'none';
+  document.getElementById('vtab-roteiro').classList.toggle('on',t==='roteiro');
+  document.getElementById('vtab-historico').classList.toggle('on',t==='historico');
+  if(t==='historico') loadVisitas();
+}
+
 // ── AVATAR UPLOAD ────────────────────────────────────────────────
 async function uploadAvatar(input){
   const file=input.files[0];
