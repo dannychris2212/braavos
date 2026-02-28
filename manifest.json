@@ -1,0 +1,20 @@
+{
+  "name": "Braavos Sales Intelligence",
+  "short_name": "Braavos",
+  "description": "CRM de campo para equipes de vendas",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0f",
+  "theme_color": "#c9a84c",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "pt-BR"
+}

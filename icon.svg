@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0a0a0f"/>
+  <!-- Hexágono geométrico de fundo -->
+  <polygon points="256,60 420,155 420,357 256,452 92,357 92,155" fill="none" stroke="#c9a84c" stroke-width="8" opacity="0.3"/>
+  <!-- B geométrico -->
+  <!-- Barra vertical -->
+  <rect x="148" y="140" width="36" height="232" rx="8" fill="#c9a84c"/>
+  <!-- Bump superior -->
+  <path d="M184 140 L184 256 Q290 256 290 198 Q290 140 184 140Z" fill="#c9a84c"/>
+  <!-- Bump inferior (maior) -->
+  <path d="M184 256 L184 372 Q308 372 308 314 Q308 256 184 256Z" fill="#c9a84c"/>
+  <!-- Recorte interno superior -->
+  <path d="M196 156 L196 240 Q268 240 268 198 Q268 156 196 156Z" fill="#0a0a0f"/>
+  <!-- Recorte interno inferior -->
+  <path d="M196 272 L196 356 Q280 356 280 314 Q280 272 196 272Z" fill="#0a0a0f"/>
+  <!-- Ponto dourado decorativo -->
+  <circle cx="380" cy="132" r="18" fill="#c9a84c" opacity="0.6"/>
+  <circle cx="380" cy="132" r="9" fill="#c9a84c"/>
+</svg>
