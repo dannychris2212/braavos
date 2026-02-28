@@ -7,6 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json"/>
+<link rel="icon" href="/icon.svg" type="image/svg+xml"/>
+<link rel="apple-touch-icon" href="/icon.svg"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Braavos"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="theme-color" content="#c9a84c"/>
+<meta name="msapplication-TileColor" content="#0a0a0f"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* LIGHT MODE */
@@ -369,6 +379,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav-spacer"></div>
     <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
     <div id="powered-by" style="padding:8px 22px 4px;font-family:var(--FM);font-size:9px;color:var(--muted);letter-spacing:.08em">powered by <span style="color:var(--brand)">Braavos</span></div>
+    <div id="btn-instalar" class="nav" onclick="instalarApp()" style="display:none;color:var(--brand)"><i class="nav-ic">⊕</i> Instalar App</div>
     <div style="padding:0 10px">
       <div class="s-user">
         <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
@@ -775,12 +786,14 @@ function applyEmpresa(e){
   const root=document.documentElement;
   if(e.cor_primaria){
     root.style.setProperty('--brand',e.cor_primaria);
-    // Gera dim automaticamente (cor com 12% opacidade)
     const hex=e.cor_primaria.replace('#','');
     const r=parseInt(hex.slice(0,2),16);
     const g=parseInt(hex.slice(2,4),16);
     const b=parseInt(hex.slice(4,6),16);
     root.style.setProperty('--dim',`rgba(${r},${g},${b},0.12)`);
+    // Atualiza theme-color do PWA dinamicamente
+    const tm=document.querySelector('meta[name="theme-color"]');
+    if(tm) tm.content=e.cor_primaria;
   }
   if(e.cor_fundo && !document.body.classList.contains('light')){
     root.style.setProperty('--bg',e.cor_fundo);
@@ -1832,6 +1845,37 @@ function showToast(msg,type='ok'){
   const t=document.getElementById('toast');
   t.textContent=msg;t.className=`toast ${type} show`;
   setTimeout(()=>t.classList.remove('show'),3000);
+}
+</script>
+<script>
+// ── PWA SERVICE WORKER ────────────────────────────────────────────
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('/sw.js')
+      .then(r=>console.log('SW registrado:',r.scope))
+      .catch(e=>console.log('SW erro:',e));
+  });
+}
+
+// Banner de instalação
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();
+  deferredPrompt=e;
+  // Mostra botão de instalar na sidebar após login
+  const btn=document.getElementById('btn-instalar');
+  if(btn) btn.style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  deferredPrompt=null;
+  const btn=document.getElementById('btn-instalar');
+  if(btn) btn.style.display='none';
+  showToast('◈ Braavos instalado!','ok');
+});
+function instalarApp(){
+  if(!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(()=>deferredPrompt=null);
 }
 </script>
 </body>
