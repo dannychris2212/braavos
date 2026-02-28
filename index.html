@@ -596,7 +596,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div class="modal">
     <button class="mcl" onclick="closeM('m-visita')">✕</button>
     <div class="modal-ti">◎ Nova Visita</div>
-    <div class="fg"><label class="fl">Cliente</label><select class="fs" id="v-cliente"></select></div>
+    <div style="display:flex;gap:6px;margin-bottom:14px">
+      <span class="chip on" id="vtab-cliente" onclick="vtab('cliente')">◉ Cliente</span>
+      <span class="chip" id="vtab-lead" onclick="vtab('lead')">◈ Lead</span>
+    </div>
+    <div id="v-section-cliente" class="fg"><label class="fl">Cliente</label><select class="fs" id="v-cliente"></select></div>
+    <div id="v-section-lead" class="fg" style="display:none"><label class="fl">Lead</label><select class="fs" id="v-lead-sel"></select></div>
     <div class="fr">
       <div class="fg"><label class="fl">Tipo</label>
         <select class="fs" id="v-tipo">
@@ -1258,33 +1263,62 @@ async function salvarLead(){
 }
 
 // ── SALVAR VISITA ─────────────────────────────────────────────────
+let vTabAtual='cliente';
+function vtab(t){
+  vTabAtual=t;
+  document.getElementById('v-section-cliente').style.display=t==='cliente'?'':'none';
+  document.getElementById('v-section-lead').style.display=t==='lead'?'':'none';
+  document.getElementById('vtab-cliente').classList.toggle('on',t==='cliente');
+  document.getElementById('vtab-lead').classList.toggle('on',t==='lead');
+}
+
 async function salvarVisita(){
-  const cid=document.getElementById('v-cliente').value;
-  if(!cid){showToast('Selecione um cliente','er');return;}
   const dt=document.getElementById('v-data').value;
   if(!dt){showToast('Informe a data','er');return;}
+
+  // Descobre o cliente_id — se for lead, busca ou cria o customer
+  let clienteId=null;
+  if(vTabAtual==='cliente'){
+    clienteId=document.getElementById('v-cliente').value;
+    if(!clienteId){showToast('Selecione um cliente','er');return;}
+  } else {
+    // lead selecionado — busca se já tem customer, senão cria
+    const leadId=document.getElementById('v-lead-sel').value;
+    if(!leadId){showToast('Selecione um lead','er');return;}
+    const {data:exist}=await sb.from('customers').select('id').eq('lead_id',leadId).maybeSingle();
+    if(exist){
+      clienteId=exist.id;
+    } else {
+      // cria customer automaticamente
+      const {data:novo,error:ce}=await sb.from('customers')
+        .insert({lead_id:leadId,empresa_id:P.empresa_id,assigned_to:P.vendedor_id,customer_status:'ativo',origem:'app'})
+        .select('id').single();
+      if(ce){showToast('Erro ao criar cliente: '+ce.message,'er');return;}
+      clienteId=novo?.id;
+      showToast('◉ Lead promovido automaticamente!','ok');
+      loadClientes();
+    }
+  }
+
   const payload={
     vendedor_id:P.vendedor_id,
-    cliente_id:cid,
+    cliente_id:clienteId,
     empresa_id:P.empresa_id,
     tipo:document.getElementById('v-tipo').value,
     data:dt,
-    resumo:document.getElementById('v-resumo').value.trim()||null,
-    proximo_passo:document.getElementById('v-proximo-passo').value.trim()||null,
-    resultado:document.getElementById('v-resultado').value||null,
+    resumo:document.getElementById('v-resumo').value.trim(),
+    proximo_passo:document.getElementById('v-proximo-passo').value.trim(),
+    resultado:document.getElementById('v-resultado').value,
     pedido_gerado:document.getElementById('v-pedido').checked,
+    hora:document.getElementById('v-hora').value,
+    duracao_min:document.getElementById('v-duracao').value||'',
+    data_followup:document.getElementById('v-followup').value,
   };
-  const hora=document.getElementById('v-hora').value;
-  if(hora) payload.hora=hora;
-  const dur=document.getElementById('v-duracao').value;
-  if(dur) payload.duracao_min=parseInt(dur);
-  const fu=document.getElementById('v-followup').value;
-  if(fu) payload.data_followup=fu;
+
   const {error}=await sb.rpc('inserir_visita',{payload});
   if(error){console.error('Erro visita:',error);showToast('Erro: '+error.message,'er');return;}
   closeM('m-visita');
   showToast('◎ Visita registrada!','ok');
-  // limpar
   ['v-resumo','v-proximo-passo','v-followup'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   document.getElementById('v-pedido').checked=false;
   document.getElementById('v-resultado').value='';
@@ -1315,16 +1349,24 @@ function setupRT(){
 // ── MODAIS ────────────────────────────────────────────────────────
 function openM(id){
   if(id==='m-visita'){
-    sb.from('customers')
-      .select('id, leads(nome, empresa_cliente)')
-      .eq('empresa_id',P.empresa_id)
+    // Carrega clientes
+    sb.from('customers').select('id, leads(nome, empresa_cliente)').eq('empresa_id',P.empresa_id)
       .then(({data})=>{
         const sel=document.getElementById('v-cliente');
         sel.innerHTML=data?.length
           ?data.map(c=>`<option value="${c.id}">${c.leads?.nome||'—'}${c.leads?.empresa_cliente?' · '+c.leads.empresa_cliente:''}</option>`).join('')
-          :'<option value="">Nenhum cliente cadastrado</option>';
+          :'<option value="">Nenhum cliente ainda</option>';
+      });
+    // Carrega leads
+    sb.from('leads').select('id,nome,empresa_cliente').eq('empresa_id',P.empresa_id).order('nome')
+      .then(({data})=>{
+        const sel=document.getElementById('v-lead-sel');
+        sel.innerHTML=data?.length
+          ?data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+          :'<option value="">Nenhum lead ainda</option>';
       });
     document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
+    vtab('cliente');
   }
   document.getElementById(id).classList.add('open');
 }
