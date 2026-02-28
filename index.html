@@ -367,11 +367,24 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="nav-spacer"></div>
     <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
+    <div id="powered-by" style="padding:8px 22px 4px;font-family:var(--FM);font-size:9px;color:var(--muted);letter-spacing:.08em">powered by <span style="color:var(--brand)">Braavos</span></div>
     <div style="padding:0 10px">
       <div class="s-user">
-        <div class="s-user-name" id="sb-nome">—</div>
-        <div class="s-user-role" id="sb-cargo">—</div>
-        <span class="s-logout" onclick="doLogout()">↪ sair</span>
+        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
+          <div id="sb-avatar" style="width:32px;height:32px;border-radius:8px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:16px;color:var(--brand);flex-shrink:0;overflow:hidden">?</div>
+          <div>
+            <div class="s-user-name" id="sb-nome">—</div>
+            <div class="s-user-role" id="sb-cargo">—</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <label style="font-family:var(--FM);font-size:10px;color:var(--muted);cursor:pointer;transition:color .2s" onmouseover="this.style.color='var(--brand)'" onmouseout="this.style.color='var(--muted)'">
+            ◈ foto
+            <input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)"/>
+          </label>
+          <span style="color:var(--bb)">·</span>
+          <span class="s-logout" onclick="doLogout()">↪ sair</span>
+        </div>
       </div>
     </div>
   </div>
@@ -647,24 +660,75 @@ const sb=supabase.createClient(SURL,SKEY);
 
 let U=null,P=null,allLeads=[],allPedidos=[],pedFilter='todos',leadFilter='todos';
 
-// ── TENANTS ───────────────────────────────────────────────────────
-const TENANTS={
-  braavos:   {cls:'t-braavos',  r:'raavos',   tag:'Sales Intelligence', full:'Braavos'},
-  techwave:  {cls:'t-techwave', r:'echWave',  tag:'Portal de Vendas',   full:'TechWave'},
-  logistica: {cls:'t-logistica',r:'ogExpress',tag:'Força de Vendas',    full:'LogExpress'},
-  fintech:   {cls:'t-fintech',  r:'inCore',   tag:'Sales Platform',     full:'FinCore'},
-  saude:     {cls:'t-saude',    r:'aúdePro',  tag:'Gestão Comercial',   full:'SaúdePro'},
-};
-(()=>{
-  const p=new URLSearchParams(location.search);
-  const t=TENANTS[p.get('tenant')]||TENANTS.braavos;
-  Object.values(TENANTS).forEach(x=>document.body.classList.remove(x.cls));
-  document.body.classList.add(t.cls);
-  ['sb-brand','tb-brand','l-brand'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=t.r;});
-  const stag=document.getElementById('sb-tag');if(stag)stag.textContent=t.tag;
-  const lsub=document.getElementById('l-sub');if(lsub)lsub.textContent=t.full+' · Login';
-  document.title=t.full+' — Sales Intelligence';
-})();
+// ── EMPRESA (dinâmico do banco) ───────────────────────────────────
+let EMPRESA=null;
+
+async function loadEmpresa(){
+  if(!P?.empresa_id) return;
+  const {data}=await sb.from('empresas').select('*').eq('id',P.empresa_id).single();
+  if(!data) return;
+  EMPRESA=data;
+  applyEmpresa(data);
+}
+
+function applyEmpresa(e){
+  // Cores dinâmicas
+  const root=document.documentElement;
+  if(e.cor_primaria){
+    root.style.setProperty('--brand',e.cor_primaria);
+    // Gera dim automaticamente (cor com 12% opacidade)
+    const hex=e.cor_primaria.replace('#','');
+    const r=parseInt(hex.slice(0,2),16);
+    const g=parseInt(hex.slice(2,4),16);
+    const b=parseInt(hex.slice(4,6),16);
+    root.style.setProperty('--dim',`rgba(${r},${g},${b},0.12)`);
+  }
+  if(e.cor_fundo){
+    root.style.setProperty('--bg',e.cor_fundo);
+    // bg2 levemente mais claro
+    root.style.setProperty('--bg2',e.cor_fundo);
+    document.body.style.background=e.cor_fundo;
+  }
+
+  // Nome da empresa
+  const nome=e.nome||'Braavos';
+  const inicial=nome[0].toUpperCase();
+  const resto=nome.slice(1);
+  ['sb-brand','tb-brand','l-brand'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.textContent=resto;
+  });
+  // Inicial dourada
+  document.querySelectorAll('.sg,.tg,.mg').forEach(el=>el.textContent=inicial);
+
+  // Logo
+  if(e.logo_url){
+    // Sidebar logo
+    const sLogo=document.querySelector('.s-logo');
+    if(sLogo){
+      sLogo.innerHTML=`<img src="${e.logo_url}" style="height:36px;object-fit:contain;max-width:160px;margin-bottom:4px" onerror="this.style.display='none'"/>
+        <small id="sb-tag">Sales Intelligence</small>`;
+    }
+    // Login logo
+    const lLogo=document.querySelector('.login-logo');
+    if(lLogo){
+      lLogo.innerHTML=`<img src="${e.logo_url}" style="height:48px;object-fit:contain;max-width:200px;margin-bottom:8px"/>`;
+    }
+    // Mobile logo
+    const tLogo=document.querySelector('.t-logo');
+    if(tLogo){
+      tLogo.innerHTML=`<img src="${e.logo_url}" style="height:28px;object-fit:contain;max-width:120px"/>`;
+    }
+  }
+
+  // Tagline
+  const stag=document.getElementById('sb-tag');if(stag)stag.textContent='Sales Intelligence';
+  const lsub=document.getElementById('l-sub');if(lsub)lsub.textContent=nome+' · Login';
+  document.title=nome+' — Sales Intelligence';
+
+  // Powered by Braavos
+  const pb=document.getElementById('powered-by');
+  if(pb) pb.style.display=e.mostrar_powered===false?'none':'block';
+}
 
 // ── AUTH ──────────────────────────────────────────────────────────
 async function doLogin(){
@@ -686,6 +750,15 @@ async function onLogin(user){
   const nome=P?.nome||user.email.split('@')[0];
   document.getElementById('sb-nome').textContent=nome;
   document.getElementById('sb-cargo').textContent=(P?.cargo||'vendedor')+(P?.regiao?' · '+P.regiao:'');
+  // Avatar
+  const avEl=document.getElementById('sb-avatar');
+  if(avEl){
+    if(P?.avatar_url){
+      avEl.innerHTML=`<img src="${P.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>`;
+    } else {
+      avEl.textContent=nome[0].toUpperCase();
+    }
+  }
   const h=new Date().getHours();
   const s=h<12?'Bom dia':h<18?'Boa tarde':'Boa noite';
   document.getElementById('d-hi').textContent=`${s}, ${nome.split(' ')[0]} 👋`;
@@ -694,6 +767,7 @@ async function onLogin(user){
   if(P?.cargo==='gerente') document.getElementById('nav-equipe').style.display='flex';
   document.getElementById('login-screen').classList.add('hidden');
   pedirPush();
+  await loadEmpresa();
   await loadAll();
   setupRT();
 }
@@ -1327,6 +1401,25 @@ function sBadge(s){
   const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negocicao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
   return`<span class="badge ${m[s]||'b-dim'}">${l[s]||s||'—'}</span>`;
 }
+// ── AVATAR UPLOAD ────────────────────────────────────────────────
+async function uploadAvatar(input){
+  const file=input.files[0];
+  if(!file) return;
+  if(file.size>2*1024*1024){showToast('Foto muito grande (máx 2MB)','er');return;}
+  const ext=file.name.split('.').pop();
+  const path=`avatars/${P.vendedor_id}.${ext}`;
+  showToast('Enviando foto...','ok');
+  const {error:upErr}=await sb.storage.from('avatars').upload(path,file,{upsert:true});
+  if(upErr){showToast('Erro no upload: '+upErr.message,'er');return;}
+  const {data:urlData}=sb.storage.from('avatars').getPublicUrl(path);
+  const url=urlData.publicUrl;
+  await sb.from('profiles').update({avatar_url:url}).eq('vendedor_id',P.vendedor_id);
+  P.avatar_url=url;
+  const avEl=document.getElementById('sb-avatar');
+  if(avEl) avEl.innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover"/>`;
+  showToast('◈ Foto atualizada!','ok');
+}
+
 // ── TEMA ─────────────────────────────────────────────────────────
 function toggleTheme(){
   const isLight=document.body.classList.toggle('light');
