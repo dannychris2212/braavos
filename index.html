@@ -434,7 +434,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="chip" data-s="qualificando" onclick="chipLead(this)">Qualificando</span>
           <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)">Aguardando</span>
           <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)">Pronto</span>
-          <span class="chip" data-s="em_negocicao" onclick="chipLead(this)">Negociação</span>
+          <span class="chip" data-s="em_negociacao" onclick="chipLead(this)">Negociação</span>
           <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
           <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
         </div>
@@ -552,7 +552,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <option value="qualificando">Qualificando</option>
           <option value="aguardando_cliente">Aguardando Cliente</option>
           <option value="pronto_para_compra">Pronto para Compra</option>
-          <option value="em_negocicao">Em Negociação</option>
+          <option value="em_negociacao">Em Negociação</option>
           <option value="fechado_ganho">Fechado Ganho</option>
           <option value="fechado_perdido">Fechado Perdido</option>
         </select>
@@ -795,10 +795,10 @@ async function loadAll(){
 function loadDashboard(){
   const startMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString();
   const cnt={};
-  ['novo','qualificando','em_negocicao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
+  ['novo','qualificando','em_negociacao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
   document.getElementById('f-novo').textContent=(cnt.novo||0)+(allLeads.filter(l=>l.status==='qualificando'||l.status==='aguardando_cliente'||l.status==='pronto_para_compra').length);
   document.getElementById('f-qual').textContent=allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length;
-  document.getElementById('f-neg').textContent=cnt.em_negocicao||0;
+  document.getElementById('f-neg').textContent=cnt.em_negociacao||0;
   document.getElementById('f-ganho').textContent=cnt.fechado_ganho||0;
   document.getElementById('f-perd').textContent=cnt.fechado_perdido||0;
   const total=allLeads.length;
@@ -807,7 +807,7 @@ function loadDashboard(){
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
   document.getElementById('d-novos').textContent=allLeads.filter(l=>l.created_at>=startMes).length;
   document.getElementById('d-conv').textContent=conv+'%';
-  document.getElementById('d-neg').textContent=cnt.em_negocicao||0;
+  document.getElementById('d-neg').textContent=cnt.em_negociacao||0;
 
   // Próximos contatos
   const hoje=new Date().toISOString().split('T')[0];
@@ -1216,7 +1216,7 @@ async function salvarLead(){
   const isCliente=document.getElementById('lead-is-cliente').checked;
   const payload={nome,telefone,vendedor_id:P.vendedor_id,empresa_id:P.empresa_id};
   const statusVal=document.getElementById('l-status').value.toLowerCase().trim();
-  const validStatus=['novo','qualificando','aguardando_cliente','pronto_para_compra','em_negocicao','fechado_ganho','fechado_perdido'];
+  const validStatus=['novo','qualificando','aguardando_cliente','pronto_para_compra','em_negociacao','fechado_ganho','fechado_perdido'];
   payload.status=isCliente?'fechado_ganho':(validStatus.includes(statusVal)?statusVal:'novo');
   const opt={empresa_cliente:'l-emp',email:'l-email',cargo_cliente:'l-cargo',cnpj:'l-cnpj',cidade:'l-cid',estado:'l-est',regiao:'l-reg',notas:'l-notas',segmento:'l-seg',origem:'l-orig'};
   Object.entries(opt).forEach(([field,elId])=>{const v=document.getElementById(elId)?.value?.trim();if(v)payload[field]=v;});
@@ -1397,8 +1397,8 @@ function getPK(lead){
   return null;
 }
 function sBadge(s){
-  const m={novo:'b-dim',qualificando:'b-blue',aguardando_cliente:'b-warn',pronto_para_compra:'b-brand',em_negocicao:'b-warn',fechado_ganho:'b-ok',fechado_perdido:'b-err'};
-  const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negocicao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
+  const m={novo:'b-dim',qualificando:'b-blue',aguardando_cliente:'b-warn',pronto_para_compra:'b-brand',em_negociacao:'b-warn',fechado_ganho:'b-ok',fechado_perdido:'b-err'};
+  const l={novo:'Novo',qualificando:'Qualificando',aguardando_cliente:'Aguard. Cliente',pronto_para_compra:'Pronto p/ Compra',em_negociacao:'Em Negociação',fechado_ganho:'Ganho',fechado_perdido:'Perdido'};
   return`<span class="badge ${m[s]||'b-dim'}">${l[s]||s||'—'}</span>`;
 }
 // ── AVATAR UPLOAD ────────────────────────────────────────────────
