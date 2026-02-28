@@ -11,10 +11,11 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 /* LIGHT MODE */
 body.light{
-  --bs:rgba(0,0,0,0.04);--bs2:rgba(0,0,0,0.07);
+  --bs:rgba(0,0,0,0.05);--bs2:rgba(0,0,0,0.08);
   --bb:rgba(0,0,0,0.10);--bb2:rgba(0,0,0,0.18);
-  --txt:#1a1a2e;--muted:rgba(26,26,46,0.45);
-  --bg:#f4f4f8;--bg2:#ebebf2;
+  --txt:#1a1a2e;--muted:rgba(26,26,46,0.5);
+  --bg:#f2f2f7;--bg2:#e8e8f0;
+  background:#f2f2f7 !important;
 }
 body.light .sidebar{background:rgba(255,255,255,0.85);border-color:var(--bb)}
 body.light .card{background:rgba(255,255,255,0.9);border-color:var(--bb)}
@@ -683,9 +684,8 @@ function applyEmpresa(e){
     const b=parseInt(hex.slice(4,6),16);
     root.style.setProperty('--dim',`rgba(${r},${g},${b},0.12)`);
   }
-  if(e.cor_fundo){
+  if(e.cor_fundo && !document.body.classList.contains('light')){
     root.style.setProperty('--bg',e.cor_fundo);
-    // bg2 levemente mais claro
     root.style.setProperty('--bg2',e.cor_fundo);
     document.body.style.background=e.cor_fundo;
   }
@@ -1425,12 +1425,29 @@ function toggleTheme(){
   const isLight=document.body.classList.toggle('light');
   localStorage.setItem('theme',isLight?'light':'dark');
   document.getElementById('theme-label').textContent=isLight?'Modo Escuro':'Modo Claro';
+  const root=document.documentElement;
+  if(isLight){
+    // modo claro: remove cor de fundo da empresa, mantém cor primária
+    root.style.removeProperty('--bg');
+    root.style.removeProperty('--bg2');
+    document.body.style.removeProperty('background');
+  } else {
+    // modo escuro: reaplica cor de fundo da empresa
+    if(EMPRESA?.cor_fundo){
+      root.style.setProperty('--bg',EMPRESA.cor_fundo);
+      root.style.setProperty('--bg2',EMPRESA.cor_fundo);
+      document.body.style.background=EMPRESA.cor_fundo;
+    }
+  }
 }
 (()=>{
   if(localStorage.getItem('theme')==='light'){
     document.body.classList.add('light');
     const el=document.getElementById('theme-label');
     if(el) el.textContent='Modo Escuro';
+    // garante que cor_fundo da empresa não sobrescreve no modo claro
+    document.documentElement.style.removeProperty('--bg');
+    document.documentElement.style.removeProperty('--bg2');
   }
 })();
 
