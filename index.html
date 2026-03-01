@@ -1065,6 +1065,8 @@ function loadDashboard(){
       <span class="cbar-val" style="color:var(--brand)">${c}</span>
     </div>`).join('')
     :'<div class="empty"><i>◈</i>Sem dados ainda</div>';
+  // Desenha gráficos após atualizar dados
+  requestAnimationFrame(drawDashboardCharts);
 }
 
 // ── LEADS ─────────────────────────────────────────────────────────
@@ -1609,6 +1611,8 @@ function go(page,navEl){
   // carregar página
   if(page==='alertas')loadAlertas();
   if(page==='equipe')loadEquipe();
+  if(page==='relatorios')initRelatorios();
+  if(page==='visitas')initRoteiro();
 }
 function navEl(i){return document.querySelectorAll('.nav')[i];}
 
@@ -1798,26 +1802,21 @@ async function drawEvolucao(){
     </div>`;
 }
 
-// Substitui loadDashboard para incluir gráficos
-const _origLoadDash=loadDashboard;
-function loadDashboard(){
-  _origLoadDash();
-  // Monta counts depois do original rodar
-  requestAnimationFrame(()=>{
-    const counts={
-      novo:allLeads.filter(l=>l.status==='novo').length,
-      qualificando:allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length,
-      negociacao:allLeads.filter(l=>l.status==='em_negociacao').length,
-      ganho:allLeads.filter(l=>l.status==='fechado_ganho').length,
-      perdido:allLeads.filter(l=>l.status==='fechado_perdido').length,
-    };
-    drawFunil(counts);
-    const meta=P?.meta_mensal_leads||20;
-    const hoje=new Date();
-    const novosDoMes=allLeads.filter(l=>{const d=new Date(l.created_at);return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();}).length;
-    drawGauge((novosDoMes/meta)*100,meta);
-    drawEvolucao();
-  });
+// Desenha gráficos do dashboard
+function drawDashboardCharts(){
+  const counts={
+    novo:allLeads.filter(l=>l.status==='novo').length,
+    qualificando:allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length,
+    negociacao:allLeads.filter(l=>l.status==='em_negociacao').length,
+    ganho:allLeads.filter(l=>l.status==='fechado_ganho').length,
+    perdido:allLeads.filter(l=>l.status==='fechado_perdido').length,
+  };
+  drawFunil(counts);
+  const meta=P?.meta_mensal_leads||20;
+  const hoje=new Date();
+  const novosDoMes=allLeads.filter(l=>{const d=new Date(l.created_at);return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();}).length;
+  drawGauge((novosDoMes/meta)*100,meta);
+  drawEvolucao();
 }
 
 // ── RELATÓRIOS ────────────────────────────────────────────────────
