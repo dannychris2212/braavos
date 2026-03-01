@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8"/>
@@ -63,77 +62,77 @@ body.light .ped-card{border-color:var(--bb)}
 .t-saude    {--brand:#a855f7;--dim:rgba(168,85,247,0.12);--bg:#0c0714;--bg2:#130d1f}
 
 html,body{height:100%;overflow:hidden}
-body{font-family:var(–FB);color:var(–txt);background:var(–bg)}
-body::before{content:’’;position:fixed;inset:0;background-image:url(“data:image/svg+xml,%3Csvg viewBox=‘0 0 200 200’ xmlns=‘http://www.w3.org/2000/svg’%3E%3Cfilter id=‘n’%3E%3CfeTurbulence type=‘fractalNoise’ baseFrequency=‘0.85’ numOctaves=‘4’ stitchTiles=‘stitch’/%3E%3C/filter%3E%3Crect width=‘100%25’ height=‘100%25’ filter=‘url(%23n)’ opacity=‘0.035’/%3E%3C/svg%3E”);pointer-events:none;z-index:999;opacity:0.5}
+body{font-family:var(--FB);color:var(--txt);background:var(--bg)}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:999;opacity:0.5}
 
 /* ── LOGIN ─────────────────────────────────────────────── */
-#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(–bg);z-index:500;transition:opacity .4s}
+#login-screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:var(--bg);z-index:500;transition:opacity .4s}
 #login-screen.hidden{opacity:0;pointer-events:none}
-.login-box{width:360px;background:rgba(255,255,255,0.04);border:1px solid var(–bb);border-radius:var(–rl);padding:40px;backdrop-filter:blur(16px);position:relative;overflow:hidden}
-.login-box::before{content:’’;position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)}
-.login-logo{font-family:var(–FD);font-size:40px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
-.login-sub{font-family:var(–FM);font-size:10px;letter-spacing:.2em;color:var(–muted);text-transform:uppercase;margin-bottom:28px}
-.lbl{font-size:11px;color:var(–muted);margin-bottom:5px;font-family:var(–FM);letter-spacing:.1em;text-transform:uppercase}
-.linp{width:100%;padding:10px 13px;background:rgba(255,255,255,0.05);border:1px solid var(–bb);border-radius:var(–rs);color:var(–txt);font-family:var(–FB);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:14px}
-.linp:focus{border-color:var(–brand)}.linp::placeholder{color:var(–muted)}
-.lbtn{width:100%;padding:11px;background:var(–brand);color:#fff;border:none;border-radius:99px;font-family:var(–FB);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:4px}
+.login-box{width:360px;background:rgba(255,255,255,0.04);border:1px solid var(--bb);border-radius:var(--rl);padding:40px;backdrop-filter:blur(16px);position:relative;overflow:hidden}
+.login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.1),transparent)}
+.login-logo{font-family:var(--FD);font-size:40px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.login-sub{font-family:var(--FM);font-size:10px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase;margin-bottom:28px}
+.lbl{font-size:11px;color:var(--muted);margin-bottom:5px;font-family:var(--FM);letter-spacing:.1em;text-transform:uppercase}
+.linp{width:100%;padding:10px 13px;background:rgba(255,255,255,0.05);border:1px solid var(--bb);border-radius:var(--rs);color:var(--txt);font-family:var(--FB);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:14px}
+.linp:focus{border-color:var(--brand)}.linp::placeholder{color:var(--muted)}
+.lbtn{width:100%;padding:11px;background:var(--brand);color:#fff;border:none;border-radius:99px;font-family:var(--FB);font-size:14px;font-weight:600;cursor:pointer;transition:opacity .2s;margin-top:4px}
 .lbtn:hover{opacity:.88}.lbtn:disabled{opacity:.45;cursor:not-allowed}
-.lerr{font-size:12px;color:var(–err);font-family:var(–FM);text-align:center;margin-top:10px;min-height:16px}
+.lerr{font-size:12px;color:var(--err);font-family:var(--FM);text-align:center;margin-top:10px;min-height:16px}
 
 /* ── LAYOUT ────────────────────────────────────────────── */
 .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none}
-.orb1{width:500px;height:500px;top:-150px;left:-100px;background:radial-gradient(circle,var(–dim),transparent 70%);animation:o1 14s ease-in-out infinite alternate}
-.orb2{width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle,var(–dim),transparent 70%);animation:o2 18s ease-in-out infinite alternate}
+.orb1{width:500px;height:500px;top:-150px;left:-100px;background:radial-gradient(circle,var(--dim),transparent 70%);animation:o1 14s ease-in-out infinite alternate}
+.orb2{width:400px;height:400px;bottom:-100px;right:-80px;background:radial-gradient(circle,var(--dim),transparent 70%);animation:o2 18s ease-in-out infinite alternate}
 @keyframes o1{from{transform:translate(0,0)}to{transform:translate(50px,30px)}}
 @keyframes o2{from{transform:translate(0,0)}to{transform:translate(-40px,-50px)}}
 .app{display:flex;height:100vh;overflow:hidden;position:relative}
 
 /* ── SIDEBAR ───────────────────────────────────────────── */
-.sidebar{width:220px;height:100vh;background:rgba(255,255,255,0.025);border-right:1px solid var(–bb);backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:24px 0;flex-shrink:0;position:fixed;left:0;top:0;z-index:15;transition:transform .3s cubic-bezier(.4,0,.2,1)}
-.s-logo{padding:0 22px 22px;font-family:var(–FD);font-size:30px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(–bb);margin-bottom:10px}
-.s-logo .sg{color:var(–gold)}.s-logo .sr{color:var(–brand)}
-.s-logo small{display:block;font-family:var(–FM);font-size:9px;letter-spacing:.15em;color:var(–muted);text-transform:uppercase;margin-top:3px}
-.nav{display:flex;align-items:center;gap:10px;padding:10px 22px;color:var(–muted);cursor:pointer;font-size:13.5px;border-left:2px solid transparent;transition:all .2s;user-select:none;position:relative}
-.nav:hover{color:var(–txt);background:rgba(255,255,255,0.03)}
-.nav.active{color:var(–txt);background:rgba(255,255,255,0.05);border-left-color:var(–brand);font-weight:500}
+.sidebar{width:220px;height:100vh;background:rgba(255,255,255,0.025);border-right:1px solid var(--bb);backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:24px 0;flex-shrink:0;position:fixed;left:0;top:0;z-index:15;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.s-logo{padding:0 22px 22px;font-family:var(--FD);font-size:30px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bb);margin-bottom:10px}
+.s-logo .sg{color:var(--gold)}.s-logo .sr{color:var(--brand)}
+.s-logo small{display:block;font-family:var(--FM);font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.nav{display:flex;align-items:center;gap:10px;padding:10px 22px;color:var(--muted);cursor:pointer;font-size:13.5px;border-left:2px solid transparent;transition:all .2s;user-select:none;position:relative}
+.nav:hover{color:var(--txt);background:rgba(255,255,255,0.03)}
+.nav.active{color:var(--txt);background:rgba(255,255,255,0.05);border-left-color:var(--brand);font-weight:500}
 .nav-ic{font-size:15px;width:20px;text-align:center;flex-shrink:0;font-style:normal}
-.nbadge{margin-left:auto;min-width:18px;height:18px;border-radius:99px;background:var(–err);color:#fff;font-size:10px;font-family:var(–FM);font-weight:700;padding:0 5px;display:inline-flex;align-items:center;justify-content:center}
+.nbadge{margin-left:auto;min-width:18px;height:18px;border-radius:99px;background:var(--err);color:#fff;font-size:10px;font-family:var(--FM);font-weight:700;padding:0 5px;display:inline-flex;align-items:center;justify-content:center}
 .nbadge.hide{display:none}
 .nav-spacer{flex:1}
-.s-user{margin:0 10px;padding:12px;background:var(–bs);border:1px solid var(–bb);border-radius:var(–rs)}
+.s-user{margin:0 10px;padding:12px;background:var(--bs);border:1px solid var(--bb);border-radius:var(--rs)}
 .s-user-name{font-size:13px;font-weight:500;margin-bottom:2px}
-.s-user-role{font-family:var(–FM);font-size:10px;color:var(–brand);letter-spacing:.08em;text-transform:uppercase}
-.s-logout{font-family:var(–FM);font-size:10px;color:var(–muted);cursor:pointer;margin-top:7px;display:inline-block;transition:color .2s}
-.s-logout:hover{color:var(–err)}
+.s-user-role{font-family:var(--FM);font-size:10px;color:var(--brand);letter-spacing:.08em;text-transform:uppercase}
+.s-logout{font-family:var(--FM);font-size:10px;color:var(--muted);cursor:pointer;margin-top:7px;display:inline-block;transition:color .2s}
+.s-logout:hover{color:var(--err)}
 
 /* ── MOBILE TOPBAR ─────────────────────────────────────── */
-.topbar{display:none;position:fixed;top:0;left:0;right:0;height:54px;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(–bb);z-index:20;align-items:center;padding:0 16px;gap:12px}
-.burger{background:none;border:none;color:var(–txt);cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px}
+.topbar{display:none;position:fixed;top:0;left:0;right:0;height:54px;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--bb);z-index:20;align-items:center;padding:0 16px;gap:12px}
+.burger{background:none;border:none;color:var(--txt);cursor:pointer;padding:6px;display:flex;flex-direction:column;gap:5px}
 .burger span{display:block;width:21px;height:2px;background:currentColor;border-radius:2px;transition:all .3s}
 .burger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
 .burger.open span:nth-child(2){opacity:0}
 .burger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
-.t-logo{font-family:var(–FD);font-size:22px;letter-spacing:.1em;text-transform:uppercase;flex:1}
-.t-logo .tg{color:var(–gold)}.t-logo .tr{color:var(–brand)}
+.t-logo{font-family:var(--FD);font-size:22px;letter-spacing:.1em;text-transform:uppercase;flex:1}
+.t-logo .tg{color:var(--gold)}.t-logo .tr{color:var(--brand)}
 .s-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:12;backdrop-filter:blur(2px);transition:opacity .3s}
 .s-overlay.open{opacity:1;pointer-events:all}
 
 /* ── MAIN ──────────────────────────────────────────────── */
 .main{flex:1;overflow-y:auto;padding:30px 26px;position:relative;z-index:1;margin-left:220px}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(–bb);border-radius:2px}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bb);border-radius:2px}
 
 /* ── PAGE ──────────────────────────────────────────────── */
-.page-ey{font-family:var(–FM);font-size:10px;letter-spacing:.2em;color:var(–brand);text-transform:uppercase;margin-bottom:5px}
-.page-ti{font-family:var(–FD);font-size:42px;letter-spacing:.08em;text-transform:uppercase;line-height:1;margin-bottom:24px}
+.page-ey{font-family:var(--FM);font-size:10px;letter-spacing:.2em;color:var(--brand);text-transform:uppercase;margin-bottom:5px}
+.page-ti{font-family:var(--FD);font-size:42px;letter-spacing:.08em;text-transform:uppercase;line-height:1;margin-bottom:24px}
 .page{animation:pIn .3s ease forwards}
 @keyframes pIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── CARDS ─────────────────────────────────────────────── */
-.card{background:var(–bs);border:1px solid var(–bb);border-radius:var(–r);backdrop-filter:blur(16px);padding:20px;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
-.card::before{content:’’;position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)}
-.card:hover{border-color:var(–bb2)}
-.card.click{cursor:pointer}.card.click:hover{transform:translateY(-2px);border-color:var(–brand)}
-.shine::after{content:’’;position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03),transparent 60%);pointer-events:none}
+.card{background:var(--bs);border:1px solid var(--bb);border-radius:var(--r);backdrop-filter:blur(16px);padding:20px;transition:border-color .2s,transform .15s;position:relative;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)}
+.card:hover{border-color:var(--bb2)}
+.card.click{cursor:pointer}.card.click:hover{transform:translateY(-2px);border-color:var(--brand)}
+.shine::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.03),transparent 60%);pointer-events:none}
 
 /* ── GRIDS ─────────────────────────────────────────────── */
 .g4{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
@@ -141,202 +140,200 @@ body::before{content:’’;position:fixed;inset:0;background-image:url(“data:
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
 
 /* ── METRIC ────────────────────────────────────────────── */
-.m-lbl{font-size:10px;color:var(–muted);margin-bottom:6px;font-family:var(–FM);letter-spacing:.08em;text-transform:uppercase}
-.m-val{font-family:var(–FD);font-size:42px;line-height:1;letter-spacing:.05em;margin-bottom:3px}
-.m-sub{font-size:11px;color:var(–muted)}
+.m-lbl{font-size:10px;color:var(--muted);margin-bottom:6px;font-family:var(--FM);letter-spacing:.08em;text-transform:uppercase}
+.m-val{font-family:var(--FD);font-size:42px;line-height:1;letter-spacing:.05em;margin-bottom:3px}
+.m-sub{font-size:11px;color:var(--muted)}
 
 /* ── FUNIL ─────────────────────────────────────────────── */
 .funil{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px}
-.f-stage{background:var(–bs);border:1px solid var(–bb);border-radius:var(–rs);padding:14px 12px;text-align:center;position:relative;overflow:hidden}
-.f-stage::before{content:’’;position:absolute;top:0;left:0;right:0;height:3px;background:var(–sc)}
-.f-lbl{font-family:var(–FM);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(–muted);margin-bottom:8px}
-.f-cnt{font-family:var(–FD);font-size:34px;color:var(–sc);line-height:1;margin-bottom:3px}
-.f-sub{font-size:10px;color:var(–muted)}
+.f-stage{background:var(--bs);border:1px solid var(--bb);border-radius:var(--rs);padding:14px 12px;text-align:center;position:relative;overflow:hidden}
+.f-stage::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--sc)}
+.f-lbl{font-family:var(--FM);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.f-cnt{font-family:var(--FD);font-size:34px;color:var(--sc);line-height:1;margin-bottom:3px}
+.f-sub{font-size:10px;color:var(--muted)}
 
 /* ── BADGES ────────────────────────────────────────────── */
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:500;font-family:var(–FM);letter-spacing:.06em;text-transform:uppercase}
-.b-brand{background:var(–dim);border:1px solid var(–brand);color:var(–brand)}
-.b-ok{background:rgba(79,200,122,.12);border:1px solid rgba(79,200,122,.3);color:var(–ok)}
-.b-warn{background:rgba(240,160,80,.12);border:1px solid rgba(240,160,80,.3);color:var(–warn)}
-.b-err{background:rgba(240,80,80,.12);border:1px solid rgba(240,80,80,.3);color:var(–err)}
-.b-dim{background:rgba(255,255,255,.05);border:1px solid var(–bb);color:var(–muted)}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:10px;font-weight:500;font-family:var(--FM);letter-spacing:.06em;text-transform:uppercase}
+.b-brand{background:var(--dim);border:1px solid var(--brand);color:var(--brand)}
+.b-ok{background:rgba(79,200,122,.12);border:1px solid rgba(79,200,122,.3);color:var(--ok)}
+.b-warn{background:rgba(240,160,80,.12);border:1px solid rgba(240,160,80,.3);color:var(--warn)}
+.b-err{background:rgba(240,80,80,.12);border:1px solid rgba(240,80,80,.3);color:var(--err)}
+.b-dim{background:rgba(255,255,255,.05);border:1px solid var(--bb);color:var(--muted)}
 .b-pur{background:rgba(168,85,247,.12);border:1px solid rgba(168,85,247,.3);color:#a855f7}
 .b-blue{background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.3);color:#0ea5e9}
 
 /* ── ROWS ──────────────────────────────────────────────── */
-.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(–bb);cursor:pointer;transition:background .15s}
+.row{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--bb);cursor:pointer;transition:background .15s}
 .row:last-child{border:none;padding-bottom:0}
 .row:hover{background:rgba(255,255,255,.02);margin:0 -20px;padding-left:20px;padding-right:20px}
-.av{width:36px;height:36px;border-radius:9px;background:var(–dim);border:1px solid var(–brand);display:flex;align-items:center;justify-content:center;font-family:var(–FD);font-size:15px;color:var(–brand);flex-shrink:0}
+.av{width:36px;height:36px;border-radius:9px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:15px;color:var(--brand);flex-shrink:0}
 .row-info{flex:1;min-width:0}
 .row-name{font-size:14px;font-weight:500;margin-bottom:2px}
-.row-sub{font-size:12px;color:var(–muted)}
+.row-sub{font-size:12px;color:var(--muted)}
 .row-meta{display:flex;gap:6px;align-items:center;flex-shrink:0;flex-wrap:wrap;justify-content:flex-end}
 
 /* ── PRIO DOT ──────────────────────────────────────────── */
 .prio{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.p-alta{background:var(–err)}.p-media{background:var(–warn)}.p-baixa{background:var(–ok)}
+.p-alta{background:var(--err)}.p-media{background:var(--warn)}.p-baixa{background:var(--ok)}
 
 /* ── SECTION HEAD ──────────────────────────────────────── */
 .sh{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
-.sh-t{font-family:var(–FD);font-size:22px;letter-spacing:.08em;text-transform:uppercase}
-.sh-l{font-size:12px;color:var(–brand);font-family:var(–FM);cursor:pointer}
+.sh-t{font-family:var(--FD);font-size:22px;letter-spacing:.08em;text-transform:uppercase}
+.sh-l{font-size:12px;color:var(--brand);font-family:var(--FM);cursor:pointer}
 
 /* ── BTNS ──────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(–FB);border:none;text-decoration:none;white-space:nowrap}
-.btn-p{background:var(–brand);color:#fff}.btn-p:hover{opacity:.88}
-.btn-g{background:var(–bs);border:1px solid var(–bb);color:var(–muted)}.btn-g:hover{color:var(–txt);border-color:var(–bb2)}
-.btn-ok{background:rgba(79,200,122,.15);border:1px solid rgba(79,200,122,.4);color:var(–ok)}.btn-ok:hover{background:rgba(79,200,122,.25)}
-.btn-err{background:rgba(240,80,80,.12);border:1px solid rgba(240,80,80,.3);color:var(–err)}.btn-err:hover{background:rgba(240,80,80,.22)}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 18px;border-radius:99px;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--FB);border:none;text-decoration:none;white-space:nowrap}
+.btn-p{background:var(--brand);color:#fff}.btn-p:hover{opacity:.88}
+.btn-g{background:var(--bs);border:1px solid var(--bb);color:var(--muted)}.btn-g:hover{color:var(--txt);border-color:var(--bb2)}
+.btn-ok{background:rgba(79,200,122,.15);border:1px solid rgba(79,200,122,.4);color:var(--ok)}.btn-ok:hover{background:rgba(79,200,122,.25)}
+.btn-err{background:rgba(240,80,80,.12);border:1px solid rgba(240,80,80,.3);color:var(--err)}.btn-err:hover{background:rgba(240,80,80,.22)}
 .btn-sm{padding:5px 13px;font-size:11px}
 
 /* ── FILTER BAR ────────────────────────────────────────── */
 .fbar{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
-.chip{padding:4px 13px;border-radius:99px;border:1px solid var(–bb);background:var(–bs);color:var(–muted);font-size:11px;font-family:var(–FM);cursor:pointer;transition:all .2s}
-.chip:hover{border-color:var(–bb2);color:var(–txt)}
-.chip.on{border-color:var(–brand);color:var(–brand);background:var(–dim)}
-.fsearch{flex:1;min-width:160px;max-width:240px;padding:5px 13px;background:rgba(255,255,255,.04);border:1px solid var(–bb);border-radius:99px;color:var(–txt);font-family:var(–FB);font-size:13px;outline:none;transition:border-color .2s}
-.fsearch:focus{border-color:var(–brand)}.fsearch::placeholder{color:var(–muted)}
+.chip{padding:4px 13px;border-radius:99px;border:1px solid var(--bb);background:var(--bs);color:var(--muted);font-size:11px;font-family:var(--FM);cursor:pointer;transition:all .2s}
+.chip:hover{border-color:var(--bb2);color:var(--txt)}
+.chip.on{border-color:var(--brand);color:var(--brand);background:var(--dim)}
+.fsearch{flex:1;min-width:160px;max-width:240px;padding:5px 13px;background:rgba(255,255,255,.04);border:1px solid var(--bb);border-radius:99px;color:var(--txt);font-family:var(--FB);font-size:13px;outline:none;transition:border-color .2s}
+.fsearch:focus{border-color:var(--brand)}.fsearch::placeholder{color:var(--muted)}
 
 /* ── PROGRESS ──────────────────────────────────────────── */
 .ptrack{height:5px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
-.pfill{height:100%;border-radius:99px;background:var(–brand);transition:width 1s ease}
+.pfill{height:100%;border-radius:99px;background:var(--brand);transition:width 1s ease}
 
 /* ── CONV BARS ─────────────────────────────────────────── */
 .cbar{display:flex;align-items:center;gap:9px;margin-bottom:9px}
 .cbar:last-child{margin-bottom:0}
-.cbar-lbl{font-family:var(–FM);font-size:10px;color:var(–muted);width:88px;flex-shrink:0}
+.cbar-lbl{font-family:var(--FM);font-size:10px;color:var(--muted);width:88px;flex-shrink:0}
 .cbar-track{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.06);overflow:hidden}
 .cbar-fill{height:100%;border-radius:99px;transition:width 1s ease}
-.cbar-val{font-family:var(–FM);font-size:11px;width:28px;text-align:right;flex-shrink:0}
+.cbar-val{font-family:var(--FM);font-size:11px;width:28px;text-align:right;flex-shrink:0}
 
 /* ── MODAL ─────────────────────────────────────────────── */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
 .ov.open{opacity:1;pointer-events:all}
-.modal{width:500px;max-height:90vh;overflow-y:auto;background:#0f0f1a;border:1px solid var(–bb2);border-radius:var(–rl);padding:30px;position:relative;transform:translateY(10px);transition:transform .2s}
+.modal{width:500px;max-height:90vh;overflow-y:auto;background:#0f0f1a;border:1px solid var(--bb2);border-radius:var(--rl);padding:30px;position:relative;transform:translateY(10px);transition:transform .2s}
 .ov.open .modal{transform:translateY(0)}
-.modal-ti{font-family:var(–FD);font-size:26px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
-.mcl{position:absolute;top:14px;right:14px;background:none;border:none;color:var(–muted);cursor:pointer;font-size:17px;transition:color .2s}
-.mcl:hover{color:var(–txt)}
+.modal-ti{font-family:var(--FD);font-size:26px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px}
+.mcl{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px;transition:color .2s}
+.mcl:hover{color:var(--txt)}
 .fg{margin-bottom:12px}
-.fl{font-size:10px;font-family:var(–FM);letter-spacing:.1em;text-transform:uppercase;color:var(–muted);margin-bottom:5px;display:block}
-.fi,.fs,.fta{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(–bb);border-radius:var(–rs);color:var(–txt);font-family:var(–FB);font-size:13px;outline:none;transition:border-color .2s}
-.fi:focus,.fs:focus,.fta:focus{border-color:var(–brand)}
+.fl{font-size:10px;font-family:var(--FM);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;display:block}
+.fi,.fs,.fta{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--bb);border-radius:var(--rs);color:var(--txt);font-family:var(--FB);font-size:13px;outline:none;transition:border-color .2s}
+.fi:focus,.fs:focus,.fta:focus{border-color:var(--brand)}
 .fs option{background:#0f0f1a}.fta{resize:vertical;min-height:70px}
 .fr{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.msec{font-family:var(–FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(–muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(–bb)}
+.msec{font-family:var(--FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:16px 0 8px;padding-bottom:5px;border-bottom:1px solid var(--bb)}
 .mfoot{display:flex;justify-content:flex-end;gap:9px;margin-top:18px}
-.check-row{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(79,200,122,.06);border:1px solid rgba(79,200,122,.2);border-radius:var(–rs);cursor:pointer;margin-bottom:12px}
-.check-row input{width:16px;height:16px;accent-color:var(–ok);cursor:pointer}
-.check-row label{font-size:13px;cursor:pointer;color:var(–ok);font-weight:500}
+.check-row{display:flex;align-items:center;gap:10px;padding:10px 13px;background:rgba(79,200,122,.06);border:1px solid rgba(79,200,122,.2);border-radius:var(--rs);cursor:pointer;margin-bottom:12px}
+.check-row input{width:16px;height:16px;accent-color:var(--ok);cursor:pointer}
+.check-row label{font-size:13px;cursor:pointer;color:var(--ok);font-weight:500}
 
 /* ── DETAIL PANEL ──────────────────────────────────────── */
 .dpov{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:150;opacity:0;pointer-events:none;transition:opacity .2s}
 .dpov.open{opacity:1;pointer-events:all}
-.dp{position:fixed;right:0;top:0;bottom:0;width:420px;background:#0c0c18;border-left:1px solid var(–bb);z-index:160;padding:28px;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.dp{position:fixed;right:0;top:0;bottom:0;width:420px;background:#0c0c18;border-left:1px solid var(--bb);z-index:160;padding:28px;overflow-y:auto;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
 .dp.open{transform:translateX(0)}
-.dp-cl{position:absolute;top:14px;right:14px;background:none;border:none;color:var(–muted);cursor:pointer;font-size:17px}
-.dp-cl:hover{color:var(–txt)}
-.dp-name{font-family:var(–FD);font-size:30px;letter-spacing:.06em;text-transform:uppercase;line-height:1;margin-bottom:3px}
-.dp-sub{font-size:13px;color:var(–muted);margin-bottom:18px}
+.dp-cl{position:absolute;top:14px;right:14px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:17px}
+.dp-cl:hover{color:var(--txt)}
+.dp-name{font-family:var(--FD);font-size:30px;letter-spacing:.06em;text-transform:uppercase;line-height:1;margin-bottom:3px}
+.dp-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
 .dp-acts{display:flex;gap:7px;margin-bottom:20px;flex-wrap:wrap}
-.dp-sec{font-family:var(–FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(–muted);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(–bb)}
+.dp-sec{font-family:var(--FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin:18px 0 10px;padding-bottom:5px;border-bottom:1px solid var(--bb)}
 .dp-f{margin-bottom:12px}
-.dp-fl{font-family:var(–FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(–muted);margin-bottom:3px}
+.dp-fl{font-family:var(--FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:3px}
 .dp-fv{font-size:13px;line-height:1.5}
-.ai-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#c084fc;font-size:10px;font-family:var(–FM)}
-.ai-chip::before{content:‘✦’;font-size:9px}
-.abox{display:flex;gap:10px;align-items:flex-start;padding:12px;background:rgba(240,160,80,.06);border:1px solid rgba(240,160,80,.2);border-radius:var(–rs);margin-bottom:8px}
+.ai-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:99px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.25);color:#c084fc;font-size:10px;font-family:var(--FM)}
+.ai-chip::before{content:'✦';font-size:9px}
+.abox{display:flex;gap:10px;align-items:flex-start;padding:12px;background:rgba(240,160,80,.06);border:1px solid rgba(240,160,80,.2);border-radius:var(--rs);margin-bottom:8px}
 .abox-ic{font-size:18px;flex-shrink:0}
 .abox-ti{font-size:13px;font-weight:500;margin-bottom:1px}
-.abox-su{font-size:11px;color:var(–muted)}
+.abox-su{font-size:11px;color:var(--muted)}
 
 /* ── ALERTS ────────────────────────────────────────────── */
-.ag-ti{font-family:var(–FD);font-size:20px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:8px}
-.acard{display:flex;gap:12px;padding:14px;border-radius:var(–rs);border:1px solid var(–bb);background:var(–bs);margin-bottom:9px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
-.acard::before{content:’’;position:absolute;left:0;top:0;bottom:0;width:3px;background:var(–ac)}
-.acard:hover{border-color:var(–ac);transform:translateX(3px)}
+.ag-ti{font-family:var(--FD);font-size:20px;letter-spacing:.08em;text-transform:uppercase;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.acard{display:flex;gap:12px;padding:14px;border-radius:var(--rs);border:1px solid var(--bb);background:var(--bs);margin-bottom:9px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+.acard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ac)}
+.acard:hover{border-color:var(--ac);transform:translateX(3px)}
 .acard.lido{opacity:.4}.acard.lido:hover{opacity:.65}
-.a-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:16px;flex-shrink:0;background:color-mix(in srgb,var(–ac) 12%,transparent);border:1px solid color-mix(in srgb,var(–ac) 28%,transparent)}
+.a-ic{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-style:normal;font-size:16px;flex-shrink:0;background:color-mix(in srgb,var(--ac) 12%,transparent);border:1px solid color-mix(in srgb,var(--ac) 28%,transparent)}
 .a-body{flex:1;min-width:0}
 .a-ti{font-size:13px;font-weight:500;margin-bottom:2px}
-.a-msg{font-size:12px;color:var(–muted);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.a-msg{font-size:12px;color:var(--muted);line-height:1.4;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .a-ft{display:flex;align-items:center;justify-content:space-between;margin-top:7px}
-.a-time{font-family:var(–FM);font-size:10px;color:var(–muted)}
-.a-dot{width:7px;height:7px;border-radius:50%;background:var(–ac);flex-shrink:0;animation:pulse 1.5s ease-in-out infinite}
+.a-time{font-family:var(--FM);font-size:10px;color:var(--muted)}
+.a-dot{width:7px;height:7px;border-radius:50%;background:var(--ac);flex-shrink:0;animation:pulse 1.5s ease-in-out infinite}
 
 /* ALERT TIPO COLORS */
-.ac-pedido_fechado{–ac:#4fc87a}.ac-follow_up{–ac:#f0a050}.ac-atendimento_humano{–ac:#f05050}
-.ac-orcamento_pendente{–ac:#0ea5e9}.ac-pedido_atrasado{–ac:#f05050}.ac-pedido_cancelado{–ac:#f05050}
-.ac-falha_entrega{–ac:#f97316}.ac-pedido_aprovado{–ac:#4fc87a}.ac-outros{–ac:#a855f7}
+.ac-pedido_fechado{--ac:#4fc87a}.ac-follow_up{--ac:#f0a050}.ac-atendimento_humano{--ac:#f05050}
+.ac-orcamento_pendente{--ac:#0ea5e9}.ac-pedido_atrasado{--ac:#f05050}.ac-pedido_cancelado{--ac:#f05050}
+.ac-falha_entrega{--ac:#f97316}.ac-pedido_aprovado{--ac:#4fc87a}.ac-outros{--ac:#a855f7}
 
 /* ── PEDIDOS ────────────────────────────────────────────── */
-.ped-status-pendente{–ps:#f0a050}.ped-status-aprovado{–ps:#0ea5e9}
-.ped-status-em_transito{–ps:#a855f7}.ped-status-entregue{–ps:#4fc87a}
-.ped-status-atrasado{–ps:#f05050}.ped-status-cancelado{–ps:#f05050}.ped-status-falha_entrega{–ps:#f97316}
-.ped-card{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(–bb);transition:background .15s}
+.ped-status-pendente{--ps:#f0a050}.ped-status-aprovado{--ps:#0ea5e9}
+.ped-status-em_transito{--ps:#a855f7}.ped-status-entregue{--ps:#4fc87a}
+.ped-status-atrasado{--ps:#f05050}.ped-status-cancelado{--ps:#f05050}.ped-status-falha_entrega{--ps:#f97316}
+.ped-card{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--bb);transition:background .15s}
 .ped-card:last-child{border:none}
-.ped-num{font-family:var(–FM);font-size:11px;color:var(–brand);background:var(–dim);border:1px solid var(–brand);border-radius:6px;padding:3px 8px;flex-shrink:0}
+.ped-num{font-family:var(--FM);font-size:11px;color:var(--brand);background:var(--dim);border:1px solid var(--brand);border-radius:6px;padding:3px 8px;flex-shrink:0}
 .ped-info{flex:1;min-width:0}
 .ped-cliente{font-size:14px;font-weight:500;margin-bottom:2px}
-.ped-meta{font-size:11px;color:var(–muted)}
-.ped-val{font-family:var(–FM);font-size:13px;font-weight:500;color:var(–ok);flex-shrink:0;text-align:right}
-.ped-status-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:10px;font-family:var(–FM);letter-spacing:.06em;text-transform:uppercase;background:color-mix(in srgb,var(–ps) 12%,transparent);border:1px solid color-mix(in srgb,var(–ps) 30%,transparent);color:var(–ps)}
+.ped-meta{font-size:11px;color:var(--muted)}
+.ped-val{font-family:var(--FM);font-size:13px;font-weight:500;color:var(--ok);flex-shrink:0;text-align:right}
+.ped-status-badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:10px;font-family:var(--FM);letter-spacing:.06em;text-transform:uppercase;background:color-mix(in srgb,var(--ps) 12%,transparent);border:1px solid color-mix(in srgb,var(--ps) 30%,transparent);color:var(--ps)}
 
 /* ── EQUIPE ─────────────────────────────────────────────── */
-.eq-card{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(–bb)}
+.eq-card{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--bb)}
 .eq-card:last-child{border:none}
-.eq-rank{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(–FM);font-size:12px;font-weight:500;flex-shrink:0}
-.eq-rank.top{background:var(–dim);border:1px solid var(–brand);color:var(–brand)}
-.eq-rank.other{background:var(–bs);border:1px solid var(–bb);color:var(–muted)}
+.eq-rank{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--FM);font-size:12px;font-weight:500;flex-shrink:0}
+.eq-rank.top{background:var(--dim);border:1px solid var(--brand);color:var(--brand)}
+.eq-rank.other{background:var(--bs);border:1px solid var(--bb);color:var(--muted)}
 .eq-info{flex:1;min-width:0}
 .eq-name{font-size:14px;font-weight:500;margin-bottom:3px}
 .eq-prog{display:flex;align-items:center;gap:8px}
-.eq-pct{font-family:var(–FM);font-size:10px;width:32px;text-align:right;flex-shrink:0}
+.eq-pct{font-family:var(--FM);font-size:10px;width:32px;text-align:right;flex-shrink:0}
 
 /* ── TOAST ─────────────────────────────────────────────── */
-.toast{position:fixed;bottom:22px;right:22px;z-index:999;background:rgba(15,15,26,.95);border:1px solid var(–bb);border-radius:var(–rs);padding:11px 16px;font-size:13px;font-family:var(–FM);transform:translateY(16px);opacity:0;transition:all .3s;pointer-events:none}
+.toast{position:fixed;bottom:22px;right:22px;z-index:999;background:rgba(15,15,26,.95);border:1px solid var(--bb);border-radius:var(--rs);padding:11px 16px;font-size:13px;font-family:var(--FM);transform:translateY(16px);opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
-.toast.ok{border-color:rgba(79,200,122,.4);color:var(–ok)}
-.toast.er{border-color:rgba(240,80,80,.4);color:var(–err)}
+.toast.ok{border-color:rgba(79,200,122,.4);color:var(--ok)}
+.toast.er{border-color:rgba(240,80,80,.4);color:var(--err)}
 
 /* ── MISC ──────────────────────────────────────────────── */
 @keyframes pulse{0%,100%{opacity:.3}50%{opacity:1}}
-.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(–brand);animation:pulse 1s ease-in-out infinite}
-.empty{text-align:center;padding:40px;color:var(–muted);font-size:13px}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--brand);animation:pulse 1s ease-in-out infinite}
+.empty{text-align:center;padding:40px;color:var(--muted);font-size:13px}
 .empty i{display:block;font-size:28px;margin-bottom:10px;font-style:normal}
 
 /* ── RESPONSIVE ─────────────────────────────────────────── */
 @media(max-width:768px){
-.topbar{display:flex}
-.sidebar{transform:translateX(-100%);top:0}
-.sidebar.open{transform:translateX(0)}
-.s-overlay{display:block;opacity:0;pointer-events:none}
-.s-overlay.open{opacity:1;pointer-events:all}
-.main{margin-left:0;padding:72px 14px 24px}
-.app{height:auto;min-height:100vh;overflow:visible}
-html,body{overflow:auto}
-.g4{grid-template-columns:1fr 1fr}
-.g3{grid-template-columns:1fr 1fr}
-.g2{grid-template-columns:1fr}
-.funil{grid-template-columns:repeat(3,1fr)}
-.page-ti{font-size:30px}
-.dp{width:100%;border-left:none;border-top:1px solid var(–bb)}
-.modal{width:calc(100vw - 28px);padding:22px}
-.fr{grid-template-columns:1fr}
-.row-meta .badge:not(:first-child){display:none}
+  .topbar{display:flex}
+  .sidebar{transform:translateX(-100%);top:0}
+  .sidebar.open{transform:translateX(0)}
+  .s-overlay{display:block;opacity:0;pointer-events:none}
+  .s-overlay.open{opacity:1;pointer-events:all}
+  .main{margin-left:0;padding:72px 14px 24px}
+  .app{height:auto;min-height:100vh;overflow:visible}
+  html,body{overflow:auto}
+  .g4{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:1fr 1fr}
+  .g2{grid-template-columns:1fr}
+  .funil{grid-template-columns:repeat(3,1fr)}
+  .page-ti{font-size:30px}
+  .dp{width:100%;border-left:none;border-top:1px solid var(--bb)}
+  .modal{width:calc(100vw - 28px);padding:22px}
+  .fr{grid-template-columns:1fr}
+  .row-meta .badge:not(:first-child){display:none}
 }
 @media(max-width:440px){
-.g4{grid-template-columns:1fr 1fr}
-.funil{grid-template-columns:1fr 1fr}
+  .g4{grid-template-columns:1fr 1fr}
+  .funil{grid-template-columns:1fr 1fr}
 }
 </style>
-
 </head>
 <body class="t-braavos">
 
 <!-- ── LOGIN ───────────────────────────────────────────────────── -->
-
 <div id="login-screen">
   <div class="orb orb1"></div><div class="orb orb2"></div>
   <div class="login-box">
@@ -352,7 +349,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MOBILE TOPBAR ────────────────────────────────────────────── -->
-
 <div class="topbar">
   <button class="burger" id="burger" onclick="toggleSidebar()">
     <span></span><span></span><span></span>
@@ -363,7 +359,6 @@ html,body{overflow:auto}
 <div class="s-overlay" id="s-overlay" onclick="toggleSidebar()"></div>
 
 <!-- ── APP ──────────────────────────────────────────────────────── -->
-
 <div class="app">
   <div class="orb orb1"></div><div class="orb orb2"></div>
 
@@ -410,244 +405,241 @@ html,body{overflow:auto}
 
   <div class="main">
 
-```
-<!-- DASHBOARD -->
-<div id="page-dashboard" class="page">
-  <div class="page-ey" id="d-ey">—</div>
-  <div class="page-ti" id="d-hi">Bem-vindo 👋</div>
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page">
+      <div class="page-ey" id="d-ey">—</div>
+      <div class="page-ti" id="d-hi">Bem-vindo 👋</div>
 
-  <!-- KPIs clicáveis -->
-  <div class="g4">
-    <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--brand)">—</div><div class="m-sub" id="d-total-s">—</div></div>
-    <div class="card shine click" onclick="openChartModal('meta')"><div class="m-lbl">Novos (mês)</div><div class="m-val" id="d-novos">—</div><div class="m-sub">este mês</div></div>
-    <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Taxa Conversão</div><div class="m-val" id="d-conv" style="color:var(--ok)">—</div><div class="m-sub">lead → ganho</div></div>
-    <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Em Negociação</div><div class="m-val" id="d-neg" style="color:var(--warn)">—</div><div class="m-sub">em andamento</div></div>
-  </div>
+      <!-- KPIs clicáveis -->
+      <div class="g4">
+        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--brand)">—</div><div class="m-sub" id="d-total-s">—</div></div>
+        <div class="card shine click" onclick="openChartModal('meta')"><div class="m-lbl">Novos (mês)</div><div class="m-val" id="d-novos">—</div><div class="m-sub">este mês</div></div>
+        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Taxa Conversão</div><div class="m-val" id="d-conv" style="color:var(--ok)">—</div><div class="m-sub">lead → ganho</div></div>
+        <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Em Negociação</div><div class="m-val" id="d-neg" style="color:var(--warn)">—</div><div class="m-sub">em andamento</div></div>
+      </div>
 
-  <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
-  <div class="funil">
-    <div class="f-stage" style="--sc:#6366f1"><div class="f-lbl">Novo</div><div class="f-cnt" id="f-novo">—</div><div class="f-sub">leads</div></div>
-    <div class="f-stage" style="--sc:#0ea5e9"><div class="f-lbl">Qualificado</div><div class="f-cnt" id="f-qual">—</div><div class="f-sub">leads</div></div>
-    <div class="f-stage" style="--sc:#f0a050"><div class="f-lbl">Negociação</div><div class="f-cnt" id="f-neg">—</div><div class="f-sub">leads</div></div>
-    <div class="f-stage" style="--sc:#4fc87a"><div class="f-lbl">Ganho</div><div class="f-cnt" id="f-ganho">—</div><div class="f-sub">fechados</div></div>
-    <div class="f-stage" style="--sc:#f05050"><div class="f-lbl">Perdido</div><div class="f-cnt" id="f-perd">—</div><div class="f-sub">leads</div></div>
-  </div>
+      <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
+      <div class="funil">
+        <div class="f-stage" style="--sc:#6366f1"><div class="f-lbl">Novo</div><div class="f-cnt" id="f-novo">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#0ea5e9"><div class="f-lbl">Qualificado</div><div class="f-cnt" id="f-qual">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#f0a050"><div class="f-lbl">Negociação</div><div class="f-cnt" id="f-neg">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#4fc87a"><div class="f-lbl">Ganho</div><div class="f-cnt" id="f-ganho">—</div><div class="f-sub">fechados</div></div>
+        <div class="f-stage" style="--sc:#f05050"><div class="f-lbl">Perdido</div><div class="f-cnt" id="f-perd">—</div><div class="f-sub">leads</div></div>
+      </div>
 
-  <div class="g2">
-    <div>
-      <div class="sh"><div class="sh-t">Próximos Contatos</div></div>
-      <div class="card" id="d-prox"><div class="empty"><div class="dot"></div></div></div>
-    </div>
-    <div>
-      <div class="sh"><div class="sh-t">Por Origem</div></div>
-      <div class="card" id="d-orig"><div class="empty"><div class="dot"></div></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- RELATÓRIOS -->
-<div id="page-relatorios" class="page" style="display:none">
-  <div class="page-ey">Insights</div>
-  <div class="page-ti">Relatórios</div>
-
-  <!-- Tabs -->
-  <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
-    <span class="chip on" id="rtab-diario" onclick="relTab('diario')">◎ Diário</span>
-    <span class="chip" id="rtab-mensal" onclick="relTab('mensal')">◫ Mensal</span>
-    <span id="rtab-gerente-wrap">
-      <span class="chip" id="rtab-gerente" onclick="relTab('gerente')">⊕ Equipe</span>
-    </span>
-  </div>
-
-  <!-- DIÁRIO -->
-  <div id="rel-diario">
-    <div class="g4" style="margin-bottom:14px">
-      <div class="card shine"><div class="m-lbl">Visitas Hoje</div><div class="m-val" id="rd-visitas" style="color:var(--brand)">—</div><div class="m-sub">realizadas</div></div>
-      <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rd-leads">—</div><div class="m-sub">hoje</div></div>
-      <div class="card shine"><div class="m-lbl">Alertas</div><div class="m-val" id="rd-alertas" style="color:var(--warn)">—</div><div class="m-sub">pendentes</div></div>
-      <div class="card shine"><div class="m-lbl">Follow-ups</div><div class="m-val" id="rd-followups" style="color:var(--err)">—</div><div class="m-sub">vencidos</div></div>
-    </div>
-    <div class="sh"><div class="sh-t">Visitas do Dia</div></div>
-    <div class="card" id="rd-visitas-list"><div class="empty"><i>◎</i>Nenhuma visita hoje.</div></div>
-    <div class="sh" style="margin-top:14px"><div class="sh-t">Leads Criados Hoje</div></div>
-    <div class="card" id="rd-leads-list"><div class="empty"><i>◈</i>Nenhum lead hoje.</div></div>
-  </div>
-
-  <!-- MENSAL -->
-  <div id="rel-mensal" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <button class="btn btn-g btn-sm" onclick="relMes(-1)">←</button>
-      <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rm-mes-label">—</div>
-      <button class="btn btn-g btn-sm" onclick="relMes(1)">→</button>
-    </div>
-    <div class="g4" style="margin-bottom:14px">
-      <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rm-leads" style="color:var(--brand)">—</div><div class="m-sub">no mês</div></div>
-      <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="rm-ganhos" style="color:var(--ok)">—</div><div class="m-sub">fechados</div></div>
-      <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="rm-visitas">—</div><div class="m-sub">realizadas</div></div>
-      <div class="card shine"><div class="m-lbl">Conversão</div><div class="m-val" id="rm-conv" style="color:var(--warn)">—</div><div class="m-sub">do mês</div></div>
-    </div>
-    <div class="sh"><div class="sh-t">Meta vs Realizado</div></div>
-    <div class="card" style="padding:16px;margin-bottom:14px">
-      <canvas id="chart-meta-mensal" height="120"></canvas>
-      <div id="meta-detail" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"></div>
-    </div>
-    <div class="sh"><div class="sh-t">Leads por Status</div></div>
-    <div class="card" style="padding:16px">
-      <canvas id="chart-status-mensal" height="140"></canvas>
-    </div>
-  </div>
-
-  <!-- GERENTE / EQUIPE -->
-  <div id="rel-gerente" style="display:none">
-    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
-      <button class="btn btn-g btn-sm" onclick="relMesG(-1)">←</button>
-      <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rg-mes-label">—</div>
-      <button class="btn btn-g btn-sm" onclick="relMesG(1)">→</button>
-    </div>
-    <div class="sh"><div class="sh-t">Ranking do Mês</div></div>
-    <div class="card" style="padding:16px;margin-bottom:14px">
-      <canvas id="chart-ranking" height="160"></canvas>
-    </div>
-    <div class="sh"><div class="sh-t">Visitas por Vendedor</div></div>
-    <div class="card" style="padding:16px">
-      <canvas id="chart-visitas-equipe" height="140"></canvas>
-    </div>
-  </div>
-</div>
-
-<!-- LEADS -->
-<div id="page-leads" class="page" style="display:none">
-  <div class="page-ey">Pipeline</div>
-  <div class="page-ti">Leads</div>
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-    <div class="fbar" style="margin:0;flex:1">
-      <input class="fsearch" id="lead-q" placeholder="Buscar nome ou empresa..." oninput="renderLeads()"/>
-      <span class="chip on" data-s="todos" onclick="chipLead(this)">Todos</span>
-      <span class="chip" data-s="novo" onclick="chipLead(this)">Novo</span>
-      <span class="chip" data-s="qualificando" onclick="chipLead(this)">Qualificando</span>
-      <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)">Aguardando</span>
-      <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)">Pronto</span>
-      <span class="chip" data-s="em_negociacao" onclick="chipLead(this)">Negociação</span>
-      <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
-      <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
-    </div>
-    <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
-  </div>
-  <div class="card" id="leads-list"><div class="empty"><div class="dot"></div></div></div>
-</div>
-
-<!-- CLIENTES -->
-<div id="page-clientes" class="page" style="display:none">
-  <div class="page-ey">Carteira</div>
-  <div class="page-ti">Clientes</div>
-  <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
-</div>
-
-<!-- VISITAS -->
-<div id="page-visitas" class="page" style="display:none">
-  <div class="page-ey">Campo</div>
-  <div class="page-ti">Visitas</div>
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
-    <div style="display:flex;gap:6px">
-      <span class="chip on" id="vtab-roteiro" onclick="visTab('roteiro')">◱ Roteiro</span>
-      <span class="chip" id="vtab-historico" onclick="visTab('historico')">◎ Histórico</span>
-    </div>
-    <button class="btn btn-p btn-sm" id="btn-nova-visita" onclick="openM('m-visita')" style="display:none">◎ Registrar Visita</button>
-  </div>
-
-  <!-- ABA ROTEIRO -->
-  <div id="vis-roteiro">
-    <div class="card" style="margin-bottom:14px">
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <div class="g2">
         <div>
-          <div class="m-lbl">Data do Roteiro</div>
-          <input type="date" class="fi" id="rot-data" style="margin-top:4px;width:160px" onchange="loadRoteiro()"/>
+          <div class="sh"><div class="sh-t">Próximos Contatos</div></div>
+          <div class="card" id="d-prox"><div class="empty"><div class="dot"></div></div></div>
         </div>
-        <div style="flex:1"></div>
-        <button class="btn btn-g btn-sm" onclick="abrirMaps()">↗ Abrir no Maps</button>
-        <button class="btn btn-p btn-sm" onclick="salvarRoteiro()">◈ Salvar Roteiro</button>
+        <div>
+          <div class="sh"><div class="sh-t">Por Origem</div></div>
+          <div class="card" id="d-orig"><div class="empty"><div class="dot"></div></div></div>
+        </div>
       </div>
     </div>
 
-    <!-- Sugestões -->
-    <div class="sh"><div class="sh-t">◬ Sugestões</div><span class="sh-l" onclick="toggleSugestoes()">ver todas →</span></div>
-    <div class="card" id="rot-sugestoes" style="margin-bottom:14px"><div class="empty"><div class="dot"></div></div></div>
+    <!-- RELATÓRIOS -->
+    <div id="page-relatorios" class="page" style="display:none">
+      <div class="page-ey">Insights</div>
+      <div class="page-ti">Relatórios</div>
 
-    <!-- Lista do roteiro -->
-    <div class="sh">
-      <div class="sh-t">◱ Paradas do Dia</div>
-      <button class="btn btn-g btn-sm" onclick="openAddParada()">+ Adicionar</button>
+      <!-- Tabs -->
+      <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
+        <span class="chip on" id="rtab-diario" onclick="relTab('diario')">◎ Diário</span>
+        <span class="chip" id="rtab-mensal" onclick="relTab('mensal')">◫ Mensal</span>
+        <span id="rtab-gerente-wrap">
+          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')">⊕ Equipe</span>
+        </span>
+      </div>
+
+      <!-- DIÁRIO -->
+      <div id="rel-diario">
+        <div class="g4" style="margin-bottom:14px">
+          <div class="card shine"><div class="m-lbl">Visitas Hoje</div><div class="m-val" id="rd-visitas" style="color:var(--brand)">—</div><div class="m-sub">realizadas</div></div>
+          <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rd-leads">—</div><div class="m-sub">hoje</div></div>
+          <div class="card shine"><div class="m-lbl">Alertas</div><div class="m-val" id="rd-alertas" style="color:var(--warn)">—</div><div class="m-sub">pendentes</div></div>
+          <div class="card shine"><div class="m-lbl">Follow-ups</div><div class="m-val" id="rd-followups" style="color:var(--err)">—</div><div class="m-sub">vencidos</div></div>
+        </div>
+        <div class="sh"><div class="sh-t">Visitas do Dia</div></div>
+        <div class="card" id="rd-visitas-list"><div class="empty"><i>◎</i>Nenhuma visita hoje.</div></div>
+        <div class="sh" style="margin-top:14px"><div class="sh-t">Leads Criados Hoje</div></div>
+        <div class="card" id="rd-leads-list"><div class="empty"><i>◈</i>Nenhum lead hoje.</div></div>
+      </div>
+
+      <!-- MENSAL -->
+      <div id="rel-mensal" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn btn-g btn-sm" onclick="relMes(-1)">←</button>
+          <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rm-mes-label">—</div>
+          <button class="btn btn-g btn-sm" onclick="relMes(1)">→</button>
+        </div>
+        <div class="g4" style="margin-bottom:14px">
+          <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rm-leads" style="color:var(--brand)">—</div><div class="m-sub">no mês</div></div>
+          <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="rm-ganhos" style="color:var(--ok)">—</div><div class="m-sub">fechados</div></div>
+          <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="rm-visitas">—</div><div class="m-sub">realizadas</div></div>
+          <div class="card shine"><div class="m-lbl">Conversão</div><div class="m-val" id="rm-conv" style="color:var(--warn)">—</div><div class="m-sub">do mês</div></div>
+        </div>
+        <div class="sh"><div class="sh-t">Meta vs Realizado</div></div>
+        <div class="card" style="padding:16px;margin-bottom:14px">
+          <canvas id="chart-meta-mensal" height="120"></canvas>
+          <div id="meta-detail" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"></div>
+        </div>
+        <div class="sh"><div class="sh-t">Leads por Status</div></div>
+        <div class="card" style="padding:16px">
+          <canvas id="chart-status-mensal" height="140"></canvas>
+        </div>
+      </div>
+
+      <!-- GERENTE / EQUIPE -->
+      <div id="rel-gerente" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn btn-g btn-sm" onclick="relMesG(-1)">←</button>
+          <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rg-mes-label">—</div>
+          <button class="btn btn-g btn-sm" onclick="relMesG(1)">→</button>
+        </div>
+        <div class="sh"><div class="sh-t">Ranking do Mês</div></div>
+        <div class="card" style="padding:16px;margin-bottom:14px">
+          <canvas id="chart-ranking" height="160"></canvas>
+        </div>
+        <div class="sh"><div class="sh-t">Visitas por Vendedor</div></div>
+        <div class="card" style="padding:16px">
+          <canvas id="chart-visitas-equipe" height="140"></canvas>
+        </div>
+      </div>
     </div>
-    <div class="card" id="rot-lista"><div class="empty"><i>◱</i>Nenhuma parada adicionada ainda.</div></div>
-  </div>
 
-  <!-- ABA HISTÓRICO -->
-  <div id="vis-historico" style="display:none">
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="btn btn-p btn-sm" onclick="openM('m-visita')">◎ Registrar Visita</button>
+    <!-- LEADS -->
+    <div id="page-leads" class="page" style="display:none">
+      <div class="page-ey">Pipeline</div>
+      <div class="page-ti">Leads</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="fbar" style="margin:0;flex:1">
+          <input class="fsearch" id="lead-q" placeholder="Buscar nome ou empresa..." oninput="renderLeads()"/>
+          <span class="chip on" data-s="todos" onclick="chipLead(this)">Todos</span>
+          <span class="chip" data-s="novo" onclick="chipLead(this)">Novo</span>
+          <span class="chip" data-s="qualificando" onclick="chipLead(this)">Qualificando</span>
+          <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)">Aguardando</span>
+          <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)">Pronto</span>
+          <span class="chip" data-s="em_negociacao" onclick="chipLead(this)">Negociação</span>
+          <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
+          <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
+      </div>
+      <div class="card" id="leads-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
-    <div class="card" id="visitas-list"><div class="empty"><div class="dot"></div></div></div>
-  </div>
-</div>
 
-<!-- PEDIDOS -->
-<div id="page-pedidos" class="page" style="display:none">
-  <div class="page-ey">Acompanhamento</div>
-  <div class="page-ti">Pedidos</div>
-  <div class="fbar">
-    <span class="chip on" data-s="todos" onclick="chipPed(this)">Todos</span>
-    <span class="chip" data-s="pendente" onclick="chipPed(this)">Pendente</span>
-    <span class="chip" data-s="aprovado" onclick="chipPed(this)">Aprovado</span>
-    <span class="chip" data-s="em_transito" onclick="chipPed(this)">Em Trânsito</span>
-    <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
-    <span class="chip" data-s="atrasado" onclick="chipPed(this)">Atrasado</span>
-    <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
-  </div>
-  <div class="card" id="pedidos-list"><div class="empty"><div class="dot"></div></div></div>
-</div>
-
-<!-- EQUIPE (gerente only) -->
-<div id="page-equipe" class="page" style="display:none">
-  <div class="page-ey">Gestão</div>
-  <div class="page-ti">Equipe</div>
-  <div class="g3" style="margin-bottom:20px">
-    <div class="card shine"><div class="m-lbl">Vendedores</div><div class="m-val" id="eq-tot" style="color:var(--brand)">—</div><div class="m-sub">ativos</div></div>
-    <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="eq-gan" style="color:var(--ok)">—</div><div class="m-sub">total da equipe</div></div>
-    <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="eq-vis">—</div><div class="m-sub">total da equipe</div></div>
-  </div>
-  <div class="g2">
-    <div>
-      <div class="sh"><div class="sh-t">◈ Ranking Leads</div></div>
-      <div class="card" id="eq-rl"><div class="empty"><div class="dot"></div></div></div>
+    <!-- CLIENTES -->
+    <div id="page-clientes" class="page" style="display:none">
+      <div class="page-ey">Carteira</div>
+      <div class="page-ti">Clientes</div>
+      <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
-    <div>
-      <div class="sh"><div class="sh-t">◎ Ranking Visitas</div></div>
-      <div class="card" id="eq-rv"><div class="empty"><div class="dot"></div></div></div>
-    </div>
-  </div>
-  <div class="sh" style="margin-top:6px"><div class="sh-t">⊕ Vendedores</div></div>
-  <div class="g2" id="eq-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
-</div>
 
-<!-- ALERTAS -->
-<div id="page-alertas" class="page" style="display:none">
-  <div class="page-ey">Notificações</div>
-  <div class="page-ti">Alertas</div>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:18px">
-    <button class="btn btn-g btn-sm" onclick="marcarTodos()">✓ Marcar todos como lidos</button>
-  </div>
-  <div class="ag-ti"><span>🎉</span> Pedidos Fechados</div>
-  <div id="al-fechados"><div class="empty"><div class="dot"></div></div></div>
-  <div class="ag-ti" style="margin-top:24px"><span>◬</span> Atenção</div>
-  <div id="al-atencao"><div class="empty"><div class="dot"></div></div></div>
-</div>
-```
+    <!-- VISITAS -->
+    <div id="page-visitas" class="page" style="display:none">
+      <div class="page-ey">Campo</div>
+      <div class="page-ti">Visitas</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px">
+        <div style="display:flex;gap:6px">
+          <span class="chip on" id="vtab-roteiro" onclick="visTab('roteiro')">◱ Roteiro</span>
+          <span class="chip" id="vtab-historico" onclick="visTab('historico')">◎ Histórico</span>
+        </div>
+        <button class="btn btn-p btn-sm" id="btn-nova-visita" onclick="openM('m-visita')" style="display:none">◎ Registrar Visita</button>
+      </div>
+
+      <!-- ABA ROTEIRO -->
+      <div id="vis-roteiro">
+        <div class="card" style="margin-bottom:14px">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+            <div>
+              <div class="m-lbl">Data do Roteiro</div>
+              <input type="date" class="fi" id="rot-data" style="margin-top:4px;width:160px" onchange="loadRoteiro()"/>
+            </div>
+            <div style="flex:1"></div>
+            <button class="btn btn-g btn-sm" onclick="abrirMaps()">↗ Abrir no Maps</button>
+            <button class="btn btn-p btn-sm" onclick="salvarRoteiro()">◈ Salvar Roteiro</button>
+          </div>
+        </div>
+
+        <!-- Sugestões -->
+        <div class="sh"><div class="sh-t">◬ Sugestões</div><span class="sh-l" onclick="toggleSugestoes()">ver todas →</span></div>
+        <div class="card" id="rot-sugestoes" style="margin-bottom:14px"><div class="empty"><div class="dot"></div></div></div>
+
+        <!-- Lista do roteiro -->
+        <div class="sh">
+          <div class="sh-t">◱ Paradas do Dia</div>
+          <button class="btn btn-g btn-sm" onclick="openAddParada()">+ Adicionar</button>
+        </div>
+        <div class="card" id="rot-lista"><div class="empty"><i>◱</i>Nenhuma parada adicionada ainda.</div></div>
+      </div>
+
+      <!-- ABA HISTÓRICO -->
+      <div id="vis-historico" style="display:none">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+          <button class="btn btn-p btn-sm" onclick="openM('m-visita')">◎ Registrar Visita</button>
+        </div>
+        <div class="card" id="visitas-list"><div class="empty"><div class="dot"></div></div></div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div id="page-pedidos" class="page" style="display:none">
+      <div class="page-ey">Acompanhamento</div>
+      <div class="page-ti">Pedidos</div>
+      <div class="fbar">
+        <span class="chip on" data-s="todos" onclick="chipPed(this)">Todos</span>
+        <span class="chip" data-s="pendente" onclick="chipPed(this)">Pendente</span>
+        <span class="chip" data-s="aprovado" onclick="chipPed(this)">Aprovado</span>
+        <span class="chip" data-s="em_transito" onclick="chipPed(this)">Em Trânsito</span>
+        <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
+        <span class="chip" data-s="atrasado" onclick="chipPed(this)">Atrasado</span>
+        <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
+      </div>
+      <div class="card" id="pedidos-list"><div class="empty"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- EQUIPE (gerente only) -->
+    <div id="page-equipe" class="page" style="display:none">
+      <div class="page-ey">Gestão</div>
+      <div class="page-ti">Equipe</div>
+      <div class="g3" style="margin-bottom:20px">
+        <div class="card shine"><div class="m-lbl">Vendedores</div><div class="m-val" id="eq-tot" style="color:var(--brand)">—</div><div class="m-sub">ativos</div></div>
+        <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="eq-gan" style="color:var(--ok)">—</div><div class="m-sub">total da equipe</div></div>
+        <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="eq-vis">—</div><div class="m-sub">total da equipe</div></div>
+      </div>
+      <div class="g2">
+        <div>
+          <div class="sh"><div class="sh-t">◈ Ranking Leads</div></div>
+          <div class="card" id="eq-rl"><div class="empty"><div class="dot"></div></div></div>
+        </div>
+        <div>
+          <div class="sh"><div class="sh-t">◎ Ranking Visitas</div></div>
+          <div class="card" id="eq-rv"><div class="empty"><div class="dot"></div></div></div>
+        </div>
+      </div>
+      <div class="sh" style="margin-top:6px"><div class="sh-t">⊕ Vendedores</div></div>
+      <div class="g2" id="eq-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- ALERTAS -->
+    <div id="page-alertas" class="page" style="display:none">
+      <div class="page-ey">Notificações</div>
+      <div class="page-ti">Alertas</div>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:18px">
+        <button class="btn btn-g btn-sm" onclick="marcarTodos()">✓ Marcar todos como lidos</button>
+      </div>
+      <div class="ag-ti"><span>🎉</span> Pedidos Fechados</div>
+      <div id="al-fechados"><div class="empty"><div class="dot"></div></div></div>
+      <div class="ag-ti" style="margin-top:24px"><span>◬</span> Atenção</div>
+      <div id="al-atencao"><div class="empty"><div class="dot"></div></div></div>
+    </div>
 
   </div><!-- /main -->
 </div><!-- /app -->
 
 <!-- ── DETAIL PANEL ──────────────────────────────────────────────── -->
-
 <div class="dpov" id="dpov" onclick="closeDP()"></div>
 <div class="dp" id="dp">
   <button class="dp-cl" onclick="closeDP()">✕</button>
@@ -655,7 +647,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MODAL: NOVO LEAD ──────────────────────────────────────────── -->
-
 <div class="ov" id="m-lead">
   <div class="modal">
     <button class="mcl" onclick="closeM('m-lead')">✕</button>
@@ -725,7 +716,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MODAL: ADICIONAR PARADA ──────────────────────────────────── -->
-
 <div class="ov" id="m-parada">
   <div class="modal" style="width:420px">
     <button class="mcl" onclick="closeM('m-parada')">✕</button>
@@ -744,7 +734,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MODAL: REGISTRAR VISITA DO ROTEIRO ────────────────────────── -->
-
 <div class="ov" id="m-check-visita">
   <div class="modal" style="width:420px">
     <button class="mcl" onclick="closeM('m-check-visita')">✕</button>
@@ -783,7 +772,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MODAL: NOVA VISITA ────────────────────────────────────────── -->
-
 <div class="ov" id="m-visita">
   <div class="modal">
     <button class="mcl" onclick="closeM('m-visita')">✕</button>
@@ -833,7 +821,6 @@ html,body{overflow:auto}
 </div>
 
 <!-- ── MODAL: EDITAR META (gerente) ─────────────────────────────── -->
-
 <div class="ov" id="m-meta">
   <div class="modal" style="width:380px">
     <button class="mcl" onclick="closeM('m-meta')">✕</button>
@@ -849,8 +836,8 @@ html,body{overflow:auto}
   </div>
 </div>
 
-<!-- MODAL GRÁFICOS -->
 
+<!-- MODAL GRÁFICOS -->
 <div class="ov" id="m-chart">
   <div class="modal" style="width:520px;max-width:calc(100vw - 28px)">
     <button class="mcl" onclick="closeM('m-chart')">✕</button>
@@ -863,9 +850,7 @@ html,body{overflow:auto}
 </div>
 
 <!-- canvas gauge (fora do modal, renderiza offscreen) -->
-
 <canvas id="chart-gauge" width="220" height="220" style="position:fixed;left:-999px;top:0"></canvas>
-
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2285,7 +2270,6 @@ function showToast(msg,type='ok'){
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 </script>
-
 <script>
 
 // ── GRÁFICOS (modal ao clicar nos cards) ─────────────────────────
@@ -2440,6 +2424,5 @@ function instalarApp(){
   deferredPrompt.userChoice.then(()=>deferredPrompt=null);
 }
 </script>
-
 </body>
 </html>
