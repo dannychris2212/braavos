@@ -412,10 +412,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
       <!-- KPIs clicáveis -->
       <div class="g4">
-        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--brand)">—</div><div class="m-sub" id="d-total-s">—</div></div>
-        <div class="card shine click" onclick="openChartModal('meta')"><div class="m-lbl">Novos (mês)</div><div class="m-val" id="d-novos">—</div><div class="m-sub">este mês</div></div>
-        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Taxa Conversão</div><div class="m-val" id="d-conv" style="color:var(--ok)">—</div><div class="m-sub">lead → ganho</div></div>
-        <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Em Negociação</div><div class="m-val" id="d-neg" style="color:var(--warn)">—</div><div class="m-sub">em andamento</div></div>
+        <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Faturamento do Mês</div><div class="m-val" id="d-fat" style="color:var(--brand);font-size:28px">—</div><div class="m-sub" id="d-fat-s">em pedidos fechados</div></div>
+        <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Em Negociação R$</div><div class="m-val" id="d-neg-val" style="color:var(--warn);font-size:28px">—</div><div class="m-sub" id="d-neg-s">valor em aberto</div></div>
+        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Ticket Médio</div><div class="m-val" id="d-ticket" style="color:var(--ok);font-size:28px">—</div><div class="m-sub" id="d-ticket-s">por pedido</div></div>
+        <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--muted);font-size:28px">—</div><div class="m-sub" id="d-total-s">— ganhos</div></div>
       </div>
 
       <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
@@ -588,14 +588,25 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-pedidos" class="page" style="display:none">
       <div class="page-ey">Acompanhamento</div>
       <div class="page-ti">Pedidos</div>
-      <div class="fbar">
-        <span class="chip on" data-s="todos" onclick="chipPed(this)">Todos</span>
-        <span class="chip" data-s="pendente" onclick="chipPed(this)">Pendente</span>
-        <span class="chip" data-s="aprovado" onclick="chipPed(this)">Aprovado</span>
-        <span class="chip" data-s="em_transito" onclick="chipPed(this)">Em Trânsito</span>
-        <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
-        <span class="chip" data-s="atrasado" onclick="chipPed(this)">Atrasado</span>
-        <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
+        <div class="g3" style="flex:1;margin:0">
+          <div class="card shine" style="padding:14px"><div class="m-lbl">Faturamento</div><div class="m-val" id="ped-fat" style="color:var(--brand);font-size:26px">—</div><div class="m-sub">pedidos fechados</div></div>
+          <div class="card shine" style="padding:14px"><div class="m-lbl">Em Aberto</div><div class="m-val" id="ped-aberto" style="color:var(--warn);font-size:26px">—</div><div class="m-sub">aguardando fechamento</div></div>
+          <div class="card shine" style="padding:14px"><div class="m-lbl">Qtd Pedidos</div><div class="m-val" id="ped-qtd" style="color:var(--ok);font-size:26px">—</div><div class="m-sub" id="ped-qtd-s">este mês</div></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
+        <div class="fbar" style="margin:0;flex:1">
+          <span class="chip on" data-s="todos" onclick="chipPed(this)">Todos</span>
+          <span class="chip" data-s="rascunho" onclick="chipPed(this)">Rascunho</span>
+          <span class="chip" data-s="enviado" onclick="chipPed(this)">Enviado</span>
+          <span class="chip" data-s="fechado_ganho" onclick="chipPed(this)">Fechado</span>
+          <span class="chip" data-s="em_producao" onclick="chipPed(this)">Em Produção</span>
+          <span class="chip" data-s="faturado" onclick="chipPed(this)">Faturado</span>
+          <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
+          <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="openM('m-pedido')">◫ Novo Pedido</button>
       </div>
       <div class="card" id="pedidos-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
@@ -851,6 +862,45 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 
 <!-- canvas gauge (fora do modal, renderiza offscreen) -->
 <canvas id="chart-gauge" width="220" height="220" style="position:fixed;left:-999px;top:0"></canvas>
+
+<!-- ── MODAL: NOVO PEDIDO ──────────────────────────────────────── -->
+<div class="ov" id="m-pedido">
+  <div class="modal">
+    <button class="mcl" onclick="closeM('m-pedido')">✕</button>
+    <div class="modal-ti">◫ Novo Pedido</div>
+    <div class="msec">Cliente</div>
+    <div style="display:flex;gap:6px;margin-bottom:10px">
+      <span class="chip on" id="ptab-ped-lead" onclick="pedTab('lead')">◈ Lead</span>
+      <span class="chip" id="ptab-ped-cli" onclick="pedTab('cliente')">◉ Cliente</span>
+    </div>
+    <div id="ped-sec-lead" class="fg"><label class="fl">Lead</label><select class="fs" id="ped-lead-sel"></select></div>
+    <div id="ped-sec-cli" class="fg" style="display:none"><label class="fl">Cliente</label><select class="fs" id="ped-cli-sel"></select></div>
+    <div class="msec">Pedido</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Número do Pedido</label><input type="text" class="fi" id="ped-numero" placeholder="BRV-009"/></div>
+      <div class="fg"><label class="fl">Status</label>
+        <select class="fs" id="ped-status">
+          <option value="rascunho">Rascunho</option>
+          <option value="enviado">Enviado</option>
+          <option value="fechado_ganho" selected>Fechado</option>
+          <option value="em_producao">Em Produção</option>
+          <option value="faturado">Faturado</option>
+          <option value="entregue">Entregue</option>
+          <option value="cancelado">Cancelado</option>
+        </select>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Valor Total (R$) *</label><input type="number" class="fi" id="ped-valor" placeholder="0,00" step="0.01"/></div>
+      <div class="fg"><label class="fl">Previsão de Entrega</label><input type="date" class="fi" id="ped-prev"/></div>
+    </div>
+    <div class="fg"><label class="fl">Observações</label><textarea class="fta" id="ped-obs" placeholder="Detalhes do pedido..."></textarea></div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeM('m-pedido')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarPedido()">◫ Salvar Pedido</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
 
 <script>
@@ -989,12 +1039,12 @@ sb.auth.getSession().then(({data:{session}})=>{if(session)onLogin(session.user);
 // ── LOAD ALL ──────────────────────────────────────────────────────
 async function loadAll(){
   await Promise.all([loadLeads(),loadClientes(),loadVisitas(),loadPedidos(),loadAlertas()]);
-  loadDashboard();
+  await loadDashboard();
   if(P?.cargo==='gerente') loadEquipe();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────────────
-function loadDashboard(){
+async function loadDashboard(){
   const startMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString();
   const cnt={};
   ['novo','qualificando','em_negociacao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
@@ -1004,12 +1054,28 @@ function loadDashboard(){
   document.getElementById('f-ganho').textContent=cnt.fechado_ganho||0;
   document.getElementById('f-perd').textContent=cnt.fechado_perdido||0;
   const total=allLeads.length;
-  const conv=total>0?Math.round(((cnt.fechado_ganho||0)/total)*100):0;
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
-  document.getElementById('d-novos').textContent=allLeads.filter(l=>l.created_at>=startMes).length;
-  document.getElementById('d-conv').textContent=conv+'%';
-  document.getElementById('d-neg').textContent=cnt.em_negociacao||0;
+
+  // Busca pedidos do mês para R$
+  const {data:peds} = await sb.from('pedidos')
+    .select('valor_total,status,cliente_id')
+    .eq('empresa_id', P.empresa_id)
+    .eq('vendedor_id', P.vendedor_id)
+    .gte('created_at', startMes);
+  const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
+    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
+    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const ticket = (peds||[]).length > 0 ? fatMes/(peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length||1 : 0;
+  const ticketReal = isFinite(ticket) ? ticket : 0;
+
+  document.getElementById('d-fat').textContent   = 'R$ '+fval(fatMes);
+  document.getElementById('d-fat-s').textContent = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' pedidos fechados';
+  document.getElementById('d-neg-val').textContent = 'R$ '+fval(emAberto);
+  document.getElementById('d-neg-s').textContent  = cnt.em_negociacao+' leads em negociação';
+  document.getElementById('d-ticket').textContent = ticketReal > 0 ? 'R$ '+fval(ticketReal) : '—';
+  document.getElementById('d-ticket-s').textContent = 'por pedido fechado';
 
   // Próximos contatos
   const hoje=new Date().toISOString().split('T')[0];
@@ -1091,7 +1157,8 @@ function openDP(lead){
       ${lead.telefone?`<a href="tel:${lead.telefone}" class="btn btn-p btn-sm">◉ Ligar</a>`:''}
       ${lead.telefone?`<a href="https://wa.me/55${lead.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
       ${lead.email?`<a href="mailto:${lead.email}" class="btn btn-g btn-sm">◎ Email</a>`:''}
-      <button class="btn btn-ok btn-sm" onclick="promoverCliente(getPK(${esc(lead)}))">⊕ Promover para Cliente</button>
+      <button class="btn btn-ok btn-sm" onclick="promoverCliente(getPK(${esc(lead)}))">⊕ Promover</button>
+      <button class="btn btn-p btn-sm" onclick="closeDP();abrirPedidoPorLead('${lead.id||lead.lead_id}')">◫ Novo Pedido</button>
     </div>
     ${hasAI?`
     <div class="dp-sec">✦ Inteligência IA</div>
@@ -1196,7 +1263,9 @@ async function loadVisitas(){
 
 // ── PEDIDOS ───────────────────────────────────────────────────────
 async function loadPedidos(){
-  const q=sb.from('pedidos').select('*, leads(nome,empresa_cliente)').order('created_at',{ascending:false});
+  const q=sb.from('pedidos')
+    .select('*, leads!pedidos_cliente_id_fkey(nome,empresa_cliente)')
+    .order('created_at',{ascending:false});
   if(P?.cargo!=='gerente') q.eq('vendedor_id',P?.vendedor_id);
   else q.eq('empresa_id',P?.empresa_id);
   const {data}=await q;
@@ -1207,25 +1276,30 @@ function renderPedidos(){
   if(pedFilter!=='todos')f=f.filter(p=>p.status===pedFilter);
   const el=document.getElementById('pedidos-list');
   if(!f.length){el.innerHTML='<div class="empty"><i>◫</i>Nenhum pedido encontrado.</div>';return;}
-  const sl={pendente:'Pendente',aprovado:'Aprovado',em_transito:'Em Trânsito',entregue:'Entregue',atrasado:'Atrasado',cancelado:'Cancelado',falha_entrega:'Falha'};
-  el.innerHTML=f.map(p=>{
-    const atrasado=p.status==='pendente'&&p.previsao_entrega&&p.previsao_entrega<new Date().toISOString().split('T')[0];
-    return `<div class="ped-card ped-status-${p.status}">
+  const sl={rascunho:'Rascunho',enviado:'Enviado',fechado_ganho:'Fechado',em_producao:'Em Produção',faturado:'Faturado',entregue:'Entregue',cancelado:'Cancelado'};
+  const sc={rascunho:'b-dim',enviado:'b-blue',fechado_ganho:'b-ok',em_producao:'b-warn',faturado:'b-brand',entregue:'b-ok',cancelado:'b-err'};
+  // Totais
+  const fatTotal = f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const abertoTotal = f.filter(p=>['rascunho','enviado','em_producao'].includes(p.status)).reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const el2=document.getElementById('ped-fat'); if(el2) el2.textContent='R$ '+fval(fatTotal);
+  const el3=document.getElementById('ped-aberto'); if(el3) el3.textContent='R$ '+fval(abertoTotal);
+  const el4=document.getElementById('ped-qtd'); if(el4) el4.textContent=f.length;
+  const el5=document.getElementById('ped-qtd-s'); if(el5) el5.textContent=f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' fechados';
+  el.innerHTML=f.map(p=>`
+    <div class="ped-card ped-status-${p.status}">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
       <div class="ped-info">
         <div class="ped-cliente">${p.leads?.nome||'—'}</div>
         <div class="ped-meta">
           ${p.leads?.empresa_cliente?p.leads.empresa_cliente+' · ':''}
           ${p.previsao_entrega?'◬ '+fd(p.previsao_entrega):''}
-          ${atrasado?' ⚠️ Atrasado':''}
         </div>
       </div>
       <div style="text-align:right">
         <div class="ped-val">R$ ${fval(p.valor_total)}</div>
-        <span class="ped-status-badge">${sl[p.status]||p.status}</span>
+        <span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 function chipPed(el){
   document.querySelectorAll('#page-pedidos .chip').forEach(c=>c.classList.remove('on'));
@@ -2392,6 +2466,97 @@ function openChartModal(tipo) {
   }
 
   openM('m-chart');
+}
+
+
+// ── PEDIDO TAB ────────────────────────────────────────────────────
+let pedTabAtual = 'lead';
+function pedTab(t) {
+  pedTabAtual = t;
+  document.getElementById('ped-sec-lead').style.display = t==='lead' ? '' : 'none';
+  document.getElementById('ped-sec-cli').style.display  = t==='cliente' ? '' : 'none';
+  document.getElementById('ptab-ped-lead').classList.toggle('on', t==='lead');
+  document.getElementById('ptab-ped-cli').classList.toggle('on', t==='cliente');
+}
+
+// ── SALVAR PEDIDO ─────────────────────────────────────────────────
+async function salvarPedido() {
+  const valor = parseFloat(document.getElementById('ped-valor').value);
+  if (!valor || valor <= 0) { showToast('Informe o valor do pedido','er'); return; }
+
+  // Resolve cliente_id (= lead.id pela FK)
+  let clienteId = null;
+  if (pedTabAtual === 'lead') {
+    clienteId = document.getElementById('ped-lead-sel').value;
+  } else {
+    clienteId = document.getElementById('ped-cli-sel').value;
+  }
+  if (!clienteId) { showToast('Selecione um cliente/lead','er'); return; }
+
+  const payload = {
+    empresa_id:      P.empresa_id,
+    vendedor_id:     P.vendedor_id,
+    cliente_id:      clienteId,
+    numero_pedido:   document.getElementById('ped-numero').value.trim() || null,
+    status:          document.getElementById('ped-status').value,
+    valor_total:     valor,
+    valor_subtotal:  valor,
+    previsao_entrega: document.getElementById('ped-prev').value || null,
+    observacoes:     document.getElementById('ped-obs').value.trim() || null,
+    origem:          'app',
+  };
+
+  const { error } = await sb.from('pedidos').insert(payload);
+  if (error) { showToast('Erro: ' + error.message, 'er'); return; }
+
+  showToast('◫ Pedido salvo!', 'ok');
+  closeM('m-pedido');
+  ['ped-numero','ped-valor','ped-prev','ped-obs'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('ped-status').value = 'fechado_ganho';
+  loadPedidos();
+}
+
+// ── OPEN M-PEDIDO: carrega leads e clientes ───────────────────────
+const _origOpenM = openM;
+function openM(id) {
+  if (id === 'm-pedido') {
+    sb.from('leads').select('id,nome,empresa_cliente')
+      .eq('empresa_id', P.empresa_id)
+      .not('status','in','("fechado_perdido")')
+      .order('nome')
+      .then(({data}) => {
+        const sel = document.getElementById('ped-lead-sel');
+        sel.innerHTML = data?.length
+          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+          : '<option value="">Nenhum lead</option>';
+      });
+    sb.from('leads').select('id,nome,empresa_cliente')
+      .eq('empresa_id', P.empresa_id)
+      .eq('status','fechado_ganho')
+      .order('nome')
+      .then(({data}) => {
+        const sel = document.getElementById('ped-cli-sel');
+        sel.innerHTML = data?.length
+          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+          : '<option value="">Nenhum cliente</option>';
+      });
+    pedTab('lead');
+  }
+  _origOpenM(id);
+}
+
+
+// ── ABRIR PEDIDO POR LEAD ─────────────────────────────────────────
+async function abrirPedidoPorLead(leadId) {
+  await new Promise(r => setTimeout(r, 100));
+  openM('m-pedido');
+  setTimeout(() => {
+    const sel = document.getElementById('ped-lead-sel');
+    if (sel) {
+      const opt = Array.from(sel.options).find(o => o.value === leadId);
+      if (opt) { sel.value = leadId; pedTab('lead'); }
+    }
+  }, 300);
 }
 
 // ── PWA SERVICE WORKER ────────────────────────────────────────────
