@@ -429,8 +429,8 @@ html,body{overflow:auto}
     <div>
       <div class="sh"><div class="sh-t">Meta do Mês</div></div>
       <div class="card" style="display:flex;flex-direction:column;align-items:center;padding:20px 16px">
-        <div style="position:relative;width:160px;height:90px;overflow:hidden">
-          <canvas id="chart-gauge" width="160" height="160" style="position:absolute;top:0;left:0"></canvas>
+        <div style="position:relative;width:180px;height:95px;overflow:hidden;margin:0 auto">
+          <canvas id="chart-gauge" width="180" height="180" style="position:absolute;top:0;left:0"></canvas>
         </div>
         <div id="gauge-label" style="font-family:var(--FD);font-size:28px;color:var(--brand);margin-top:4px">—</div>
         <div style="font-size:11px;color:var(--muted);margin-top:2px" id="gauge-sub">de meta atingida</div>
@@ -1066,7 +1066,7 @@ function loadDashboard(){
     </div>`).join('')
     :'<div class="empty"><i>◈</i>Sem dados ainda</div>';
   // Desenha gráficos após atualizar dados
-  requestAnimationFrame(drawDashboardCharts);
+  setTimeout(drawDashboardCharts, 50);
 }
 
 // ── LEADS ─────────────────────────────────────────────────────────
@@ -1695,7 +1695,7 @@ function drawGauge(pct,meta){
   const canvas=document.getElementById('chart-gauge');
   if(!canvas) return;
   const ctx=canvas.getContext('2d');
-  const w=160,h=160,cx=80,cy=100,r=65,sw=16;
+  const w=180,h=180,cx=90,cy=110,r=72,sw=16;
   ctx.clearRect(0,0,w,h);
   // Track
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,2*Math.PI);
@@ -1803,7 +1803,7 @@ async function drawEvolucao(){
 }
 
 // Desenha gráficos do dashboard
-function drawDashboardCharts(){
+async function drawDashboardCharts(){
   const counts={
     novo:allLeads.filter(l=>l.status==='novo').length,
     qualificando:allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length,
@@ -1816,7 +1816,7 @@ function drawDashboardCharts(){
   const hoje=new Date();
   const novosDoMes=allLeads.filter(l=>{const d=new Date(l.created_at);return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();}).length;
   drawGauge((novosDoMes/meta)*100,meta);
-  drawEvolucao();
+  await drawEvolucao();
 }
 
 // ── RELATÓRIOS ────────────────────────────────────────────────────
