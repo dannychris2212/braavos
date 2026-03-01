@@ -617,12 +617,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ti">Equipe</div>
       <div class="g3" style="margin-bottom:20px">
         <div class="card shine"><div class="m-lbl">Vendedores</div><div class="m-val" id="eq-tot" style="color:var(--brand)">—</div><div class="m-sub">ativos</div></div>
-        <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="eq-gan" style="color:var(--ok)">—</div><div class="m-sub">total da equipe</div></div>
+        <div class="card shine"><div class="m-lbl">Faturamento Total</div><div class="m-val" id="eq-gan" style="color:var(--ok);font-size:22px">—</div><div class="m-sub">pedidos fechados</div></div>
         <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="eq-vis">—</div><div class="m-sub">total da equipe</div></div>
       </div>
       <div class="g2">
         <div>
-          <div class="sh"><div class="sh-t">◈ Ranking Leads</div></div>
+          <div class="sh"><div class="sh-t">◈ Ranking Faturamento</div></div>
           <div class="card" id="eq-rl"><div class="empty"><div class="dot"></div></div></div>
         </div>
         <div>
@@ -1057,12 +1057,13 @@ async function loadDashboard(){
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
 
-  // Busca pedidos do mês para R$
-  const {data:peds} = await sb.from('pedidos')
+  // Busca pedidos do mês para R$ — gerente vê todos, vendedor só os seus
+  const pedsQ = sb.from('pedidos')
     .select('valor_total,status,cliente_id')
     .eq('empresa_id', P.empresa_id)
-    .eq('vendedor_id', P.vendedor_id)
     .gte('created_at', startMes);
+  if(P?.cargo !== 'gerente') pedsQ.eq('vendedor_id', P.vendedor_id);
+  const {data:peds} = await pedsQ;
   const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
     .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
   const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
@@ -1312,9 +1313,10 @@ async function loadEquipe(){
   const {data:profs}=await sb.from('profiles').select('*').eq('empresa_id',P.empresa_id).eq('ativo',true);
   if(!profs?.length) return;
 
-  const [{data:ganhos},{data:visitas}]=await Promise.all([
+  const [{data:ganhos},{data:visitas},{data:pedidos}]=await Promise.all([
     sb.from('leads').select('vendedor_id').eq('empresa_id',P.empresa_id).eq('status','fechado_ganho'),
     sb.from('visitas').select('user_id').in('user_id',profs.map(p=>p.user_id)),
+    sb.from('pedidos').select('vendedor_id,valor_total,status').eq('empresa_id',P.empresa_id),
   ]);
 
   const gPV={};(ganhos||[]).forEach(l=>gPV[l.vendedor_id]=(gPV[l.vendedor_id]||0)+1);
@@ -1322,28 +1324,39 @@ async function loadEquipe(){
   const u2v={};profs.forEach(p=>u2v[p.user_id]=p.vendedor_id);
   const visPV={};Object.entries(uV).forEach(([uid,c])=>{const vid=u2v[uid];if(vid)visPV[vid]=(visPV[vid]||0)+c;});
 
+  // Faturamento por vendedor
+  const fatPV={};const pedQtdPV={};
+  (pedidos||[]).forEach(p=>{
+    if(['fechado_ganho','faturado','entregue'].includes(p.status)){
+      fatPV[p.vendedor_id]=(fatPV[p.vendedor_id]||0)+parseFloat(p.valor_total||0);
+      pedQtdPV[p.vendedor_id]=(pedQtdPV[p.vendedor_id]||0)+1;
+    }
+  });
+
   const vendors=profs.filter(p=>p.cargo!=='gerente');
+  const fatTotal=Object.values(fatPV).reduce((a,b)=>a+b,0);
   document.getElementById('eq-tot').textContent=vendors.length||profs.length;
-  document.getElementById('eq-gan').textContent=(ganhos||[]).length;
+  document.getElementById('eq-gan').textContent='R$ '+fval(fatTotal);
   document.getElementById('eq-vis').textContent=(visitas||[]).length;
 
-  // Ranking leads
-  const rkL=[...profs].sort((a,b)=>(gPV[b.vendedor_id]||0)-(gPV[a.vendedor_id]||0));
-  const mxL=gPV[rkL[0]?.vendedor_id]||1;
+  // Ranking faturamento
+  const rkL=[...profs].sort((a,b)=>(fatPV[b.vendedor_id]||0)-(fatPV[a.vendedor_id]||0));
+  const mxL=fatPV[rkL[0]?.vendedor_id]||1;
   document.getElementById('eq-rl').innerHTML=rkL.map((p,i)=>{
-    const c=gPV[p.vendedor_id]||0,m=p.meta_mensal_leads||20;
-    const pct=Math.min(Math.round(c/m*100),100);
+    const fat=fatPV[p.vendedor_id]||0;
+    const meta=p.meta_mensal_faturamento||50000;
+    const pct=Math.min(Math.round(fat/meta*100),100);
     return `<div class="eq-card">
-      <div class="eq-rank ${i===0&&c>0?'top':'other'}">${i+1}</div>
+      <div class="eq-rank ${i===0&&fat>0?'top':'other'}">${i+1}</div>
       <div class="eq-info">
         <div class="eq-name">${p.nome||'—'} ${p.regiao?`<span style="font-size:11px;color:var(--muted)">· ${p.regiao}</span>`:''}</div>
         <div class="eq-prog">
-          <div class="ptrack" style="flex:1"><div class="pfill" style="width:${Math.round(c/Math.max(mxL,1)*100)}%"></div></div>
+          <div class="ptrack" style="flex:1"><div class="pfill" style="width:${Math.round(fat/Math.max(mxL,1)*100)}%"></div></div>
           <span class="eq-pct" style="color:${pct>=100?'var(--ok)':pct>=70?'var(--brand)':'var(--muted)'}">${pct}%</span>
         </div>
-        <div style="font-size:10px;color:var(--muted);margin-top:2px">${c} de ${m} meta</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:2px">R$ ${fval(fat)} de R$ ${fval(meta)}</div>
       </div>
-      <span class="badge ${c>0?'b-ok':'b-dim'}">${c}</span>
+      <span class="badge ${fat>0?'b-brand':'b-dim'}" style="font-size:10px">R$ ${fval(fat)}</span>
     </div>`;
   }).join('');
 
@@ -1372,32 +1385,43 @@ async function loadEquipe(){
     const gl=gPV[p.vendedor_id]||0,gv=visPV[p.vendedor_id]||0;
     const ml=p.meta_mensal_leads||20,mv=p.meta_mensal_visitas||30;
     const pl=Math.min(Math.round(gl/ml*100),100),pv=Math.min(Math.round(gv/mv*100),100);
+    const fat=fatPV[p.vendedor_id]||0;
+    const nPed=pedQtdPV[p.vendedor_id]||0;
+    const metaFat=p.meta_mensal_faturamento||50000;
+    const pfat=Math.min(Math.round(fat/metaFat*100),100);
     return `<div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:13px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div>
-          <div style="font-size:14px;font-weight:500;margin-bottom:2px">${p.nome||'—'}</div>
+          <div style="font-size:15px;font-weight:600;margin-bottom:1px">${p.nome||'—'}</div>
           <div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
-          <span class="badge ${p.cargo==='gerente'?'b-brand':'b-dim'}">${p.cargo||'vendedor'}</span>
-          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv})">⊕</button>`:''}
+          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv})">⊕ Meta</button>`:''}
         </div>
       </div>
-      <div style="margin-bottom:9px">
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-          <span style="color:var(--muted)">◈ Leads ganhos</span>
-          <span style="font-family:var(--FM);color:${pl>=100?'var(--ok)':'var(--brand)'}">${gl}/${ml}</span>
-        </div>
-        <div class="ptrack"><div class="pfill" style="width:${pl}%;background:${pl>=100?'var(--ok)':'var(--brand)'}"></div></div>
+      <!-- Faturamento destaque -->
+      <div style="background:var(--bs2);border:1px solid var(--bb);border-radius:10px;padding:10px 12px;margin-bottom:10px">
+        <div style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Faturamento</div>
+        <div style="font-family:var(--FD);font-size:26px;color:${pfat>=100?'var(--ok)':'var(--brand)'}">R$ ${fval(fat)}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:1px">${nPed} pedidos · meta R$ ${fval(metaFat)}</div>
+        <div class="ptrack" style="margin-top:6px"><div class="pfill" style="width:${pfat}%;background:${pfat>=100?'var(--ok)':'var(--brand)'}"></div></div>
       </div>
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px">
-          <span style="color:var(--muted)">◎ Visitas</span>
-          <span style="font-family:var(--FM);color:${pv>=100?'var(--ok)':'var(--muted)'}">${gv}/${mv}</span>
+      <!-- Leads + Visitas -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div style="background:var(--bs);border:1px solid var(--bb);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px">◈ Leads Ganhos</div>
+          <div style="font-family:var(--FD);font-size:20px;color:${pl>=100?'var(--ok)':'var(--txt)'}">${gl}</div>
+          <div style="font-size:10px;color:var(--muted)">de ${ml} meta</div>
+          <div class="ptrack" style="margin-top:4px"><div class="pfill" style="width:${pl}%;background:${pl>=100?'var(--ok)':'var(--brand)'}"></div></div>
         </div>
-        <div class="ptrack"><div class="pfill" style="width:${pv}%;background:${pv>=100?'var(--ok)':'rgba(255,255,255,.2)'}"></div></div>
+        <div style="background:var(--bs);border:1px solid var(--bb);border-radius:8px;padding:8px 10px">
+          <div style="font-size:10px;color:var(--muted);margin-bottom:2px">◎ Visitas</div>
+          <div style="font-family:var(--FD);font-size:20px;color:${pv>=100?'var(--ok)':'var(--txt)'}">${gv}</div>
+          <div style="font-size:10px;color:var(--muted)">de ${mv} meta</div>
+          <div class="ptrack" style="margin-top:4px"><div class="pfill" style="width:${pv}%;background:${pv>=100?'var(--ok)':'rgba(255,255,255,.2)'}"></div></div>
+        </div>
       </div>
-      ${p.whatsapp_pessoal?`<div style="margin-top:11px"><a href="https://wa.me/55${p.whatsapp_pessoal.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a></div>`:''}
+      ${p.whatsapp_pessoal?`<a href="https://wa.me/55${p.whatsapp_pessoal.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
     </div>`;
   }).join('');
 }
