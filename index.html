@@ -416,44 +416,23 @@ html,body{overflow:auto}
   <div class="page-ey" id="d-ey">—</div>
   <div class="page-ti" id="d-hi">Bem-vindo 👋</div>
 
-  <!-- KPIs -->
+  <!-- KPIs clicáveis -->
   <div class="g4">
-    <div class="card shine"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--brand)">—</div><div class="m-sub" id="d-total-s">—</div></div>
-    <div class="card shine"><div class="m-lbl">Novos (mês)</div><div class="m-val" id="d-novos">—</div><div class="m-sub">este mês</div></div>
-    <div class="card shine"><div class="m-lbl">Taxa Conversão</div><div class="m-val" id="d-conv" style="color:var(--ok)">—</div><div class="m-sub">lead → ganho</div></div>
-    <div class="card shine"><div class="m-lbl">Em Negociação</div><div class="m-val" id="d-neg" style="color:var(--warn)">—</div><div class="m-sub">em andamento</div></div>
+    <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--brand)">—</div><div class="m-sub" id="d-total-s">—</div></div>
+    <div class="card shine click" onclick="openChartModal('meta')"><div class="m-lbl">Novos (mês)</div><div class="m-val" id="d-novos">—</div><div class="m-sub">este mês</div></div>
+    <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Taxa Conversão</div><div class="m-val" id="d-conv" style="color:var(--ok)">—</div><div class="m-sub">lead → ganho</div></div>
+    <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Em Negociação</div><div class="m-val" id="d-neg" style="color:var(--warn)">—</div><div class="m-sub">em andamento</div></div>
   </div>
 
-  <!-- META GAUGE + FUNIL GRÁFICO -->
-  <div class="g2" style="margin-bottom:18px">
-    <div>
-      <div class="sh"><div class="sh-t">Meta do Mês</div></div>
-      <div class="card" style="display:flex;flex-direction:column;align-items:center;padding:20px 16px">
-        <div style="position:relative;width:180px;height:95px;overflow:hidden;margin:0 auto">
-          <canvas id="chart-gauge" width="180" height="180" style="position:absolute;top:0;left:0"></canvas>
-        </div>
-        <div id="gauge-label" style="font-family:var(--FD);font-size:28px;color:var(--brand);margin-top:4px">—</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px" id="gauge-sub">de meta atingida</div>
-        <div id="gauge-detail" style="margin-top:12px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap"></div>
-      </div>
-    </div>
-    <div>
-      <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
-      <div class="card" style="padding:16px">
-        <canvas id="chart-funil" height="140"></canvas>
-        <div id="funil-detail" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;justify-content:center"></div>
-      </div>
-    </div>
+  <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
+  <div class="funil">
+    <div class="f-stage" style="--sc:#6366f1"><div class="f-lbl">Novo</div><div class="f-cnt" id="f-novo">—</div><div class="f-sub">leads</div></div>
+    <div class="f-stage" style="--sc:#0ea5e9"><div class="f-lbl">Qualificado</div><div class="f-cnt" id="f-qual">—</div><div class="f-sub">leads</div></div>
+    <div class="f-stage" style="--sc:#f0a050"><div class="f-lbl">Negociação</div><div class="f-cnt" id="f-neg">—</div><div class="f-sub">leads</div></div>
+    <div class="f-stage" style="--sc:#4fc87a"><div class="f-lbl">Ganho</div><div class="f-cnt" id="f-ganho">—</div><div class="f-sub">fechados</div></div>
+    <div class="f-stage" style="--sc:#f05050"><div class="f-lbl">Perdido</div><div class="f-cnt" id="f-perd">—</div><div class="f-sub">leads</div></div>
   </div>
 
-  <!-- EVOLUÇÃO MENSAL -->
-  <div class="sh"><div class="sh-t">Evolução Mensal</div></div>
-  <div class="card" style="padding:16px;margin-bottom:18px">
-    <canvas id="chart-evolucao" height="120"></canvas>
-    <div id="evolucao-detail" style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"></div>
-  </div>
-
-  <!-- PRÓXIMOS CONTATOS + POR ORIGEM -->
   <div class="g2">
     <div>
       <div class="sh"><div class="sh-t">Próximos Contatos</div></div>
@@ -463,12 +442,6 @@ html,body{overflow:auto}
       <div class="sh"><div class="sh-t">Por Origem</div></div>
       <div class="card" id="d-orig"><div class="empty"><div class="dot"></div></div></div>
     </div>
-  </div>
-
-  <!-- Hidden elements for compatibility -->
-  <div style="display:none">
-    <span id="f-novo"></span><span id="f-qual"></span><span id="f-neg"></span>
-    <span id="f-ganho"></span><span id="f-perd"></span>
   </div>
 </div>
 
@@ -876,6 +849,23 @@ html,body{overflow:auto}
   </div>
 </div>
 
+<!-- MODAL GRÁFICOS -->
+
+<div class="ov" id="m-chart">
+  <div class="modal" style="width:520px;max-width:calc(100vw - 28px)">
+    <button class="mcl" onclick="closeM('m-chart')">✕</button>
+    <div class="modal-ti" id="chart-modal-title">Gráfico</div>
+    <div id="chart-modal-body" style="padding-top:8px">
+      <canvas id="chart-modal-canvas" height="220"></canvas>
+      <div id="chart-modal-detail" style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;gap:12px;flex-wrap:wrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- canvas gauge (fora do modal, renderiza offscreen) -->
+
+<canvas id="chart-gauge" width="220" height="220" style="position:fixed;left:-999px;top:0"></canvas>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -1065,8 +1055,7 @@ function loadDashboard(){
       <span class="cbar-val" style="color:var(--brand)">${c}</span>
     </div>`).join('')
     :'<div class="empty"><i>◈</i>Sem dados ainda</div>';
-  // Desenha gráficos após atualizar dados
-  setTimeout(drawDashboardCharts, 50);
+
 }
 
 // ── LEADS ─────────────────────────────────────────────────────────
@@ -2298,6 +2287,129 @@ function showToast(msg,type='ok'){
 </script>
 
 <script>
+
+// ── GRÁFICOS (modal ao clicar nos cards) ─────────────────────────
+let _chartModal = null;
+
+const CHART_C = {
+  novo:'rgba(99,102,241,.85)',
+  qual:'rgba(14,165,233,.85)',
+  neg:'rgba(240,160,80,.85)',
+  ganho:'rgba(79,200,122,.85)',
+  perdido:'rgba(240,80,80,.85)',
+  brand:'rgba(201,168,76,.85)',
+};
+
+function openChartModal(tipo) {
+  const canvas = document.getElementById('chart-modal-canvas');
+  const title = document.getElementById('chart-modal-title');
+  const detail = document.getElementById('chart-modal-detail');
+  if (_chartModal) { _chartModal.destroy(); _chartModal = null; }
+  detail.innerHTML = '';
+
+  if (tipo === 'funil') {
+    title.textContent = 'Funil de Leads';
+    const novo    = allLeads.filter(l=>l.status==='novo').length;
+    const qual    = allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length;
+    const neg     = allLeads.filter(l=>l.status==='em_negociacao').length;
+    const ganho   = allLeads.filter(l=>l.status==='fechado_ganho').length;
+    const perdido = allLeads.filter(l=>l.status==='fechado_perdido').length;
+    const data    = [novo, qual, neg, ganho, perdido];
+    const labels  = ['Novo','Qualificando','Negociação','Ganho','Perdido'];
+    const colors  = [CHART_C.novo, CHART_C.qual, CHART_C.neg, CHART_C.ganho, CHART_C.perdido];
+    _chartModal = new Chart(canvas, {
+      type:'bar',
+      data:{ labels, datasets:[{ data, backgroundColor:colors, borderRadius:8, borderSkipped:false }] },
+      options:{ indexAxis:'y', responsive:true, maintainAspectRatio:true,
+        plugins:{ legend:{display:false} },
+        scales:{ x:{ticks:{color:'rgba(255,255,255,.4)',font:{family:'Outfit',size:11}},grid:{color:'rgba(255,255,255,.05)'}},
+                 y:{ticks:{color:'rgba(255,255,255,.5)',font:{family:'Outfit',size:12}},grid:{display:false}} } }
+    });
+    const total = data.reduce((a,b)=>a+b,0);
+    detail.innerHTML = data.map((v,i)=>`
+      <div style="display:flex;align-items:center;gap:6px">
+        <div style="width:10px;height:10px;border-radius:3px;background:${colors[i]}"></div>
+        <span style="font-size:12px;color:var(--muted)">${labels[i]}:</span>
+        <span style="font-size:12px;font-weight:600;color:var(--txt)">${v}</span>
+        <span style="font-size:11px;color:var(--muted)">(${total?Math.round(v/total*100):0}%)</span>
+      </div>`).join('');
+
+  } else if (tipo === 'meta') {
+    title.textContent = 'Meta do Mês';
+    const meta = P?.meta_mensal_leads || 20;
+    const hoje = new Date();
+    const novosDoMes = allLeads.filter(l=>{
+      const d=new Date(l.created_at);
+      return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();
+    }).length;
+    const pct = Math.min(Math.round(novosDoMes/meta*100), 100);
+    const falta = Math.max(0, meta - novosDoMes);
+    const color = pct>=100?'#4fc87a':pct>=70?'#c9a84c':'#f56565';
+    _chartModal = new Chart(canvas, {
+      type:'doughnut',
+      data:{ datasets:[{ data:[novosDoMes, falta],
+        backgroundColor:[color,'rgba(255,255,255,.06)'], borderWidth:0, circumference:180, rotation:270 }] },
+      options:{ responsive:true, maintainAspectRatio:true, cutout:'72%',
+        plugins:{ legend:{display:false}, tooltip:{enabled:false} } }
+    });
+    detail.innerHTML = `
+      <div style="flex:1;text-align:center">
+        <div style="font-family:var(--FD);font-size:36px;color:${color}">${pct}%</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">da meta atingida</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.08)"></div>
+      <div style="flex:1;text-align:center">
+        <div style="font-family:var(--FD);font-size:36px;color:var(--ok)">${novosDoMes}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">leads criados</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.08)"></div>
+      <div style="flex:1;text-align:center">
+        <div style="font-family:var(--FD);font-size:36px;color:${falta===0?'var(--ok)':'var(--err)'}">${falta}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">faltam para meta (${meta})</div>
+      </div>`;
+
+  } else if (tipo === 'evolucao') {
+    title.textContent = 'Evolução Mensal';
+    const meses=[], labels=[];
+    const hoje = new Date();
+    for(let i=5;i>=0;i--){
+      const d=new Date(hoje.getFullYear(),hoje.getMonth()-i,1);
+      meses.push({y:d.getFullYear(),m:d.getMonth()+1});
+      labels.push(d.toLocaleDateString('pt-BR',{month:'short',year:'2-digit'}));
+    }
+    const leadsData = meses.map(({y,m})=>allLeads.filter(l=>{
+      const d=new Date(l.created_at); return d.getFullYear()===y&&d.getMonth()+1===m;
+    }).length);
+    // Busca visitas async não é possível aqui de forma simples, usa 0
+    _chartModal = new Chart(canvas, {
+      type:'line',
+      data:{ labels, datasets:[{
+        label:'Leads', data:leadsData,
+        borderColor:'#c9a84c', backgroundColor:'rgba(201,168,76,.12)',
+        tension:.4, fill:true, pointBackgroundColor:'#c9a84c', pointRadius:5
+      }]},
+      options:{ responsive:true, maintainAspectRatio:true,
+        plugins:{ legend:{display:false} },
+        scales:{ x:{ticks:{color:'rgba(255,255,255,.4)',font:{family:'Outfit',size:11}},grid:{color:'rgba(255,255,255,.05)'}},
+                 y:{ticks:{color:'rgba(255,255,255,.4)',font:{family:'Outfit',size:11}},grid:{color:'rgba(255,255,255,.05)'}, beginAtZero:true} } }
+    });
+    const tot = leadsData.reduce((a,b)=>a+b,0);
+    const melhor = Math.max(...leadsData);
+    detail.innerHTML = `
+      <div style="flex:1;text-align:center">
+        <div style="font-family:var(--FD);font-size:32px;color:var(--brand)">${tot}</div>
+        <div style="font-size:11px;color:var(--muted)">total 6 meses</div>
+      </div>
+      <div style="width:1px;background:rgba(255,255,255,.08)"></div>
+      <div style="flex:1;text-align:center">
+        <div style="font-family:var(--FD);font-size:32px;color:var(--ok)">${melhor}</div>
+        <div style="font-size:11px;color:var(--muted)">melhor mês</div>
+      </div>`;
+  }
+
+  openM('m-chart');
+}
+
 // ── PWA SERVICE WORKER ────────────────────────────────────────────
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
