@@ -1058,7 +1058,7 @@ async function loadDashboard(){
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
 
   // Busca pedidos do mês para R$ — gerente vê todos, vendedor só os seus
-  const pedsQ = sb.from('pedidos')
+  let pedsQ = sb.from('pedidos')
     .select('valor_total,status,cliente_id')
     .eq('empresa_id', P.empresa_id)
     .gte('created_at', startMes);
