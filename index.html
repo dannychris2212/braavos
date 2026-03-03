@@ -411,37 +411,40 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ti" id="d-hi">Bem-vindo 👋</div>
 
       <!-- Seletor de mês -->
-<div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
-  <button onclick="mudaMes(-1)" style="background:var(--bs2);border:1px solid var(--bb);color:var(--txt);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px">‹</button>
-  <div id="d-mes-label" style="font-family:var(--FM);font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;min-width:120px;text-align:center">—</div>
-  <button onclick="mudaMes(1)" style="background:var(--bs2);border:1px solid var(--bb);color:var(--txt);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px">›</button>
-</div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <button onclick="mudaMes(-1)" style="background:var(--bs2);border:1px solid var(--bb);color:var(--txt);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px">&#8249;</button>
+        <div id="d-mes-label" style="font-family:var(--FM);font-size:12px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;min-width:120px;text-align:center">—</div>
+        <button onclick="mudaMes(1)" style="background:var(--bs2);border:1px solid var(--bb);color:var(--txt);border-radius:8px;padding:6px 12px;cursor:pointer;font-size:16px">&#8250;</button>
+      </div>
 
-<!-- KPIs clicáveis -->
-<div class="g4">
-  <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Faturamento do Mês</div><div class="m-val" id="d-fat" style="color:var(--brand);font-size:28px">—</div><div class="m-sub" id="d-fat-s">em pedidos fechados</div></div>
-  <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Em Negociação R$</div><div class="m-val" id="d-neg-val" style="color:var(--warn);font-size:28px">—</div><div class="m-sub" id="d-neg-s">valor em aberto</div></div>
-  <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Ticket Médio</div><div class="m-val" id="d-ticket" style="color:var(--ok);font-size:28px">—</div><div class="m-sub" id="d-ticket-s">por pedido</div></div>
-  <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--muted);font-size:28px">—</div><div class="m-sub" id="d-total-s">— ganhos</div></div>
-</div>
-<div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
-<div class="funil">
-  <div class="f-stage" style="--sc:#6366f1"><div class="f-lbl">Novo</div><div class="f-cnt" id="f-novo">—</div><div class="f-sub">leads</div></div>
-  <div class="f-stage" style="--sc:#0ea5e9"><div class="f-lbl">Qualificado</div><div class="f-cnt" id="f-qual">—</div><div class="f-sub">leads</div></div>
-  <div class="f-stage" style="--sc:#f0a050"><div class="f-lbl">Negociação</div><div class="f-cnt" id="f-neg">—</div><div class="f-sub">leads</div></div>
-  <div class="f-stage" style="--sc:#4fc87a"><div class="f-lbl">Ganho</div><div class="f-cnt" id="f-ganho">—</div><div class="f-sub">fechados</div></div>
-  <div class="f-stage" style="--sc:#f05050"><div class="f-lbl">Perdido</div><div class="f-cnt" id="f-perd">—</div><div class="f-sub">leads</div></div>
-</div>
-<div class="g2">
-  <div>
-    <div class="sh"><div class="sh-t">Próximos Contatos</div></div>
-    <div class="card" id="d-prox"><div class="empty"><div class="dot"></div></div></div>
-  </div>
-  <div>
-    <div class="sh"><div class="sh-t">Por Origem</div></div>
-    <div class="card" id="d-orig"><div class="empty"><div class="dot"></div></div></div>
-  </div>
-</div>
+      <!-- KPIs clicáveis -->
+      <div class="g4">
+        <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Faturamento do Mês</div><div class="m-val" id="d-fat" style="color:var(--brand);font-size:28px">—</div><div class="m-sub" id="d-fat-s">em pedidos fechados</div></div>
+        <div class="card shine click" onclick="openChartModal('faturamento')"><div class="m-lbl">Em Negociação R$</div><div class="m-val" id="d-neg-val" style="color:var(--warn);font-size:28px">—</div><div class="m-sub" id="d-neg-s">valor em aberto</div></div>
+        <div class="card shine click" onclick="openChartModal('funil')"><div class="m-lbl">Ticket Médio</div><div class="m-val" id="d-ticket" style="color:var(--ok);font-size:28px">—</div><div class="m-sub" id="d-ticket-s">por pedido</div></div>
+        <div class="card shine click" onclick="openChartModal('evolucao')"><div class="m-lbl">Total Leads</div><div class="m-val" id="d-total" style="color:var(--muted);font-size:28px">—</div><div class="m-sub" id="d-total-s">— ganhos</div></div>
+      </div>
+
+      <div class="sh"><div class="sh-t">Funil de Leads</div><span class="sh-l" onclick="go('leads',navEl(1))">Ver todos →</span></div>
+      <div class="funil">
+        <div class="f-stage" style="--sc:#6366f1"><div class="f-lbl">Novo</div><div class="f-cnt" id="f-novo">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#0ea5e9"><div class="f-lbl">Qualificado</div><div class="f-cnt" id="f-qual">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#f0a050"><div class="f-lbl">Negociação</div><div class="f-cnt" id="f-neg">—</div><div class="f-sub">leads</div></div>
+        <div class="f-stage" style="--sc:#4fc87a"><div class="f-lbl">Ganho</div><div class="f-cnt" id="f-ganho">—</div><div class="f-sub">fechados</div></div>
+        <div class="f-stage" style="--sc:#f05050"><div class="f-lbl">Perdido</div><div class="f-cnt" id="f-perd">—</div><div class="f-sub">leads</div></div>
+      </div>
+
+      <div class="g2">
+        <div>
+          <div class="sh"><div class="sh-t">Próximos Contatos</div></div>
+          <div class="card" id="d-prox"><div class="empty"><div class="dot"></div></div></div>
+        </div>
+        <div>
+          <div class="sh"><div class="sh-t">Por Origem</div></div>
+          <div class="card" id="d-orig"><div class="empty"><div class="dot"></div></div></div>
+        </div>
+      </div>
+    </div>
 
     <!-- RELATÓRIOS -->
     <div id="page-relatorios" class="page" style="display:none">
@@ -1047,11 +1050,11 @@ async function loadAll(){
   if(P?.cargo==='gerente') loadEquipe();
 }
 
+// ── DASHBOARD ─────────────────────────────────────────────────────
 let dashMesOffset = 0;
 
 function mudaMes(delta) {
   dashMesOffset += delta;
-  // Não deixa ir além do mês atual
   if (dashMesOffset > 0) dashMesOffset = 0;
   loadDashboard();
 }
@@ -1065,9 +1068,10 @@ function getDashMesRange() {
   const label = new Date(ano, mes, 1).toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   return { inicio, fim, label };
 }
-  
-// ── DASHBOARD ─────────────────────────────────────────────────────
+
 async function loadDashboard(){
+  const { inicio: startMes, fim: endMes, label: mesLabel } = getDashMesRange();
+  document.getElementById('d-mes-label').textContent = mesLabel;
   const cnt={};
   ['novo','qualificando','em_negociacao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
   document.getElementById('f-novo').textContent=(cnt.novo||0)+(allLeads.filter(l=>l.status==='qualificando'||l.status==='aguardando_cliente'||l.status==='pronto_para_compra').length);
@@ -1079,10 +1083,7 @@ async function loadDashboard(){
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
 
-  // Busca pedidos para R$ — gerente vê todos, vendedor só os seus
-  const { inicio: startMes, fim: endMes, label: mesLabel } = getDashMesRange();
-  document.getElementById('d-mes-label').textContent = mesLabel;
-
+  // Busca pedidos do mês para R$ — gerente vê todos, vendedor só os seus
   let pedsQ = sb.from('pedidos')
     .select('valor_total,status,cliente_id')
     .eq('empresa_id', P.empresa_id)
@@ -1097,7 +1098,7 @@ async function loadDashboard(){
   const fechados = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status));
   const ticket = fechados.length > 0 ? fatMes / fechados.length : 0;
   const ticketReal = isFinite(ticket) ? ticket : 0;
-  
+
   document.getElementById('d-fat').textContent   = 'R$ '+fval(fatMes);
   document.getElementById('d-fat-s').textContent = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' pedidos fechados';
   document.getElementById('d-neg-val').textContent = 'R$ '+fval(emAberto);
