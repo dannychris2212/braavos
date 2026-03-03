@@ -1781,6 +1781,29 @@ function openM(id){
     document.getElementById('v-data').value=new Date().toISOString().split('T')[0];
     vtab('cliente');
   }
+  if(id==='m-pedido'){
+    sb.from('leads').select('id,nome,empresa_cliente')
+      .eq('empresa_id', P.empresa_id)
+      .not('status','in','("fechado_perdido")')
+      .order('nome')
+      .then(({data}) => {
+        const sel = document.getElementById('ped-lead-sel');
+        sel.innerHTML = data?.length
+          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+          : '<option value="">Nenhum lead</option>';
+      });
+    sb.from('leads').select('id,nome,empresa_cliente')
+      .eq('empresa_id', P.empresa_id)
+      .eq('status','fechado_ganho')
+      .order('nome')
+      .then(({data}) => {
+        const sel = document.getElementById('ped-cli-sel');
+        sel.innerHTML = data?.length
+          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
+          : '<option value="">Nenhum cliente</option>';
+      });
+    pedTab('lead');
+  }
   document.getElementById(id).classList.add('open');
 }
 function closeM(id){document.getElementById(id).classList.remove('open');}
@@ -2658,33 +2681,7 @@ async function salvarPedido() {
 }
 
 // ── OPEN M-PEDIDO: carrega leads e clientes ───────────────────────
-const _origOpenM = openM;
-function openM(id) {
-  if (id === 'm-pedido') {
-    sb.from('leads').select('id,nome,empresa_cliente')
-      .eq('empresa_id', P.empresa_id)
-      .not('status','in','("fechado_perdido")')
-      .order('nome')
-      .then(({data}) => {
-        const sel = document.getElementById('ped-lead-sel');
-        sel.innerHTML = data?.length
-          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
-          : '<option value="">Nenhum lead</option>';
-      });
-    sb.from('leads').select('id,nome,empresa_cliente')
-      .eq('empresa_id', P.empresa_id)
-      .eq('status','fechado_ganho')
-      .order('nome')
-      .then(({data}) => {
-        const sel = document.getElementById('ped-cli-sel');
-        sel.innerHTML = data?.length
-          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
-          : '<option value="">Nenhum cliente</option>';
-      });
-    pedTab('lead');
-  }
-  _origOpenM(id);
-}
+
 
 
 // ── ABRIR PEDIDO POR LEAD ─────────────────────────────────────────
