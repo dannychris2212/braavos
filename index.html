@@ -930,7 +930,7 @@ const SURL='https://wufkytnlhiscyzatumvc.supabase.co';
 const SKEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1Zmt5dG5saGlzY3l6YXR1bXZjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA2Nzc5OTcsImV4cCI6MjA4NjI1Mzk5N30.2IdxHQWDPjk4_pW2aNyIob2khIrW5ajYHXKYIIBu2xE';
 const sb=supabase.createClient(SURL,SKEY);
 
-let U=null,P=null,allLeads=[],allPedidos=[],pedFilter='todos',leadFilter='todos';
+let U=null,P=null,allLeads=[],allPedidos=[],allClientes=[],pedFilter='todos',leadFilter='todos';
 
 // ── EMPRESA (dinâmico do banco) ───────────────────────────────────
 let EMPRESA=null;
@@ -1246,8 +1246,9 @@ async function promoverCliente(leadId){
 
 
 // ── DETALHE CLIENTE ───────────────────────────────────────────────
-function openCliente(c){
-  if(typeof c==='string') c=JSON.parse(c);
+function openCliente(id){
+  const c=allClientes.find(x=>x.id===id);
+  if(!c) return;
   const l=c.leads||{};
   const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
   const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
@@ -1282,8 +1283,9 @@ function closeCli(){
 }
 
 // ── DETALHE PEDIDO ────────────────────────────────────────────────
-function openPedido(p){
-  if(typeof p==='string') p=JSON.parse(p);
+function openPedido(id){
+  const p=allPedidos.find(x=>x.id===id);
+  if(!p) return;
   const sc={rascunho:'b-dim',enviado:'b-blue',em_producao:'b-warn',fechado_ganho:'b-ok',faturado:'b-ok',entregue:'b-ok',cancelado:'b-err'};
   const sl={rascunho:'Rascunho',enviado:'Enviado',em_producao:'Em Produção',fechado_ganho:'Fechado',faturado:'Faturado',entregue:'Entregue',cancelado:'Cancelado'};
   const itens=Array.isArray(p.itens)?p.itens:[];
@@ -1298,11 +1300,13 @@ function openPedido(p){
     ${p.previsao_entrega?`<div class="dp-f"><div class="dp-fl">Previsão de Entrega</div><div class="dp-fv">${fdl(p.previsao_entrega)}</div></div>`:''}
     ${itens.length>0?`
     <div class="dp-sec">Itens (${itens.length})</div>
-    ${itens.map(i=>`
-      <div class="dp-f">
-        <div class="dp-fl">${i.descricao||i.nome||'Item'}</div>
-        <div class="dp-fv">${i.quantidade||1}x · R$ ${fval(i.valor_unitario||i.valor||0)}</div>
-      </div>`).join('')}
+    <div style="border:1px solid var(--bb);border-radius:var(--rs);overflow:hidden;margin-top:8px">
+      ${itens.map((i,idx)=>`
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;${idx>0?'border-top:1px solid var(--bb)':''}">
+          <div style="font-size:13px">${i.descricao||i.nome||'Item'}</div>
+          <div style="font-family:var(--FM);font-size:11px;color:var(--brand)">${i.quantidade||1}x R$ ${fval(i.valor_unitario||i.valor||0)}</div>
+        </div>`).join('')}
+    </div>
     `:''}
     ${p.notas?`<div class="dp-sec">Notas</div><div style="font-size:13px;color:var(--muted);line-height:1.6">${p.notas}</div>`:''}
     <div style="margin-top:20px;font-family:var(--FM);font-size:9px;color:var(--muted)">Criado em ${fdl(p.created_at)}</div>`;
@@ -1324,9 +1328,10 @@ async function loadClientes(){
   if(!data?.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><i>◉</i>Nenhum cliente ainda.</div>';return;}
   const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
   const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
+  allClientes=data;
   el.innerHTML=data.map(c=>{
     const l=c.leads||{};
-    return `<div class="card click" onclick="openCliente(${esc(c)})">
+    return `<div class="card click" onclick="openCliente('${c.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <div style="font-weight:500;margin-bottom:2px">${l.nome||'—'}</div>
@@ -1399,7 +1404,7 @@ function renderPedidos(){
   const el4=document.getElementById('ped-qtd'); if(el4) el4.textContent=f.length;
   const el5=document.getElementById('ped-qtd-s'); if(el5) el5.textContent=f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' fechados';
   el.innerHTML=f.map(p=>`
-    <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido(${esc(p)})">
+    <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido('${p.id}')">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
       <div class="ped-info">
         <div class="ped-cliente">${p.leads?.nome||'—'}</div>
