@@ -1068,7 +1068,6 @@ function getDashMesRange() {
   
 // ── DASHBOARD ─────────────────────────────────────────────────────
 async function loadDashboard(){
-  const startMes=new Date(new Date().getFullYear(),new Date().getMonth(),1).toISOString();
   const cnt={};
   ['novo','qualificando','em_negociacao','fechado_ganho','fechado_perdido'].forEach(s=>cnt[s]=allLeads.filter(l=>l.status===s).length);
   document.getElementById('f-novo').textContent=(cnt.novo||0)+(allLeads.filter(l=>l.status==='qualificando'||l.status==='aguardando_cliente'||l.status==='pronto_para_compra').length);
@@ -1080,24 +1079,24 @@ async function loadDashboard(){
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
 
-  // Busca pedidos para R$ — sem filtro de mês, gerente vê todos, vendedor só os seus
-const { inicio: startMes, fim: endMes, label: mesLabel } = getDashMesRange();
-document.getElementById('d-mes-label').textContent = mesLabel;
+  // Busca pedidos para R$ — gerente vê todos, vendedor só os seus
+  const { inicio: startMes, fim: endMes, label: mesLabel } = getDashMesRange();
+  document.getElementById('d-mes-label').textContent = mesLabel;
 
-let pedsQ = sb.from('pedidos')
-  .select('valor_total,status,cliente_id')
-  .eq('empresa_id', P.empresa_id)
-  .gte('created_at', startMes)
-  .lt('created_at', endMes);
-if(P?.cargo !== 'gerente') pedsQ = pedsQ.eq('vendedor_id', P.vendedor_id);
-const {data:peds} = await pedsQ;
-const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
-  .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
-const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
-  .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
-const fechados = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status));
-const ticket = fechados.length > 0 ? fatMes / fechados.length : 0;
-const ticketReal = isFinite(ticket) ? ticket : 0;
+  let pedsQ = sb.from('pedidos')
+    .select('valor_total,status,cliente_id')
+    .eq('empresa_id', P.empresa_id)
+    .gte('created_at', startMes)
+    .lt('created_at', endMes);
+  if(P?.cargo !== 'gerente') pedsQ = pedsQ.eq('vendedor_id', P.vendedor_id);
+  const {data:peds} = await pedsQ;
+  const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
+    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
+    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+  const fechados = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status));
+  const ticket = fechados.length > 0 ? fatMes / fechados.length : 0;
+  const ticketReal = isFinite(ticket) ? ticket : 0;
   
   document.getElementById('d-fat').textContent   = 'R$ '+fval(fatMes);
   document.getElementById('d-fat-s').textContent = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' pedidos fechados';
