@@ -664,6 +664,20 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   <div id="dp-body"></div>
 </div>
 
+
+<!-- ── MODAL: DETALHE CLIENTE ─────────────────────────────────── -->
+<div class="dpov" id="dpov-cli" onclick="closeCli()"></div>
+<div class="dp" id="dp-cli">
+  <button class="dp-cl" onclick="closeCli()">✕</button>
+  <div id="dp-cli-body"></div>
+</div>
+
+<!-- ── MODAL: DETALHE PEDIDO ──────────────────────────────────── -->
+<div class="dpov" id="dpov-ped" onclick="closePedDetail()"></div>
+<div class="dp" id="dp-ped">
+  <button class="dp-cl" onclick="closePedDetail()">✕</button>
+  <div id="dp-ped-body"></div>
+</div>
 <!-- ── MODAL: NOVO LEAD ──────────────────────────────────────────── -->
 <div class="ov" id="m-lead">
   <div class="modal">
@@ -1230,6 +1244,76 @@ async function promoverCliente(leadId){
   closeDP();loadClientes();
 }
 
+
+// ── DETALHE CLIENTE ───────────────────────────────────────────────
+function openCliente(c){
+  if(typeof c==='string') c=JSON.parse(c);
+  const l=c.leads||{};
+  const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
+  const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
+  document.getElementById('dp-cli-body').innerHTML=`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px">
+      <span class="badge ${sm[c.customer_status]||'b-dim'}">${sl[c.customer_status]||c.customer_status}</span>
+    </div>
+    <div class="dp-name">${l.nome||'—'}</div>
+    <div class="dp-sub">${l.empresa_cliente||'—'}</div>
+    <div class="dp-acts">
+      ${l.telefone?`<a href="tel:${l.telefone}" class="btn btn-p btn-sm">◉ Ligar</a>`:''}
+      ${l.telefone?`<a href="https://wa.me/55${l.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
+      ${l.email?`<a href="mailto:${l.email}" class="btn btn-g btn-sm">◎ Email</a>`:''}
+    </div>
+    <div class="dp-sec">Contato</div>
+    ${l.telefone?`<div class="dp-f"><div class="dp-fl">Telefone</div><div class="dp-fv">${l.telefone}</div></div>`:''}
+    ${l.email?`<div class="dp-f"><div class="dp-fl">Email</div><div class="dp-fv">${l.email}</div></div>`:''}
+    ${l.segmento?`<div class="dp-f"><div class="dp-fl">Segmento</div><div class="dp-fv">${l.segmento}</div></div>`:''}
+    ${l.cidade||l.estado?`<div class="dp-f"><div class="dp-fl">Localização</div><div class="dp-fv">${[l.cidade,l.estado].filter(Boolean).join(' — ')}</div></div>`:''}
+    ${c.total_pedidos>0?`
+    <div class="dp-sec">Histórico</div>
+    <div class="dp-f"><div class="dp-fl">Total de Pedidos</div><div class="dp-fv">${c.total_pedidos}</div></div>
+    <div class="dp-f"><div class="dp-fl">Lifetime Value</div><div class="dp-fv" style="color:var(--ok)">R$ ${fval(c.lifetime_value)}</div></div>
+    `:''}
+    <div style="margin-top:20px;font-family:var(--FM);font-size:9px;color:var(--muted)">Cliente desde ${fdl(c.created_at)}</div>`;
+  document.getElementById('dpov-cli').classList.add('open');
+  document.getElementById('dp-cli').classList.add('open');
+}
+function closeCli(){
+  document.getElementById('dpov-cli').classList.remove('open');
+  document.getElementById('dp-cli').classList.remove('open');
+}
+
+// ── DETALHE PEDIDO ────────────────────────────────────────────────
+function openPedido(p){
+  if(typeof p==='string') p=JSON.parse(p);
+  const sc={rascunho:'b-dim',enviado:'b-blue',em_producao:'b-warn',fechado_ganho:'b-ok',faturado:'b-ok',entregue:'b-ok',cancelado:'b-err'};
+  const sl={rascunho:'Rascunho',enviado:'Enviado',em_producao:'Em Produção',fechado_ganho:'Fechado',faturado:'Faturado',entregue:'Entregue',cancelado:'Cancelado'};
+  const itens=Array.isArray(p.itens)?p.itens:[];
+  document.getElementById('dp-ped-body').innerHTML=`
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px">
+      <span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span>
+    </div>
+    <div class="dp-name">Pedido ${p.numero_pedido||'S/N'}</div>
+    <div class="dp-sub">${p.leads?.nome||'—'} · ${p.leads?.empresa_cliente||''}</div>
+    <div class="dp-sec">Valores</div>
+    <div class="dp-f"><div class="dp-fl">Valor Total</div><div class="dp-fv" style="color:var(--brand);font-size:18px;font-weight:600">R$ ${fval(p.valor_total)}</div></div>
+    ${p.previsao_entrega?`<div class="dp-f"><div class="dp-fl">Previsão de Entrega</div><div class="dp-fv">${fdl(p.previsao_entrega)}</div></div>`:''}
+    ${itens.length>0?`
+    <div class="dp-sec">Itens (${itens.length})</div>
+    ${itens.map(i=>`
+      <div class="dp-f">
+        <div class="dp-fl">${i.descricao||i.nome||'Item'}</div>
+        <div class="dp-fv">${i.quantidade||1}x · R$ ${fval(i.valor_unitario||i.valor||0)}</div>
+      </div>`).join('')}
+    `:''}
+    ${p.notas?`<div class="dp-sec">Notas</div><div style="font-size:13px;color:var(--muted);line-height:1.6">${p.notas}</div>`:''}
+    <div style="margin-top:20px;font-family:var(--FM);font-size:9px;color:var(--muted)">Criado em ${fdl(p.created_at)}</div>`;
+  document.getElementById('dpov-ped').classList.add('open');
+  document.getElementById('dp-ped').classList.add('open');
+}
+function closePedDetail(){
+  document.getElementById('dpov-ped').classList.remove('open');
+  document.getElementById('dp-ped').classList.remove('open');
+}
+
 // ── CLIENTES ──────────────────────────────────────────────────────
 async function loadClientes(){
   const {data}=await sb.from('customers')
@@ -1242,7 +1326,7 @@ async function loadClientes(){
   const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
   el.innerHTML=data.map(c=>{
     const l=c.leads||{};
-    return `<div class="card click" onclick="">
+    return `<div class="card click" onclick="openCliente(${esc(c)})">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
           <div style="font-weight:500;margin-bottom:2px">${l.nome||'—'}</div>
@@ -1315,7 +1399,7 @@ function renderPedidos(){
   const el4=document.getElementById('ped-qtd'); if(el4) el4.textContent=f.length;
   const el5=document.getElementById('ped-qtd-s'); if(el5) el5.textContent=f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' fechados';
   el.innerHTML=f.map(p=>`
-    <div class="ped-card ped-status-${p.status}">
+    <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido(${esc(p)})">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
       <div class="ped-info">
         <div class="ped-cliente">${p.leads?.nome||'—'}</div>
