@@ -1057,20 +1057,20 @@ async function loadDashboard(){
   document.getElementById('d-total').textContent=total;
   document.getElementById('d-total-s').textContent=(cnt.fechado_ganho||0)+' ganhos';
 
-  // Busca pedidos do mês para R$ — gerente vê todos, vendedor só os seus
-  let pedsQ = sb.from('pedidos')
-    .select('valor_total,status,cliente_id')
-    .eq('empresa_id', P.empresa_id)
-    .gte('created_at', startMes);
-  if(P?.cargo !== 'gerente') pedsQ.eq('vendedor_id', P.vendedor_id);
-  const {data:peds} = await pedsQ;
-  const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
-    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
-  const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
-    .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
-  const ticket = (peds||[]).length > 0 ? fatMes/(peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length||1 : 0;
-  const ticketReal = isFinite(ticket) ? ticket : 0;
-
+  // Busca pedidos para R$ — sem filtro de mês, gerente vê todos, vendedor só os seus
+let pedsQ = sb.from('pedidos')
+  .select('valor_total,status,cliente_id')
+  .eq('empresa_id', P.empresa_id);
+if(P?.cargo !== 'gerente') pedsQ = pedsQ.eq('vendedor_id', P.vendedor_id);
+const {data:peds} = await pedsQ;
+const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
+  .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
+  .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
+const fechados = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status));
+const ticket = fechados.length > 0 ? fatMes / fechados.length : 0;
+const ticketReal = isFinite(ticket) ? ticket : 0;
+  
   document.getElementById('d-fat').textContent   = 'R$ '+fval(fatMes);
   document.getElementById('d-fat-s').textContent = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' pedidos fechados';
   document.getElementById('d-neg-val').textContent = 'R$ '+fval(emAberto);
