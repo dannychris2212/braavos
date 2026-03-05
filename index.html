@@ -1088,6 +1088,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="modal-ti">⬡ Importar CSV</div>
     <div id="imp-table-label" style="font-family:var(--FM);font-size:11px;color:var(--brand);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px">—</div>
 
+    <!-- VENDEDOR SELECTOR (gerente only) -->
+    <div id="imp-vendedor-wrap" style="display:none;margin-bottom:16px">
+      <label class="fl">Atribuir ao vendedor</label>
+      <div id="imp-vendedor-lista" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px"></div>
+      <input type="hidden" id="imp-vendedor-id"/>
+    </div>
+
     <!-- STEP 1: upload -->
     <div id="imp-step1">
       <div id="imp-dropzone" onclick="document.getElementById('imp-file').click()"
@@ -2982,6 +2989,26 @@ async function openImport(table) {
   impReset();
   openM('m-import');
 
+  // Mostra seletor de vendedor só pro gerente
+  const wrap = document.getElementById('imp-vendedor-wrap');
+  if (P.cargo === 'gerente') {
+    wrap.style.display = '';
+    document.getElementById('imp-vendedor-id').value = '';
+    // Carrega vendedores da empresa
+    const { data: vends } = await sb.from('profiles')
+      .select('vendedor_id, nome')
+      .eq('empresa_id', P.empresa_id)
+      .eq('cargo', 'vendedor')
+      .order('nome');
+    const lista = document.getElementById('imp-vendedor-lista');
+    lista.innerHTML = (vends||[]).map(v =>
+      `<span class="chip" data-vid="${v.vendedor_id}" onclick="impSelecionarVendedor(this,'${v.vendedor_id}')">${v.nome||v.vendedor_id}</span>`
+    ).join('');
+  } else {
+    wrap.style.display = 'none';
+    document.getElementById('imp-vendedor-id').value = P.vendedor_id;
+  }
+
   // Carrega template do Supabase
   const { data, error } = await sb.from('import_templates')
     .select('*')
@@ -2993,6 +3020,12 @@ async function openImport(table) {
     closeImport(); return;
   }
   _impTemplate = data;
+}
+
+function impSelecionarVendedor(el, vid) {
+  document.querySelectorAll('#imp-vendedor-lista .chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on');
+  document.getElementById('imp-vendedor-id').value = vid;
 }
 
 function closeImport() {
@@ -3064,7 +3097,8 @@ async function impConfirmar() {
 
   try {
     // Injeta empresa_id em cada linha
-    const rows = _impData.map(r => ({ ...r, empresa_id: P.empresa_id }));
+    const vid = document.getElementById('imp-vendedor-id').value || P.vendedor_id;
+    const rows = _impData.map(r => ({ ...r, empresa_id: P.empresa_id, vendedor_id: vid }));
 
     let error;
     if (_impTemplate.upsert_keys?.length) {
