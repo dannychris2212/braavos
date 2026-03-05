@@ -653,22 +653,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-leads" class="page" style="display:none">
       <div class="page-ey">Pipeline</div>
       <div class="page-ti">Leads</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px">
-        <div class="fbar" style="margin:0;flex:1">
-          <input class="fsearch" id="lead-q" placeholder="Buscar nome ou empresa..." oninput="renderLeads()"/>
-          <span class="chip on" data-s="todos" onclick="chipLead(this)">Todos</span>
-          <span class="chip" data-s="novo" onclick="chipLead(this)">Novo</span>
-          <span class="chip" data-s="qualificando" onclick="chipLead(this)">Qualificando</span>
-          <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)">Aguardando</span>
-          <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)">Pronto</span>
-          <span class="chip" data-s="em_negociacao" onclick="chipLead(this)">Negociação</span>
-          <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
-          <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
-        </div>
-        <div style="display:flex;gap:7px">
-          <button class="btn btn-g btn-sm" onclick="openImport('leads')">⬡ Importar CSV</button>
-          <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
-        </div>
+      <!-- Linha 1: busca + botões -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input class="fsearch" id="lead-q" placeholder="Buscar nome ou empresa..." oninput="renderLeads()" style="flex:1;max-width:100%"/>
+        <button class="btn btn-g btn-sm" style="flex-shrink:0" onclick="openImport('leads')">⬡ CSV</button>
+        <button class="btn btn-p btn-sm" style="flex-shrink:0" onclick="openM('m-lead')">◈ Novo</button>
+      </div>
+      <!-- Linha 2: chips de filtro com scroll horizontal -->
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:14px;scrollbar-width:none;-ms-overflow-style:none">
+        <span class="chip on" data-s="todos" onclick="chipLead(this)" style="flex-shrink:0">Todos</span>
+        <span class="chip" data-s="novo" onclick="chipLead(this)" style="flex-shrink:0">Novo</span>
+        <span class="chip" data-s="qualificando" onclick="chipLead(this)" style="flex-shrink:0">Qualificando</span>
+        <span class="chip" data-s="aguardando_cliente" onclick="chipLead(this)" style="flex-shrink:0">Aguardando</span>
+        <span class="chip" data-s="pronto_para_compra" onclick="chipLead(this)" style="flex-shrink:0">Pronto</span>
+        <span class="chip" data-s="em_negociacao" onclick="chipLead(this)" style="flex-shrink:0">Negociação</span>
+        <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)" style="flex-shrink:0">Ganho</span>
+        <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)" style="flex-shrink:0">Perdido</span>
       </div>
       <div class="card" id="leads-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
@@ -677,13 +677,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-clientes" class="page" style="display:none">
       <div class="page-ey">Carteira</div>
       <div class="page-ti">Clientes</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-        <div class="fbar" style="margin:0;flex:1">
-          <input class="fsearch" id="cli-q" placeholder="Buscar cliente ou empresa..." oninput="renderClientes()" autocomplete="off" style="max-width:320px;flex:1"/>
-          <span class="chip on" id="cf-todos" onclick="cliTab('todos')">Todos</span>
-          <span class="chip" id="cf-ativos" onclick="cliTab('ativos')">Ativos</span>
-        </div>
-        <button class="btn btn-g btn-sm" onclick="openImport('customers')">⬡ Importar CSV</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input class="fsearch" id="cli-q" placeholder="Buscar cliente ou empresa..." oninput="renderClientes()" autocomplete="off" style="flex:1;max-width:100%"/>
+        <button class="btn btn-g btn-sm" style="flex-shrink:0" onclick="openImport('customers')">⬡ CSV</button>
+      </div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;scrollbar-width:none;-ms-overflow-style:none">
+        <span class="chip on" id="cf-todos" onclick="cliTab('todos')" style="flex-shrink:0">Todos</span>
+        <span class="chip" id="cf-ativos" onclick="cliTab('ativos')" style="flex-shrink:0">Ativos</span>
       </div>
       <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
@@ -746,21 +746,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="card shine" style="padding:14px"><div class="m-lbl">Qtd Pedidos</div><div class="m-val" id="ped-qtd" style="color:var(--ok);font-size:26px">—</div><div class="m-sub" id="ped-qtd-s">este mês</div></div>
         </div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px">
-        <div class="fbar" style="margin:0;flex:1">
-          <span class="chip on" data-s="todos" onclick="chipPed(this)">Todos</span>
-          <span class="chip" data-s="rascunho" onclick="chipPed(this)">Rascunho</span>
-          <span class="chip" data-s="enviado" onclick="chipPed(this)">Enviado</span>
-          <span class="chip" data-s="fechado_ganho" onclick="chipPed(this)">Fechado</span>
-          <span class="chip" data-s="em_producao" onclick="chipPed(this)">Em Produção</span>
-          <span class="chip" data-s="faturado" onclick="chipPed(this)">Faturado</span>
-          <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
-          <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
-        </div>
-        <div style="display:flex;gap:7px">
-          <button class="btn btn-g btn-sm" onclick="openImport('pedidos')">⬡ Importar CSV</button>
-          <button class="btn btn-p btn-sm" onclick="openM('m-pedido')">◫ Novo Pedido</button>
-        </div>
+      <!-- Linha 1: botões -->
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-bottom:10px">
+        <button class="btn btn-g btn-sm" style="flex-shrink:0" onclick="openImport('pedidos')">⬡ CSV</button>
+        <button class="btn btn-p btn-sm" style="flex-shrink:0" onclick="openM('m-pedido')">◫ Novo Pedido</button>
+      </div>
+      <!-- Linha 2: chips com scroll horizontal -->
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px;scrollbar-width:none;-ms-overflow-style:none">
+        <span class="chip on" data-s="todos" onclick="chipPed(this)" style="flex-shrink:0">Todos</span>
+        <span class="chip" data-s="rascunho" onclick="chipPed(this)" style="flex-shrink:0">Rascunho</span>
+        <span class="chip" data-s="enviado" onclick="chipPed(this)" style="flex-shrink:0">Enviado</span>
+        <span class="chip" data-s="fechado_ganho" onclick="chipPed(this)" style="flex-shrink:0">Fechado</span>
+        <span class="chip" data-s="em_producao" onclick="chipPed(this)" style="flex-shrink:0">Em Produção</span>
+        <span class="chip" data-s="faturado" onclick="chipPed(this)" style="flex-shrink:0">Faturado</span>
+        <span class="chip" data-s="entregue" onclick="chipPed(this)" style="flex-shrink:0">Entregue</span>
+        <span class="chip" data-s="cancelado" onclick="chipPed(this)" style="flex-shrink:0">Cancelado</span>
       </div>
       <div class="card" id="pedidos-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
@@ -792,15 +792,15 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-produtos" class="page" style="display:none">
       <div class="page-ey">Tabela</div>
       <div class="page-ti">Produtos</div>
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
-        <div class="fbar" style="margin:0;flex:1">
-          <input class="fsearch" id="prod-q" placeholder="Buscar produto..." oninput="renderProdutos()" autocomplete="off"/>
-          <span class="chip on" id="pf-todos" onclick="prodTab('todos')">Todos</span>
-          <span class="chip" id="pf-combustivel" onclick="prodTab('combustivel')">Combustível</span>
-          <span class="chip" id="pf-lubrificante" onclick="prodTab('lubrificante')">Lubrificante</span>
-          <span class="chip" id="pf-aditivo" onclick="prodTab('aditivo')">Aditivo</span>
-        </div>
-        <button class="btn btn-g btn-sm" onclick="openImport('produtos')">⬡ Importar CSV</button>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+        <input class="fsearch" id="prod-q" placeholder="Buscar produto..." oninput="renderProdutos()" autocomplete="off" style="flex:1;max-width:100%"/>
+        <button class="btn btn-g btn-sm" style="flex-shrink:0" onclick="openImport('produtos')">⬡ CSV</button>
+      </div>
+      <div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:16px;scrollbar-width:none;-ms-overflow-style:none">
+        <span class="chip on" id="pf-todos" onclick="prodTab('todos')" style="flex-shrink:0">Todos</span>
+        <span class="chip" id="pf-combustivel" onclick="prodTab('combustivel')" style="flex-shrink:0">Combustível</span>
+        <span class="chip" id="pf-lubrificante" onclick="prodTab('lubrificante')" style="flex-shrink:0">Lubrificante</span>
+        <span class="chip" id="pf-aditivo" onclick="prodTab('aditivo')" style="flex-shrink:0">Aditivo</span>
       </div>
       <div id="produtos-grid" class="g2"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
