@@ -1033,14 +1033,14 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div id="ped-sec-lead" class="fg">
       <label class="fl">Lead</label>
-      <input class="fi" id="ped-lead-q" placeholder="Buscar lead..." autocomplete="off" oninput="pedFiltrar('lead')" onfocus="pedFiltrar('lead')" style="margin-bottom:4px"/>
-      <div id="ped-lead-lista" style="display:none;max-height:180px;overflow-y:auto;background:#0f0f1a;border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px"></div>
+      <input class="fi" id="ped-lead-q" placeholder="Buscar lead..." autocomplete="off" oninput="pedFiltrar('lead')" onfocus="if(window._pedLeads?.length) pedFiltrar('lead')" style="margin-bottom:4px"/>
+      <div id="ped-lead-lista" style="display:none;max-height:180px;overflow-y:auto;background:var(--bg2);border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.3)"></div>
       <input type="hidden" id="ped-lead-sel"/>
     </div>
     <div id="ped-sec-cli" class="fg" style="display:none">
       <label class="fl">Cliente</label>
-      <input class="fi" id="ped-cli-q" placeholder="Buscar cliente..." autocomplete="off" oninput="pedFiltrar('cliente')" onfocus="pedFiltrar('cliente')" style="margin-bottom:4px"/>
-      <div id="ped-cli-lista" style="display:none;max-height:180px;overflow-y:auto;background:#0f0f1a;border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px"></div>
+      <input class="fi" id="ped-cli-q" placeholder="Buscar cliente..." autocomplete="off" oninput="pedFiltrar('cliente')" onfocus="if(window._pedClis?.length) pedFiltrar('cliente')" style="margin-bottom:4px"/>
+      <div id="ped-cli-lista" style="display:none;max-height:180px;overflow-y:auto;background:var(--bg2);border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.3)"></div>
       <input type="hidden" id="ped-cli-sel"/>
     </div>
     <div class="msec">Pedido</div>
@@ -2820,12 +2820,13 @@ function pedFiltrar(tipo) {
   ) : pool;
 
   if (!items.length) {
+    if (!pool.length) { lista.style.display='none'; return; }
     lista.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--muted)">Nenhum encontrado</div>';
   } else {
     lista.innerHTML = items.map(l =>
       `<div onclick="pedSelecionar('${l.id}','${(l.nome||'').replace(/'/g,"\'")}${l.empresa_cliente?' · '+l.empresa_cliente.replace(/'/g,"\'"):''}','${tipo}')"
-        style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bb);transition:background .15s"
-        onmouseover="this.style.background='rgba(255,255,255,.05)'"
+        style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bb);transition:background .15s;color:var(--txt)"
+        onmouseover="this.style.background='var(--bs2)'"
         onmouseout="this.style.background=''"
        >${l.nome||'—'}${l.empresa_cliente?` <span style="color:var(--muted);font-size:11px">· ${l.empresa_cliente}</span>`:''}</div>`
     ).join('');
