@@ -1331,7 +1331,9 @@ async function loadDashboard(){
   document.getElementById('f-novo').textContent=(cnt.novo||0)+(allLeads.filter(l=>l.status==='qualificando'||l.status==='aguardando_cliente'||l.status==='pronto_para_compra').length);
   document.getElementById('f-qual').textContent=allLeads.filter(l=>['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)).length;
   document.getElementById('f-neg').textContent=cnt.em_negociacao||0;
-  document.getElementById('f-ganho').textContent=cnt.fechado_ganho||0;
+  const ganhosPorPedido = allLeads.filter(l=>l._tem_pedido).length;
+  const clientesDiretos = window._clientesDirectos || 0;
+  document.getElementById('f-ganho').textContent=(cnt.fechado_ganho||0) + ganhosPorPedido + clientesDiretos;
   document.getElementById('f-perd').textContent=cnt.fechado_perdido||0;
   const total=allLeads.length;
   document.getElementById('d-total').textContent=total;
@@ -1345,6 +1347,25 @@ async function loadDashboard(){
     .lt('created_at', endMes);
   if(P?.cargo !== 'gerente') pedsQ = pedsQ.eq('vendedor_id', P.vendedor_id);
   const {data:peds} = await pedsQ;
+
+  // Cruza pedidos com clientes para enriquecer o funil
+  if (peds?.length && allClientes.length) {
+    const clienteIdsComPedido = new Set(peds.map(p=>p.cliente_id).filter(Boolean));
+    const clientesComPedido = allClientes.filter(c => clienteIdsComPedido.has(c.id));
+
+    // Clientes com lead_id: marca o lead como ganho
+    const leadsGanhosPorPedido = clientesComPedido.filter(c=>c.lead_id).map(c=>c.lead_id);
+    allLeads.forEach(l => {
+      if (leadsGanhosPorPedido.includes(l.id) && l.status !== 'fechado_ganho') {
+        l._tem_pedido = true;
+      }
+    });
+
+    // Clientes sem lead_id (cliente direto): conta separado como ganhos no funil
+    window._clientesDirectos = clientesComPedido.filter(c=>!c.lead_id).length;
+  } else {
+    window._clientesDirectos = 0;
+  }
   const fatMes = (peds||[]).filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status))
     .reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
   const emAberto = (peds||[]).filter(p=>['rascunho','enviado','em_producao'].includes(p.status))
@@ -3027,6 +3048,21 @@ async function salvarPedido() {
 
   const { error } = await sb.from('pedidos').insert(payload);
   if (error) { showToast('Erro: ' + error.message, 'er'); return; }
+
+  // Ao criar pedido: vincula lead ao customer e marca como fechado_ganho
+  if (payload.cliente_id) {
+    const cliente = allClientes.find(c => c.id === payload.cliente_id);
+    if (cliente?.lead_id) {
+      await sb.from('leads').update({ status: 'fechado_ganho' }).eq('id', cliente.lead_id);
+    } else if (cliente?.telefone) {
+      const { data: leadMatch } = await sb.from('leads')
+        .select('id').eq('empresa_id', P.empresa_id).eq('telefone', cliente.telefone).maybeSingle();
+      if (leadMatch) {
+        await sb.from('customers').update({ lead_id: leadMatch.id, lead_convertido_em: new Date().toISOString() }).eq('id', cliente.id);
+        await sb.from('leads').update({ status: 'fechado_ganho' }).eq('id', leadMatch.id);
+      }
+    }
+  }
 
   showToast('◫ Pedido salvo!', 'ok');
   closeM('m-pedido');
