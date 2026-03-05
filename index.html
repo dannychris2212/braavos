@@ -2996,14 +2996,17 @@ async function openImport(table) {
     document.getElementById('imp-vendedor-id').value = '';
     // Carrega vendedores da empresa
     const { data: vends } = await sb.from('profiles')
-      .select('vendedor_id, nome')
+      .select('vendedor_id, nome, cargo')
       .eq('empresa_id', P.empresa_id)
-      .eq('cargo', 'vendedor')
       .order('nome');
     const lista = document.getElementById('imp-vendedor-lista');
-    lista.innerHTML = (vends||[]).map(v =>
-      `<span class="chip" data-vid="${v.vendedor_id}" onclick="impSelecionarVendedor(this,'${v.vendedor_id}')">${v.nome||v.vendedor_id}</span>`
+    // Coloca o gerente logado primeiro como opção
+    const todos = (vends||[]);
+    lista.innerHTML = todos.map(v =>
+      `<span class="chip${v.vendedor_id===P.vendedor_id?' on':''}" data-vid="${v.vendedor_id}" onclick="impSelecionarVendedor(this,'${v.vendedor_id}')">${v.nome||v.vendedor_id}${v.cargo==='gerente'?' ⊕':''}</span>`
     ).join('');
+    // Pré-seleciona o próprio gerente
+    document.getElementById('imp-vendedor-id').value = P.vendedor_id;
   } else {
     wrap.style.display = 'none';
     document.getElementById('imp-vendedor-id').value = P.vendedor_id;
@@ -3235,7 +3238,8 @@ function impNormalizeCSV(csvText, template) {
       }
       if (cfg.transform?.length) val = impApplyTransforms(val, cfg.transform);
       row[col] = val;
-      if (cfg.required && !val) {
+      // empresa_id e vendedor_id são injetados pelo app — ignorar na validação
+      if (cfg.required && !val && col !== 'empresa_id' && col !== 'vendedor_id') {
         const ex = errors.find(e => e.row === ri+1);
         ex ? ex.columns.push(col) : errors.push({ row: ri+1, columns: [col] });
       }
