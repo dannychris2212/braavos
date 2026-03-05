@@ -1534,7 +1534,7 @@ function openPedido(id){
       <span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span>
     </div>
     <div class="dp-name">Pedido ${p.numero_pedido||'S/N'}</div>
-    <div class="dp-sub">${p.leads?.nome||'—'} · ${p.leads?.empresa_cliente||''}</div>
+    <div class="dp-sub">${p.nome||p.leads?.nome||'—'} · ${p.empresa_cliente||p.leads?.empresa_cliente||''}</div>
     <div class="dp-sec">Valores</div>
     <div class="dp-f"><div class="dp-fl">Valor Total</div><div class="dp-fv" style="color:var(--brand);font-size:18px;font-weight:600">R$ ${fval(p.valor_total)}</div></div>
     ${p.previsao_entrega?`<div class="dp-f"><div class="dp-fl">Previsão de Entrega</div><div class="dp-fv">${fdl(p.previsao_entrega)}</div></div>`:''}
@@ -1599,7 +1599,7 @@ function renderClientes() {
 }
 async function loadClientes(){
   const {data}=await sb.from('customers')
-    .select('*, leads(nome,empresa_cliente,telefone,email,segmento,cidade,estado)')
+    .select('*')
     .eq('empresa_id',P.empresa_id)
     .order('created_at',{ascending:false});
   allClientes = data || [];
@@ -1610,7 +1610,7 @@ async function loadClientes(){
 // ── VISITAS ───────────────────────────────────────────────────────
 async function loadVisitas(){
   const {data}=await sb.from('visitas')
-    .select('*, customers(leads(nome, empresa_cliente))')
+    .select('*, customers(nome, empresa_cliente, leads(nome, empresa_cliente))')
     .order('data',{ascending:false});
   const el=document.getElementById('visitas-list');
   if(!data?.length){el.innerHTML='<div class="empty"><i>◎</i>Nenhuma visita ainda.</div>';return;}
@@ -1619,8 +1619,8 @@ async function loadVisitas(){
   const ll={presencial:'Presencial',remota:'Remota',ligacao:'Ligação'};
   const rl={positivo:'b-ok',neutro:'b-dim',negativo:'b-err'};
   el.innerHTML=data.map(v=>{
-    const nome=v.customers?.leads?.nome||'—';
-    const emp=v.customers?.leads?.empresa_cliente||'';
+    const nome=v.customers?.nome||v.customers?.leads?.nome||'—';
+    const emp=v.customers?.empresa_cliente||v.customers?.leads?.empresa_cliente||'';
     return `<div style="display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bb)">
       <div class="av" style="border-color:var(--bb);background:var(--bs2);color:var(--muted)">${icons[v.tipo]||'◎'}</div>
       <div style="flex:1;min-width:0">
@@ -1640,7 +1640,7 @@ async function loadVisitas(){
 // ── PEDIDOS ───────────────────────────────────────────────────────
 async function loadPedidos(){
   const q=sb.from('pedidos')
-    .select('*, leads!pedidos_cliente_id_fkey(nome,empresa_cliente)')
+    .select('*, customers!pedidos_cliente_id_fkey(nome, empresa_cliente, leads(nome, empresa_cliente))')
     .order('created_at',{ascending:false});
   if(P?.cargo!=='gerente') q.eq('vendedor_id',P?.vendedor_id);
   else q.eq('empresa_id',P?.empresa_id);
@@ -1665,9 +1665,9 @@ function renderPedidos(){
     <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido('${p.id}')">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
       <div class="ped-info">
-        <div class="ped-cliente">${p.leads?.nome||'—'}</div>
+        <div class="ped-cliente">${p.customers?.nome||p.customers?.leads?.nome||'—'}</div>
         <div class="ped-meta">
-          ${p.leads?.empresa_cliente?p.leads.empresa_cliente+' · ':''}
+          ${(p.customers?.empresa_cliente||p.customers?.leads?.empresa_cliente)?((p.customers?.empresa_cliente||p.customers?.leads?.empresa_cliente)+' · '):''}
           ${p.previsao_entrega?'◬ '+fd(p.previsao_entrega):''}
         </div>
       </div>
@@ -2024,11 +2024,11 @@ function setupRT(){
 function openM(id){
   if(id==='m-visita'){
     // Carrega clientes
-    sb.from('customers').select('id, leads(nome, empresa_cliente)').eq('empresa_id',P.empresa_id)
+    sb.from('customers').select('id, nome, empresa_cliente, leads(nome, empresa_cliente)').eq('empresa_id',P.empresa_id)
       .then(({data})=>{
         const sel=document.getElementById('v-cliente');
         sel.innerHTML=data?.length
-          ?data.map(c=>`<option value="${c.id}">${c.leads?.nome||'—'}${c.leads?.empresa_cliente?' · '+c.leads.empresa_cliente:''}</option>`).join('')
+          ?data.map(c=>`<option value="${c.id}">${c.nome||c.leads?.nome||'—'}${(c.empresa_cliente||c.leads?.empresa_cliente)?' · '+(c.empresa_cliente||c.leads.empresa_cliente):''}</option>`).join('')
           :'<option value="">Nenhum cliente ainda</option>';
       });
     // Carrega leads
