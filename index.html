@@ -2035,7 +2035,7 @@ function openM(id){
   document.getElementById(id).classList.add('open');
 }
 function closeM(id){document.getElementById(id).classList.remove('open');}
-document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open');}));
+document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o && o.id!=='m-import')o.classList.remove('open');}));
 
 // ── NAV ───────────────────────────────────────────────────────────
 function go(page,navEl){
@@ -3050,17 +3050,21 @@ async function impHandleFile(file) {
   if (!file) return;
   if (!_impTemplate) { showToast('Aguarde o template carregar...', 'er'); return; }
 
-  document.getElementById('imp-loading').style.display = 'block';
-  document.getElementById('imp-dropzone').style.display = 'none';
+  const _el = id => document.getElementById(id);
+  if (_el('imp-loading')) _el('imp-loading').style.display = 'block';
+  if (_el('imp-dropzone')) _el('imp-dropzone').style.display = 'none';
 
   try {
     const text = await impReadFile(file);
     const result = impNormalizeCSV(text, _impTemplate);
     _impData = result.data;
 
+    // Se modal foi fechado durante processamento, aborta
+    if (!document.getElementById('m-import').classList.contains('open')) return;
+
     // Summary
     const sumEl = document.getElementById('imp-summary');
-    sumEl.innerHTML = `
+    if (sumEl) sumEl.innerHTML = `
       <div style="padding:8px 14px;background:rgba(79,200,122,.08);border:1px solid rgba(79,200,122,.2);border-radius:var(--rs);font-size:12px;color:var(--ok);font-family:var(--FM)">
         ✓ ${result.data.length} linha${result.data.length!==1?'s':''} processada${result.data.length!==1?'s':''}
       </div>
@@ -3070,24 +3074,30 @@ async function impHandleFile(file) {
 
     // Errors detail
     const errEl = document.getElementById('imp-errors');
-    if (result.errors.length) {
-      errEl.innerHTML = result.errors.slice(0,5).map(e =>
-        `<div style="font-size:11px;color:var(--err);font-family:var(--FM);margin-bottom:3px">Linha ${e.row}: ${e.columns.join(', ')} obrigatório(s)</div>`
-      ).join('') + (result.errors.length > 5 ? `<div style="font-size:11px;color:var(--muted)">...e mais ${result.errors.length-5} erros</div>` : '');
-    } else { errEl.innerHTML = ''; }
+    if (errEl) {
+      if (result.errors.length) {
+        errEl.innerHTML = result.errors.slice(0,5).map(e =>
+          `<div style="font-size:11px;color:var(--err);font-family:var(--FM);margin-bottom:3px">Linha ${e.row}: ${e.columns.join(', ')} obrigatório(s)</div>`
+        ).join('') + (result.errors.length > 5 ? `<div style="font-size:11px;color:var(--muted)">...e mais ${result.errors.length-5} erros</div>` : '');
+      } else { errEl.innerHTML = ''; }
+    }
 
     // Preview table
     const cols = Object.keys(result.data[0] || {});
     const previewRows = result.data.slice(0, 5);
-    document.getElementById('imp-preview').innerHTML = `
+    const prevEl = document.getElementById('imp-preview');
+    if (prevEl) prevEl.innerHTML = `
       <table style="width:100%;border-collapse:collapse">
         <thead><tr>${cols.map(c=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--bb);white-space:nowrap;color:var(--brand)">${c}</th>`).join('')}</tr></thead>
         <tbody>${previewRows.map(r=>`<tr>${cols.map(c=>`<td style="padding:5px 10px;border-bottom:1px solid var(--bb);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--txt)">${r[c]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
       </table>`;
 
-    document.getElementById('imp-count').textContent = result.data.length;
-    document.getElementById('imp-step1').style.display = 'none';
-    document.getElementById('imp-step2').style.display = '';
+    const cntEl = document.getElementById('imp-count');
+    if (cntEl) cntEl.textContent = result.data.length;
+    const s1 = document.getElementById('imp-step1');
+    const s2 = document.getElementById('imp-step2');
+    if (s1) s1.style.display = 'none';
+    if (s2) s2.style.display = '';
   } catch(e) {
     showToast('Erro ao processar CSV: ' + e.message, 'er');
     impReset();
