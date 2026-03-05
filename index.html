@@ -682,7 +682,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="chip on" id="cf-todos" onclick="cliTab('todos')">Todos</span>
           <span class="chip" id="cf-ativos" onclick="cliTab('ativos')">Ativos</span>
         </div>
-        <button class="btn btn-g btn-sm" onclick="openImport('customers')">⬡ Importar CSV</button>
+        <button class="btn btn-g btn-sm" onclick="openImport('clientes')">⬡ Importar CSV</button>
       </div>
       <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
@@ -2972,7 +2972,7 @@ let _impTable = null;
 let _impTemplate = null;
 let _impData = [];
 
-const TABLE_LABELS = { leads: 'Leads', customers: 'Clientes', pedidos: 'Pedidos' };
+const TABLE_LABELS = { leads: 'Leads', clientes: 'Clientes', customers: 'Clientes', pedidos: 'Pedidos' };
 
 async function openImport(table) {
   _impTable = table;
