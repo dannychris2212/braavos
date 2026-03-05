@@ -3133,7 +3133,10 @@ async function impConfirmar() {
     const vid = document.getElementById('imp-vendedor-id').value || P.vendedor_id;
     const _autoFields = ['id','created_at','updated_at','numero_pedido'];
     const rows = _impData.map(r => {
-      const row = { ...r, empresa_id: P.empresa_id, vendedor_id: vid };
+      const row = { ...r, empresa_id: P.empresa_id };
+      // Só injeta vendedor_id se a tabela tiver esse campo no schema
+      const temVendedor = Object.keys(_impTemplate.schema_json?.columns || {}).includes('vendedor_id');
+      if (temVendedor && vid) row.vendedor_id = vid;
       // Remove campos gerados automaticamente pelo banco
       _autoFields.forEach(f => delete row[f]);
       // Campos vazios ou AUTO: remove (deixa o banco usar o default)
