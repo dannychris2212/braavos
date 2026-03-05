@@ -55,11 +55,63 @@ body.light .ped-card{border-color:var(--bb)}
   --r:16px;--rs:10px;--rl:24px;
   --brand:#c9a84c;--dim:rgba(201,168,76,0.12);--bg:#0a0a0f;--bg2:#0f0f1a;
 }
+/*
+  ╔══════════════════════════════════════════════════════════════╗
+  ║            PALETA DE CORES BRAAVOS — REFERÊNCIA              ║
+  ║  Use estes HEX para customizar temas por empresa.            ║
+  ║  Cada cor foi escolhida para ser legível sobre fundo escuro  ║
+  ║  e não conflitar com fontes brancas (#f0f0f8) ou ícones.     ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  DOURADOS / ÂMBAR (padrão Braavos)                           ║
+  ║    Ouro Braavos       #c9a84c  ← brand padrão               ║
+  ║    Ouro Claro         #e0c068  ← mais brilhante              ║
+  ║    Âmbar Suave        #b8913e  ← mais sóbrio                 ║
+  ║    Champagne          #d4b96a  ← elegante, neutro            ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  AZUIS                                                       ║
+  ║    Azul Tech          #0ea5e9  ← destaque, ações             ║
+  ║    Azul Royal         #3b82f6  ← confiança, corporativo      ║
+  ║    Azul Slate         #6d9ec9  ← suave, relatórios           ║
+  ║    Índigo             #818cf8  ← moderno, elegante           ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  VERDES                                                      ║
+  ║    Verde Sucesso      #4fc87a  ← ok/confirmação (fixo)       ║
+  ║    Esmeralda          #10b981  ← fintech, crescimento        ║
+  ║    Verde Oliva        #84cc6a  ← suave, agro                 ║
+  ║    Menta              #6ee7b7  ← fresh, saúde leve           ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  LARANJAS / VERMELHOS                                        ║
+  ║    Laranja Energia    #f97316  ← logística, urgência         ║
+  ║    Coral              #fb7185  ← suave, moderno              ║
+  ║    Terracota          #e07050  ← quente, combustível ✓       ║
+  ║    Vermelho Alerta    #f05050  ← erro (fixo, não usar brand) ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  ROXOS / VIOLETAS                                            ║
+  ║    Violeta            #a855f7  ← saúde, premium              ║
+  ║    Lilás              #c084fc  ← IA, analytics               ║
+  ║    Índigo Escuro      #7c3aed  ← autoridade, enterprise      ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  NEUTROS (não usar como brand — interferem em textos)        ║
+  ║    Branco Texto       #f0f0f8  ← --txt padrão (NÃO alterar) ║
+  ║    Cinza Muted        rgba(240,240,248,0.45) (NÃO alterar)   ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║  COMO USAR:                                                  ║
+  ║  1. Escolha 1 cor brand da tabela acima                      ║
+  ║  2. Gere o --dim como rgba da mesma cor com 0.12 de alpha    ║
+  ║  3. Ajuste --bg e --bg2 com o tom escuro correspondente      ║
+  ║  4. Evite marcas com vermelho puro #ff0000 ou verde #00ff00  ║
+  ║     — use as versões temperadas da tabela acima              ║
+  ╚══════════════════════════════════════════════════════════════╝
+*/
 .t-braavos  {--brand:#c9a84c;--dim:rgba(201,168,76,0.12);--bg:#0a0a0f;--bg2:#0f0f1a}
 .t-techwave {--brand:#0ea5e9;--dim:rgba(14,165,233,0.12);--bg:#070d14;--bg2:#0a1520}
 .t-logistica{--brand:#f97316;--dim:rgba(249,115,22,0.12);--bg:#0f0a06;--bg2:#1a1008}
 .t-fintech  {--brand:#10b981;--dim:rgba(16,185,129,0.12);--bg:#060f0a;--bg2:#081a10}
 .t-saude    {--brand:#a855f7;--dim:rgba(168,85,247,0.12);--bg:#0c0714;--bg2:#130d1f}
+/* Novos temas prontos para uso: */
+.t-combustivel{--brand:#e07050;--dim:rgba(224,112,80,0.12);--bg:#0f0a08;--bg2:#1a1008}
+.t-indigo   {--brand:#818cf8;--dim:rgba(129,140,248,0.12);--bg:#08080f;--bg2:#0d0d1a}
+.t-royal    {--brand:#3b82f6;--dim:rgba(59,130,246,0.12);--bg:#070a14;--bg2:#0a1020}
 
 html,body{height:100%;overflow:hidden}
 body{font-family:var(--FB);color:var(--txt);background:var(--bg)}
@@ -312,22 +364,102 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .sidebar.open{transform:translateX(0)}
   .s-overlay{display:block;opacity:0;pointer-events:none}
   .s-overlay.open{opacity:1;pointer-events:all}
-  .main{margin-left:0;padding:72px 14px 24px}
+  .main{margin-left:0;padding:72px 16px 32px}
   .app{height:auto;min-height:100vh;overflow:visible}
   html,body{overflow:auto}
   .g4{grid-template-columns:1fr 1fr}
   .g3{grid-template-columns:1fr 1fr}
   .g2{grid-template-columns:1fr}
   .funil{grid-template-columns:repeat(3,1fr)}
-  .page-ti{font-size:30px}
+  .page-ti{font-size:32px}
   .dp{width:100%;border-left:none;border-top:1px solid var(--bb)}
   .modal{width:calc(100vw - 28px);padding:22px}
   .fr{grid-template-columns:1fr}
   .row-meta .badge:not(:first-child){display:none}
+
+  /* ── MOBILE LEGIBILITY ── */
+  /* Topbar */
+  .topbar{height:62px}
+  .t-logo{font-size:26px}
+  .burger span{width:25px;height:2.5px}
+
+  /* Sidebar nav */
+  .nav{font-size:16px;padding:13px 22px;gap:13px}
+  .nav-ic{font-size:19px;width:24px}
+  .nbadge{min-width:22px;height:22px;font-size:12px}
+  .s-logo{font-size:34px}
+  .s-user-name{font-size:15px}
+  .s-user-role{font-size:12px}
+  .s-logout{font-size:12px}
+
+  /* Page titles */
+  .page-ey{font-size:12px;letter-spacing:.18em}
+  .page-ti{font-size:34px}
+
+  /* Cards / metrics */
+  .card{padding:18px}
+  .m-lbl{font-size:12px}
+  .m-val{font-size:46px}
+  .m-sub{font-size:13px}
+
+  /* Funil */
+  .f-lbl{font-size:11px}
+  .f-cnt{font-size:38px}
+  .f-sub{font-size:12px}
+
+  /* Rows / lists */
+  .row{padding:16px 0;gap:14px}
+  .av{width:42px;height:42px;font-size:17px;border-radius:10px}
+  .row-name{font-size:16px}
+  .row-sub{font-size:13px}
+
+  /* Badges */
+  .badge{font-size:11px;padding:3px 11px}
+
+  /* Buttons */
+  .btn{font-size:15px;padding:11px 22px;gap:8px}
+  .btn-sm{font-size:13px;padding:8px 16px}
+
+  /* Chips / filter bar */
+  .chip{font-size:13px;padding:7px 16px}
+  .fsearch{font-size:14px;padding:8px 16px}
+
+  /* Forms (modal) */
+  .fl{font-size:12px}
+  .fi,.fs,.fta{font-size:15px;padding:12px 14px}
+  .modal-ti{font-size:28px}
+
+  /* Detail panel */
+  .dp-name{font-size:32px}
+  .dp-sub{font-size:14px}
+  .dp-fl{font-size:11px}
+  .dp-fv{font-size:15px}
+  .dp-sec{font-size:11px}
+
+  /* Section head */
+  .sh-t{font-size:24px}
+  .sh-l{font-size:14px}
+
+  /* Toast */
+  .toast{font-size:14px;padding:13px 18px;bottom:18px;right:12px;left:12px;text-align:center}
+
+  /* Login */
+  .login-box{width:calc(100vw - 40px);padding:32px 24px}
+  .login-logo{font-size:46px}
+  .lbl{font-size:13px}
+  .linp{font-size:15px;padding:13px 14px}
+  .lbtn{font-size:16px;padding:14px}
+
+  /* Progress */
+  .ptrack{height:7px}
+  .eq-name{font-size:16px}
+  .eq-pct{font-size:12px;width:36px}
 }
 @media(max-width:440px){
   .g4{grid-template-columns:1fr 1fr}
   .funil{grid-template-columns:1fr 1fr}
+  .m-val{font-size:42px}
+  .page-ti{font-size:30px}
 }
 </style>
 </head>
@@ -541,6 +673,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-clientes" class="page" style="display:none">
       <div class="page-ey">Carteira</div>
       <div class="page-ti">Clientes</div>
+      <div class="fbar" style="margin-bottom:16px">
+        <input class="fsearch" id="cli-q" placeholder="Buscar cliente ou empresa..." oninput="renderClientes()" autocomplete="off" style="max-width:320px;flex:1"/>
+        <span class="chip on" id="cf-todos" onclick="cliTab('todos')">Todos</span>
+        <span class="chip" id="cf-ativos" onclick="cliTab('ativos')">Ativos</span>
+      </div>
       <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
 
@@ -894,8 +1031,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <span class="chip on" id="ptab-ped-lead" onclick="pedTab('lead')">◈ Lead</span>
       <span class="chip" id="ptab-ped-cli" onclick="pedTab('cliente')">◉ Cliente</span>
     </div>
-    <div id="ped-sec-lead" class="fg"><label class="fl">Lead</label><select class="fs" id="ped-lead-sel"></select></div>
-    <div id="ped-sec-cli" class="fg" style="display:none"><label class="fl">Cliente</label><select class="fs" id="ped-cli-sel"></select></div>
+    <div id="ped-sec-lead" class="fg">
+      <label class="fl">Lead</label>
+      <input class="fi" id="ped-lead-q" placeholder="Buscar lead..." autocomplete="off" oninput="pedFiltrar('lead')" onfocus="pedFiltrar('lead')" style="margin-bottom:4px"/>
+      <div id="ped-lead-lista" style="display:none;max-height:180px;overflow-y:auto;background:#0f0f1a;border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px"></div>
+      <input type="hidden" id="ped-lead-sel"/>
+    </div>
+    <div id="ped-sec-cli" class="fg" style="display:none">
+      <label class="fl">Cliente</label>
+      <input class="fi" id="ped-cli-q" placeholder="Buscar cliente..." autocomplete="off" oninput="pedFiltrar('cliente')" onfocus="pedFiltrar('cliente')" style="margin-bottom:4px"/>
+      <div id="ped-cli-lista" style="display:none;max-height:180px;overflow-y:auto;background:#0f0f1a;border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px"></div>
+      <input type="hidden" id="ped-cli-sel"/>
+    </div>
     <div class="msec">Pedido</div>
     <div class="fr">
       <div class="fg"><label class="fl">Número do Pedido</label><input type="text" class="fi" id="ped-numero" placeholder="BRV-009"/></div>
@@ -1319,16 +1466,25 @@ function closePedDetail(){
 }
 
 // ── CLIENTES ──────────────────────────────────────────────────────
-async function loadClientes(){
-  const {data}=await sb.from('customers')
-    .select('*, leads(nome,empresa_cliente,telefone,email,segmento,cidade,estado)')
-    .eq('empresa_id',P.empresa_id)
-    .order('created_at',{ascending:false});
-  const el=document.getElementById('clientes-grid');
-  if(!data?.length){el.innerHTML='<div class="empty" style="grid-column:1/-1"><i>◉</i>Nenhum cliente ainda.</div>';return;}
+let cliTabAtual = 'todos';
+function cliTab(t) {
+  cliTabAtual = t;
+  document.getElementById('cf-todos').classList.toggle('on', t==='todos');
+  document.getElementById('cf-ativos').classList.toggle('on', t==='ativos');
+  renderClientes();
+}
+function renderClientes() {
+  const q = (document.getElementById('cli-q')?.value||'').toLowerCase().trim();
+  const el = document.getElementById('clientes-grid');
+  let data = allClientes || [];
+  if (cliTabAtual === 'ativos') data = data.filter(c => c.customer_status === 'ativo');
+  if (q) data = data.filter(c => {
+    const l = c.leads || {};
+    return (l.nome||'').toLowerCase().includes(q) || (l.empresa_cliente||'').toLowerCase().includes(q) || (l.telefone||'').includes(q);
+  });
+  if (!data.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1"><i>◉</i>Nenhum cliente encontrado.</div>'; return; }
   const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
   const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
-  allClientes=data;
   el.innerHTML=data.map(c=>{
     const l=c.leads||{};
     return `<div class="card click" onclick="openCliente('${c.id}')">
@@ -1348,6 +1504,15 @@ async function loadClientes(){
     </div>`;
   }).join('');
 }
+async function loadClientes(){
+  const {data}=await sb.from('customers')
+    .select('*, leads(nome,empresa_cliente,telefone,email,segmento,cidade,estado)')
+    .eq('empresa_id',P.empresa_id)
+    .order('created_at',{ascending:false});
+  allClientes = data || [];
+  renderClientes();
+}
+
 
 // ── VISITAS ───────────────────────────────────────────────────────
 async function loadVisitas(){
@@ -1782,26 +1947,21 @@ function openM(id){
     vtab('cliente');
   }
   if(id==='m-pedido'){
+    // Carrega leads
     sb.from('leads').select('id,nome,empresa_cliente')
       .eq('empresa_id', P.empresa_id)
       .not('status','in','("fechado_perdido")')
       .order('nome')
-      .then(({data}) => {
-        const sel = document.getElementById('ped-lead-sel');
-        sel.innerHTML = data?.length
-          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
-          : '<option value="">Nenhum lead</option>';
-      });
+      .then(({data}) => { window._pedLeads = data||[]; pedFiltrar('lead'); });
+    // Carrega clientes (leads fechado_ganho)
     sb.from('leads').select('id,nome,empresa_cliente')
       .eq('empresa_id', P.empresa_id)
       .eq('status','fechado_ganho')
       .order('nome')
-      .then(({data}) => {
-        const sel = document.getElementById('ped-cli-sel');
-        sel.innerHTML = data?.length
-          ? data.map(l=>`<option value="${l.id}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
-          : '<option value="">Nenhum cliente</option>';
-      });
+      .then(({data}) => { window._pedClis = data||[]; });
+    // Limpa seleções anteriores
+    ['ped-lead-q','ped-cli-q'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
+    ['ped-lead-sel','ped-cli-sel'].forEach(id=>{ const e=document.getElementById(id); if(e) e.value=''; });
     pedTab('lead');
   }
   document.getElementById(id).classList.add('open');
@@ -2641,6 +2801,53 @@ function pedTab(t) {
   document.getElementById('ped-sec-cli').style.display  = t==='cliente' ? '' : 'none';
   document.getElementById('ptab-ped-lead').classList.toggle('on', t==='lead');
   document.getElementById('ptab-ped-cli').classList.toggle('on', t==='cliente');
+  // fechar listas abertas ao trocar aba
+  document.getElementById('ped-lead-lista').style.display = 'none';
+  document.getElementById('ped-cli-lista').style.display = 'none';
+}
+
+// ── PEDIDO BUSCA SEARCHABLE ───────────────────────────────────────
+function pedFiltrar(tipo) {
+  const isLead = tipo === 'lead';
+  const qEl  = document.getElementById(isLead ? 'ped-lead-q'    : 'ped-cli-q');
+  const lista = document.getElementById(isLead ? 'ped-lead-lista': 'ped-cli-lista');
+  const hidEl = document.getElementById(isLead ? 'ped-lead-sel'  : 'ped-cli-sel');
+  const pool  = isLead ? (window._pedLeads||[]) : (window._pedClis||[]);
+  const q = (qEl.value||'').toLowerCase().trim();
+  const items = q ? pool.filter(l =>
+    (l.nome||'').toLowerCase().includes(q) ||
+    (l.empresa_cliente||'').toLowerCase().includes(q)
+  ) : pool;
+
+  if (!items.length) {
+    lista.innerHTML = '<div style="padding:10px 14px;font-size:13px;color:var(--muted)">Nenhum encontrado</div>';
+  } else {
+    lista.innerHTML = items.map(l =>
+      `<div onclick="pedSelecionar('${l.id}','${(l.nome||'').replace(/'/g,"\'")}${l.empresa_cliente?' · '+l.empresa_cliente.replace(/'/g,"\'"):''}','${tipo}')"
+        style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--bb);transition:background .15s"
+        onmouseover="this.style.background='rgba(255,255,255,.05)'"
+        onmouseout="this.style.background=''"
+       >${l.nome||'—'}${l.empresa_cliente?` <span style="color:var(--muted);font-size:11px">· ${l.empresa_cliente}</span>`:''}</div>`
+    ).join('');
+  }
+  lista.style.display = 'block';
+  // fecha ao clicar fora
+  setTimeout(() => {
+    const close = (e) => {
+      if (!lista.contains(e.target) && e.target !== qEl) {
+        lista.style.display = 'none';
+        document.removeEventListener('click', close);
+      }
+    };
+    document.addEventListener('click', close);
+  }, 0);
+}
+
+function pedSelecionar(id, label, tipo) {
+  const isLead = tipo === 'lead';
+  document.getElementById(isLead ? 'ped-lead-q'    : 'ped-cli-q').value  = label;
+  document.getElementById(isLead ? 'ped-lead-sel'  : 'ped-cli-sel').value = id;
+  document.getElementById(isLead ? 'ped-lead-lista': 'ped-cli-lista').style.display = 'none';
 }
 
 // ── SALVAR PEDIDO ─────────────────────────────────────────────────
