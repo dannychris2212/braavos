@@ -996,8 +996,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="modal-ti">⊕ Editar Meta</div>
     <div id="m-meta-nome" style="font-size:14px;color:var(--muted);margin-bottom:16px">—</div>
     <input type="hidden" id="meta-vid"/>
-    <div class="fg"><label class="fl">Meta Mensal — Leads Ganhos</label><input type="number" class="fi" id="meta-leads" min="1" max="999"/></div>
-    <div class="fg"><label class="fl">Meta Mensal — Visitas</label><input type="number" class="fi" id="meta-visitas" min="1" max="999"/></div>
+    <div class="fg"><label class="fl">Meta Mensal — Faturamento (R$)</label><input type="number" class="fi" id="meta-fat" min="0" step="1000" placeholder="50000"/></div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Meta — Leads Ganhos</label><input type="number" class="fi" id="meta-leads" min="1" max="999"/></div>
+      <div class="fg"><label class="fl">Meta — Visitas</label><input type="number" class="fi" id="meta-visitas" min="1" max="999"/></div>
+    </div>
     <div class="mfoot">
       <button class="btn btn-g" onclick="closeM('m-meta')">Cancelar</button>
       <button class="btn btn-p" onclick="salvarMeta()">Salvar Meta</button>
@@ -1678,7 +1681,7 @@ async function loadEquipe(){
           <div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
-          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv})">⊕ Meta</button>`:''}
+          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv},${metaFat})">⊕ Meta</button>`:''}
         </div>
       </div>
       <!-- Faturamento destaque -->
@@ -1709,28 +1712,31 @@ async function loadEquipe(){
 }
 
 // ── META ──────────────────────────────────────────────────────────
-function abrirMeta(vid,nome,ml,mv){
+function abrirMeta(vid,nome,ml,mv,mf){
   document.getElementById('meta-vid').value=vid;
   document.getElementById('m-meta-nome').textContent=nome;
+  document.getElementById('meta-fat').value=mf||50000;
   document.getElementById('meta-leads').value=ml;
   document.getElementById('meta-visitas').value=mv;
   openM('m-meta');
 }
 async function salvarMeta(){
   const vid=document.getElementById('meta-vid').value;
+  const mf=parseFloat(document.getElementById('meta-fat').value);
   const ml=parseInt(document.getElementById('meta-leads').value);
   const mv=parseInt(document.getElementById('meta-visitas').value);
-  if(!ml||!mv){showToast('Preencha os campos','er');return;}
+  if(!mf||!ml||!mv){showToast('Preencha todos os campos','er');return;}
 
   // Busca valores anteriores
-  const {data:curr}=await sb.from('profiles').select('meta_mensal_leads,meta_mensal_visitas').eq('vendedor_id',vid).single();
+  const {data:curr}=await sb.from('profiles').select('meta_mensal_faturamento,meta_mensal_leads,meta_mensal_visitas').eq('vendedor_id',vid).single();
 
   // Atualiza profile
-  const {error}=await sb.from('profiles').update({meta_mensal_leads:ml,meta_mensal_visitas:mv}).eq('vendedor_id',vid);
+  const {error}=await sb.from('profiles').update({meta_mensal_faturamento:mf,meta_mensal_leads:ml,meta_mensal_visitas:mv}).eq('vendedor_id',vid);
   if(error){showToast('Erro: '+error.message,'er');return;}
 
   // Registra histórico
   const logs=[];
+  if(curr?.meta_mensal_faturamento!==mf) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_faturamento',valor_anterior:curr?.meta_mensal_faturamento,valor_novo:mf});
   if(curr?.meta_mensal_leads!==ml) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_leads',valor_anterior:curr?.meta_mensal_leads,valor_novo:ml});
   if(curr?.meta_mensal_visitas!==mv) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_visitas',valor_anterior:curr?.meta_mensal_visitas,valor_novo:mv});
   if(logs.length) await sb.from('metas_historico').insert(logs);
