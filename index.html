@@ -3104,11 +3104,8 @@ async function impConfirmar() {
     const rows = _impData.map(r => ({ ...r, empresa_id: P.empresa_id, vendedor_id: vid }));
 
     let error;
-    if (_impTemplate.upsert_keys?.length) {
-      ({ error } = await sb.from(_impTable).upsert(rows, { onConflict: _impTemplate.upsert_keys.join(',') }));
-    } else {
-      ({ error } = await sb.from(_impTable).insert(rows));
-    }
+    // Só tenta upsert se tiver upsert_keys E o usuário confirmar
+    ({ error } = await sb.from(_impTable).insert(rows));
 
     document.getElementById('imp-step2').style.display = 'none';
     document.getElementById('imp-step3').style.display = '';
