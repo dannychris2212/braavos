@@ -1099,6 +1099,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
 </div>
+<!-- MODAL HISTÓRICO PRODUTO -->
+<div class="ov" id="m-hist-produto">
+  <div class="modal" style="width:520px">
+    <button class="mcl" onclick="closeM('m-hist-produto')">✕</button>
+    <div class="modal-ti">⬡ Histórico de Preços</div>
+    <div id="hist-prod-nome" style="font-size:13px;color:var(--muted);margin-bottom:16px">—</div>
+    <div id="hist-prod-lista"></div>
+  </div>
+</div>
+
 <!-- MODAL IMPORTAR CSV -->
 <div class="ov" id="m-import">
   <div class="modal" style="width:560px">
@@ -2993,6 +3003,30 @@ async function abrirPedidoPorLead(leadId) {
 }
 
 
+
+function verHistoricoProduto(nome) {
+  document.getElementById('hist-prod-nome').textContent = nome;
+  const versoes = allProdutos.filter(p => p.nome === nome).sort((a,b) => b.created_at.localeCompare(a.created_at));
+  const unLabel = { litro:'L', kg:'kg', tambor:'tambor', galao:'galão', unidade:'un', cx:'cx' };
+  document.getElementById('hist-prod-lista').innerHTML = versoes.map((p, i) => `
+    <div style="padding:12px;border:1px solid var(--bb${i===0?'2':''});border-radius:var(--rs);margin-bottom:8px;${i===0?'background:var(--bs2)':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <span style="font-family:var(--FM);font-size:10px;color:var(--muted)">${new Date(p.created_at).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'})}</span>
+        ${i===0?'<span style="font-size:10px;padding:2px 8px;border-radius:20px;background:var(--dim);color:var(--brand);font-family:var(--FM)">ATUAL</span>':''}
+      </div>
+      <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:13px">
+        <span>Preço: <b style="color:var(--brand)">${p.preco_referencia?'R$ '+Number(p.preco_referencia).toFixed(4):'—'}</b>/${unLabel[p.unidade]||p.unidade}</span>
+        ${p.margem_sugerida_pct?`<span>Margem: <b style="color:var(--ok)">${p.margem_sugerida_pct}%</b></span>`:''}
+        ${p.icms_pct?`<span>ICMS: <b>${p.icms_pct}%</b></span>`:''}
+      </div>
+      ${(p.preco_min_alerta||p.preco_max_alerta)?`<div style="font-size:11px;color:var(--muted);margin-top:6px">
+        ${p.preco_min_alerta?`Mín: R$${Number(p.preco_min_alerta).toFixed(4)} `:''}
+        ${p.preco_max_alerta?`Máx: R$${Number(p.preco_max_alerta).toFixed(4)}`:''}
+      </div>`:''}
+    </div>`).join('');
+  openM('m-hist-produto');
+}
+
 // ── IMPORTAR CSV ──────────────────────────────────────────────────
 let _impTable = null;
 let _impTemplate = null;
@@ -3381,8 +3415,14 @@ function renderProdutos() {
       <div style="display:flex;gap:8px;font-size:11px;color:var(--muted);border-top:1px solid var(--bb);padding-top:8px;margin-top:4px">
         ${p.preco_min_alerta ? `<span>Mín: <b style="color:var(--err)">R$${Number(p.preco_min_alerta).toFixed(4)}</b></span>` : ''}
         ${p.preco_max_alerta ? `<span>Máx: <b style="color:var(--ok)">R$${Number(p.preco_max_alerta).toFixed(4)}</b></span>` : ''}
-        <span style="margin-left:auto;color:var(--muted)">${hist} versão${hist!==1?'ões':''}</span>
-      </div>` : `<div style="text-align:right;font-size:11px;color:var(--muted);border-top:1px solid var(--bb);padding-top:8px;margin-top:4px">${hist} versão${hist!==1?'ões':''}</div>`}
+        <span style="margin-left:auto;display:flex;align-items:center;gap:8px">
+          <span style="color:var(--muted)">${hist} ${hist!==1?'versões':'versão'}</span>
+          ${hist>1?`<button class="btn btn-g btn-sm" style="font-size:10px;padding:2px 8px" onclick="verHistoricoProduto('${p.nome}')">Histórico</button>`:''}
+        </span>
+      </div>` : `<div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;font-size:11px;color:var(--muted);border-top:1px solid var(--bb);padding-top:8px;margin-top:4px">
+        <span>${hist} ${hist!==1?'versões':'versão'}</span>
+        ${hist>1?`<button class="btn btn-g btn-sm" style="font-size:10px;padding:2px 8px" onclick="verHistoricoProduto('${p.nome}')">Histórico</button>`:''}
+      </div>`}
     </div>`;
   }).join('');
 }
