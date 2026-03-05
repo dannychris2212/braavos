@@ -1610,7 +1610,7 @@ async function loadClientes(){
 // ── VISITAS ───────────────────────────────────────────────────────
 async function loadVisitas(){
   const {data}=await sb.from('visitas')
-    .select('*, customers(nome, empresa_cliente, leads(nome, empresa_cliente))')
+    .select('*, customers(nome, empresa_cliente)')
     .order('data',{ascending:false});
   const el=document.getElementById('visitas-list');
   if(!data?.length){el.innerHTML='<div class="empty"><i>◎</i>Nenhuma visita ainda.</div>';return;}
@@ -1619,8 +1619,8 @@ async function loadVisitas(){
   const ll={presencial:'Presencial',remota:'Remota',ligacao:'Ligação'};
   const rl={positivo:'b-ok',neutro:'b-dim',negativo:'b-err'};
   el.innerHTML=data.map(v=>{
-    const nome=v.customers?.nome||v.customers?.leads?.nome||'—';
-    const emp=v.customers?.empresa_cliente||v.customers?.leads?.empresa_cliente||'';
+    const nome=v.customers?.nome||'—';
+    const emp=v.customers?.empresa_cliente||'';
     return `<div style="display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--bb)">
       <div class="av" style="border-color:var(--bb);background:var(--bs2);color:var(--muted)">${icons[v.tipo]||'◎'}</div>
       <div style="flex:1;min-width:0">
@@ -1640,7 +1640,7 @@ async function loadVisitas(){
 // ── PEDIDOS ───────────────────────────────────────────────────────
 async function loadPedidos(){
   const q=sb.from('pedidos')
-    .select('*, customers!pedidos_cliente_id_fkey(nome, empresa_cliente, leads(nome, empresa_cliente))')
+    .select('*, customers!pedidos_cliente_id_fkey(nome, empresa_cliente)')
     .order('created_at',{ascending:false});
   if(P?.cargo!=='gerente') q.eq('vendedor_id',P?.vendedor_id);
   else q.eq('empresa_id',P?.empresa_id);
@@ -1665,9 +1665,9 @@ function renderPedidos(){
     <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido('${p.id}')">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
       <div class="ped-info">
-        <div class="ped-cliente">${p.customers?.nome||p.customers?.leads?.nome||'—'}</div>
+        <div class="ped-cliente">${p.customers?.nome||'—'}</div>
         <div class="ped-meta">
-          ${(p.customers?.empresa_cliente||p.customers?.leads?.empresa_cliente)?((p.customers?.empresa_cliente||p.customers?.leads?.empresa_cliente)+' · '):''}
+          ${p.customers?.empresa_cliente?p.customers.empresa_cliente+' · ':''}
           ${p.previsao_entrega?'◬ '+fd(p.previsao_entrega):''}
         </div>
       </div>
@@ -2024,11 +2024,11 @@ function setupRT(){
 function openM(id){
   if(id==='m-visita'){
     // Carrega clientes
-    sb.from('customers').select('id, nome, empresa_cliente, leads(nome, empresa_cliente)').eq('empresa_id',P.empresa_id)
+    sb.from('customers').select('id, nome, empresa_cliente').eq('empresa_id',P.empresa_id)
       .then(({data})=>{
         const sel=document.getElementById('v-cliente');
         sel.innerHTML=data?.length
-          ?data.map(c=>`<option value="${c.id}">${c.nome||c.leads?.nome||'—'}${(c.empresa_cliente||c.leads?.empresa_cliente)?' · '+(c.empresa_cliente||c.leads.empresa_cliente):''}</option>`).join('')
+          ?data.map(c=>`<option value="${c.id}">${c.nome||'—'}${c.empresa_cliente?' · '+c.empresa_cliente:''}</option>`).join('')
           :'<option value="">Nenhum cliente ainda</option>';
       });
     // Carrega leads
@@ -2313,7 +2313,7 @@ function initRelatorios(){
 async function loadRelDiario(){
   const hoje=new Date().toISOString().split('T')[0];
   // Visitas hoje
-  const {data:vis}=await sb.from('visitas').select('*, customers(leads(nome,empresa_cliente))')
+  const {data:vis}=await sb.from('visitas').select('*, customers(nome,empresa_cliente)')
     .eq('empresa_id',P.empresa_id).eq('vendedor_id',P.vendedor_id).eq('data',hoje);
   document.getElementById('rd-visitas').textContent=(vis||[]).length;
   // Leads hoje
@@ -2332,9 +2332,9 @@ async function loadRelDiario(){
   const elV=document.getElementById('rd-visitas-list');
   elV.innerHTML=(vis||[]).length?(vis||[]).map(v=>`
     <div class="row">
-      <div class="av">${v.customers?.leads?.nome?.[0]||'?'}</div>
+      <div class="av">${v.customers?.nome?.[0]||'?'}</div>
       <div class="row-info">
-        <div class="row-name">${v.customers?.leads?.nome||'—'}</div>
+        <div class="row-name">${v.customers?.nome||'—'}</div>
         <div class="row-sub">${v.resumo||'Sem resumo'}</div>
       </div>
       <span class="badge ${v.resultado==='positivo'?'b-ok':v.resultado==='negativo'?'b-err':'b-dim'}">${v.resultado||'—'}</span>
@@ -2673,10 +2673,10 @@ async function openAddParada(){
     ?leads.map(l=>`<option value="${l.id}" data-end="${[l.cidade,l.estado].filter(Boolean).join(', ')}" data-nome="${l.nome||''}">${l.nome||'—'}${l.empresa_cliente?' · '+l.empresa_cliente:''}</option>`).join('')
     :'<option>Nenhum lead</option>';
   // Carrega clientes
-  const {data:clis}=await sb.from('customers').select('id,leads(nome,empresa_cliente,cidade,estado)')
+  const {data:clis}=await sb.from('customers').select('id,nome,empresa_cliente,cidade,estado')
     .eq('empresa_id',P.empresa_id);
   document.getElementById('p-cliente-sel').innerHTML=clis?.length
-    ?clis.map(c=>`<option value="${c.id}" data-end="${[c.leads?.cidade,c.leads?.estado].filter(Boolean).join(', ')}" data-nome="${c.leads?.nome||''}">${c.leads?.nome||'—'}${c.leads?.empresa_cliente?' · '+c.leads.empresa_cliente:''}</option>`).join('')
+    ?clis.map(c=>`<option value="${c.id}" data-end="${[c.cidade,c.estado].filter(Boolean).join(', ')}" data-nome="${c.nome||''}">${c.nome||'—'}${c.empresa_cliente?' · '+c.empresa_cliente:''}</option>`).join('')
     :'<option>Nenhum cliente</option>';
   ptab('lead');
   openM('m-parada');
