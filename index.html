@@ -3101,14 +3101,15 @@ async function impConfirmar() {
   try {
     // Injeta empresa_id em cada linha
     const vid = document.getElementById('imp-vendedor-id').value || P.vendedor_id;
+    const _autoFields = ['id','created_at','updated_at','numero_pedido'];
     const rows = _impData.map(r => {
       const row = { ...r, empresa_id: P.empresa_id, vendedor_id: vid };
-      // Remove campos que o banco gera automaticamente
-      delete row.id;
-      delete row.created_at;
-      delete row.updated_at;
-      // Remove campos null com valor 'AUTO' (gerados pelo banco)
-      Object.keys(row).forEach(k => { if (row[k] === 'AUTO' || row[k] === '') row[k] = null; });
+      // Remove campos gerados automaticamente pelo banco
+      _autoFields.forEach(f => delete row[f]);
+      // Campos vazios ou AUTO: remove (deixa o banco usar o default)
+      Object.keys(row).forEach(k => {
+        if (row[k] === 'AUTO' || row[k] === null || row[k] === '') delete row[k];
+      });
       return row;
     });
 
@@ -3250,14 +3251,13 @@ function impNormalizeCSV(csvText, template) {
         val = impApplyTransforms(cfg.default, cfg.transform||[]);
       }
       row[col] = val;
-      // empresa_id e vendedor_id são injetados pelo app — ignorar na validação
-      if (cfg.required && !val && col !== 'empresa_id' && col !== 'vendedor_id') {
+      // Campos injetados pelo app ou gerados pelo banco — ignorar na validação
+      const _skipValidation = ['empresa_id','vendedor_id','id','created_at','updated_at','numero_pedido'];
+      if (cfg.required && !val && !_skipValidation.includes(col)) {
         const ex = errors.find(e => e.row === ri+1);
         ex ? ex.columns.push(col) : errors.push({ row: ri+1, columns: [col] });
       }
     }
-    // Converte strings vazias para null (Postgres não aceita '' em campos tipados)
-    Object.keys(row).forEach(k => { if (row[k] === '') row[k] = null; });
     data.push(row);
   }
   return { data, errors };
