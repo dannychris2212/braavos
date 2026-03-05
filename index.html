@@ -3101,7 +3101,16 @@ async function impConfirmar() {
   try {
     // Injeta empresa_id em cada linha
     const vid = document.getElementById('imp-vendedor-id').value || P.vendedor_id;
-    const rows = _impData.map(r => ({ ...r, empresa_id: P.empresa_id, vendedor_id: vid }));
+    const rows = _impData.map(r => {
+      const row = { ...r, empresa_id: P.empresa_id, vendedor_id: vid };
+      // Remove campos que o banco gera automaticamente
+      delete row.id;
+      delete row.created_at;
+      delete row.updated_at;
+      // Remove campos null com valor 'AUTO' (gerados pelo banco)
+      Object.keys(row).forEach(k => { if (row[k] === 'AUTO' || row[k] === '') row[k] = null; });
+      return row;
+    });
 
     let error;
     // Só tenta upsert se tiver upsert_keys E o usuário confirmar
