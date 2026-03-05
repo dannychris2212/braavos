@@ -664,7 +664,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="chip" data-s="fechado_ganho" onclick="chipLead(this)">Ganho</span>
           <span class="chip" data-s="fechado_perdido" onclick="chipLead(this)">Perdido</span>
         </div>
-        <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
+        <div style="display:flex;gap:7px">
+          <button class="btn btn-g btn-sm" onclick="openImport('leads')">⬡ Importar CSV</button>
+          <button class="btn btn-p btn-sm" onclick="openM('m-lead')">◈ Novo Lead</button>
+        </div>
       </div>
       <div class="card" id="leads-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
@@ -673,10 +676,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-clientes" class="page" style="display:none">
       <div class="page-ey">Carteira</div>
       <div class="page-ti">Clientes</div>
-      <div class="fbar" style="margin-bottom:16px">
-        <input class="fsearch" id="cli-q" placeholder="Buscar cliente ou empresa..." oninput="renderClientes()" autocomplete="off" style="max-width:320px;flex:1"/>
-        <span class="chip on" id="cf-todos" onclick="cliTab('todos')">Todos</span>
-        <span class="chip" id="cf-ativos" onclick="cliTab('ativos')">Ativos</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <div class="fbar" style="margin:0;flex:1">
+          <input class="fsearch" id="cli-q" placeholder="Buscar cliente ou empresa..." oninput="renderClientes()" autocomplete="off" style="max-width:320px;flex:1"/>
+          <span class="chip on" id="cf-todos" onclick="cliTab('todos')">Todos</span>
+          <span class="chip" id="cf-ativos" onclick="cliTab('ativos')">Ativos</span>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="openImport('customers')">⬡ Importar CSV</button>
       </div>
       <div class="g2" id="clientes-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
@@ -750,7 +756,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <span class="chip" data-s="entregue" onclick="chipPed(this)">Entregue</span>
           <span class="chip" data-s="cancelado" onclick="chipPed(this)">Cancelado</span>
         </div>
-        <button class="btn btn-p btn-sm" onclick="openM('m-pedido')">◫ Novo Pedido</button>
+        <div style="display:flex;gap:7px">
+          <button class="btn btn-g btn-sm" onclick="openImport('pedidos')">⬡ Importar CSV</button>
+          <button class="btn btn-p btn-sm" onclick="openM('m-pedido')">◫ Novo Pedido</button>
+        </div>
       </div>
       <div class="card" id="pedidos-list"><div class="empty"><div class="dot"></div></div></div>
     </div>
@@ -1072,6 +1081,52 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
   </div>
 </div>
+<!-- MODAL IMPORTAR CSV -->
+<div class="ov" id="m-import">
+  <div class="modal" style="width:560px">
+    <button class="mcl" onclick="closeImport()">✕</button>
+    <div class="modal-ti">⬡ Importar CSV</div>
+    <div id="imp-table-label" style="font-family:var(--FM);font-size:11px;color:var(--brand);letter-spacing:.1em;text-transform:uppercase;margin-bottom:18px">—</div>
+
+    <!-- STEP 1: upload -->
+    <div id="imp-step1">
+      <div id="imp-dropzone" onclick="document.getElementById('imp-file').click()"
+        style="border:2px dashed var(--bb2);border-radius:var(--r);padding:36px;text-align:center;cursor:pointer;transition:border-color .2s;margin-bottom:16px"
+        ondragover="event.preventDefault();this.style.borderColor='var(--brand)'"
+        ondragleave="this.style.borderColor='var(--bb2)'"
+        ondrop="event.preventDefault();this.style.borderColor='var(--bb2)';impHandleFile(event.dataTransfer.files[0])">
+        <div style="font-size:28px;margin-bottom:8px">⬡</div>
+        <div style="font-size:14px;color:var(--txt);margin-bottom:4px">Arraste o CSV aqui ou clique para selecionar</div>
+        <div style="font-size:12px;color:var(--muted)">Suporta vírgula ou ponto e vírgula como separador</div>
+      </div>
+      <input type="file" id="imp-file" accept=".csv" style="display:none" onchange="impHandleFile(this.files[0])"/>
+      <div id="imp-loading" style="display:none;text-align:center;padding:20px;color:var(--muted);font-size:13px">
+        <div class="dot" style="display:inline-block;margin-right:8px"></div>Carregando template e processando...
+      </div>
+    </div>
+
+    <!-- STEP 2: preview -->
+    <div id="imp-step2" style="display:none">
+      <div id="imp-summary" style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap"></div>
+      <div id="imp-errors" style="margin-bottom:12px"></div>
+      <div style="font-family:var(--FM);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Preview (primeiras 5 linhas)</div>
+      <div id="imp-preview" style="overflow-x:auto;border:1px solid var(--bb);border-radius:var(--rs);margin-bottom:16px;max-height:200px;overflow-y:auto;font-size:12px;font-family:var(--FM)"></div>
+      <div class="mfoot" style="margin-top:0">
+        <button class="btn btn-g" onclick="impReset()">↩ Outro arquivo</button>
+        <button class="btn btn-p" id="imp-confirm-btn" onclick="impConfirmar()">⬡ Importar <span id="imp-count"></span> registros</button>
+      </div>
+    </div>
+
+    <!-- STEP 3: result -->
+    <div id="imp-step3" style="display:none;text-align:center;padding:20px 0">
+      <div id="imp-result-icon" style="font-size:40px;margin-bottom:12px"></div>
+      <div id="imp-result-msg" style="font-size:15px;margin-bottom:6px"></div>
+      <div id="imp-result-sub" style="font-size:12px;color:var(--muted);margin-bottom:20px"></div>
+      <button class="btn btn-p" onclick="closeImport()">Fechar</button>
+    </div>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
@@ -2909,6 +2964,251 @@ async function abrirPedidoPorLead(leadId) {
       if (opt) { sel.value = leadId; pedTab('lead'); }
     }
   }, 300);
+}
+
+
+// ── IMPORTAR CSV ──────────────────────────────────────────────────
+let _impTable = null;
+let _impTemplate = null;
+let _impData = [];
+
+const TABLE_LABELS = { leads: 'Leads', customers: 'Clientes', pedidos: 'Pedidos' };
+
+async function openImport(table) {
+  _impTable = table;
+  _impTemplate = null;
+  _impData = [];
+  document.getElementById('imp-table-label').textContent = TABLE_LABELS[table] || table;
+  impReset();
+  openM('m-import');
+
+  // Carrega template do Supabase
+  const { data, error } = await sb.from('import_templates')
+    .select('*')
+    .eq('empresa_id', P.empresa_id)
+    .eq('table_name', table)
+    .single();
+  if (error || !data) {
+    showToast('Template não encontrado para ' + (TABLE_LABELS[table]||table), 'er');
+    closeImport(); return;
+  }
+  _impTemplate = data;
+}
+
+function closeImport() {
+  document.getElementById('m-import').classList.remove('open');
+  impReset();
+}
+
+function impReset() {
+  _impData = [];
+  document.getElementById('imp-step1').style.display = '';
+  document.getElementById('imp-step2').style.display = 'none';
+  document.getElementById('imp-step3').style.display = 'none';
+  document.getElementById('imp-loading').style.display = 'none';
+  document.getElementById('imp-file').value = '';
+}
+
+async function impHandleFile(file) {
+  if (!file) return;
+  if (!_impTemplate) { showToast('Aguarde o template carregar...', 'er'); return; }
+
+  document.getElementById('imp-loading').style.display = 'block';
+  document.getElementById('imp-dropzone').style.display = 'none';
+
+  try {
+    const text = await impReadFile(file);
+    const result = impNormalizeCSV(text, _impTemplate);
+    _impData = result.data;
+
+    // Summary
+    const sumEl = document.getElementById('imp-summary');
+    sumEl.innerHTML = `
+      <div style="padding:8px 14px;background:rgba(79,200,122,.08);border:1px solid rgba(79,200,122,.2);border-radius:var(--rs);font-size:12px;color:var(--ok);font-family:var(--FM)">
+        ✓ ${result.data.length} linha${result.data.length!==1?'s':''} processada${result.data.length!==1?'s':''}
+      </div>
+      ${result.errors.length ? `<div style="padding:8px 14px;background:rgba(240,80,80,.08);border:1px solid rgba(240,80,80,.2);border-radius:var(--rs);font-size:12px;color:var(--err);font-family:var(--FM)">
+        ⚠ ${result.errors.length} linha${result.errors.length!==1?'s':''} com campos obrigatórios vazios
+      </div>` : ''}`;
+
+    // Errors detail
+    const errEl = document.getElementById('imp-errors');
+    if (result.errors.length) {
+      errEl.innerHTML = result.errors.slice(0,5).map(e =>
+        `<div style="font-size:11px;color:var(--err);font-family:var(--FM);margin-bottom:3px">Linha ${e.row}: ${e.columns.join(', ')} obrigatório(s)</div>`
+      ).join('') + (result.errors.length > 5 ? `<div style="font-size:11px;color:var(--muted)">...e mais ${result.errors.length-5} erros</div>` : '');
+    } else { errEl.innerHTML = ''; }
+
+    // Preview table
+    const cols = Object.keys(result.data[0] || {});
+    const previewRows = result.data.slice(0, 5);
+    document.getElementById('imp-preview').innerHTML = `
+      <table style="width:100%;border-collapse:collapse">
+        <thead><tr>${cols.map(c=>`<th style="padding:6px 10px;text-align:left;border-bottom:1px solid var(--bb);white-space:nowrap;color:var(--brand)">${c}</th>`).join('')}</tr></thead>
+        <tbody>${previewRows.map(r=>`<tr>${cols.map(c=>`<td style="padding:5px 10px;border-bottom:1px solid var(--bb);white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;color:var(--txt)">${r[c]||'—'}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+
+    document.getElementById('imp-count').textContent = result.data.length;
+    document.getElementById('imp-step1').style.display = 'none';
+    document.getElementById('imp-step2').style.display = '';
+  } catch(e) {
+    showToast('Erro ao processar CSV: ' + e.message, 'er');
+    impReset();
+  }
+}
+
+async function impConfirmar() {
+  if (!_impData.length) return;
+  const btn = document.getElementById('imp-confirm-btn');
+  btn.disabled = true; btn.textContent = 'Importando...';
+
+  try {
+    // Injeta empresa_id em cada linha
+    const rows = _impData.map(r => ({ ...r, empresa_id: P.empresa_id }));
+
+    let error;
+    if (_impTemplate.upsert_keys?.length) {
+      ({ error } = await sb.from(_impTable).upsert(rows, { onConflict: _impTemplate.upsert_keys.join(',') }));
+    } else {
+      ({ error } = await sb.from(_impTable).insert(rows));
+    }
+
+    document.getElementById('imp-step2').style.display = 'none';
+    document.getElementById('imp-step3').style.display = '';
+
+    if (error) {
+      document.getElementById('imp-result-icon').textContent = '✕';
+      document.getElementById('imp-result-msg').textContent = 'Erro na importação';
+      document.getElementById('imp-result-sub').textContent = error.message;
+    } else {
+      document.getElementById('imp-result-icon').textContent = '✓';
+      document.getElementById('imp-result-msg').textContent = `${_impData.length} registro${_impData.length!==1?'s':''} importado${_impData.length!==1?'s':''} com sucesso!`;
+      document.getElementById('imp-result-sub').textContent = 'Os dados já estão disponíveis no app.';
+      // Recarrega a página correspondente
+      if (_impTable === 'leads') loadLeads();
+      else if (_impTable === 'customers') loadClientes();
+      else if (_impTable === 'pedidos') loadPedidos();
+    }
+  } catch(e) {
+    document.getElementById('imp-step2').style.display = 'none';
+    document.getElementById('imp-step3').style.display = '';
+    document.getElementById('imp-result-icon').textContent = '✕';
+    document.getElementById('imp-result-msg').textContent = 'Erro inesperado';
+    document.getElementById('imp-result-sub').textContent = e.message;
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── CSV NORMALIZER (portado do conversor) ─────────────────────────
+function impReadFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const text = e.target.result;
+      // Se tiver caractere inválido, tenta ISO-8859-1
+      if (text.includes('�')) {
+        const r2 = new FileReader();
+        r2.onload = e2 => resolve(e2.target.result);
+        r2.onerror = reject;
+        r2.readAsText(file, 'ISO-8859-1');
+      } else { resolve(text); }
+    };
+    reader.onerror = reject;
+    reader.readAsText(file, 'UTF-8');
+  });
+}
+
+function impRemoveAccents(str) {
+  return str.normalize('NFD').replace(/[̀-ͯ]/g, '');
+}
+function impNormalizeHeader(h) {
+  return impRemoveAccents(h.toLowerCase().trim()).replace(/\s+/g, '_');
+}
+function impDetectDelimiter(text) {
+  const line = text.split('\n')[0];
+  return (line.match(/;/g)||[]).length > (line.match(/,/g)||[]).length ? ';' : ',';
+}
+function impApplyTransform(val, t) {
+  const v = String(val ?? '').trim() === '' ? '' : String(val ?? '');
+  if (!v) return '';
+  switch(t) {
+    case 'trim': return v.trim();
+    case 'lower': return v.toLowerCase();
+    case 'upper': return v.toUpperCase();
+    case 'digits_only': return v.replace(/\D/g, '');
+    case 'phone_br': {
+      const d = v.replace(/\D/g, '');
+      const l = d.startsWith('55') && (d.length===12||d.length===13) ? d.slice(2) : d;
+      return (l.length===10||l.length===11) ? '+55'+l : l;
+    }
+    case 'to_number': {
+      if (v.includes(',')) { const n=parseFloat(v.replace(/\./g,'').replace(',','.')); return isNaN(n)?v:n.toString(); }
+      const n=parseFloat(v); return isNaN(n)?v:n.toString();
+    }
+    case 'to_date_br_or_iso': {
+      const m=v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+      if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+      return v.match(/^\d{4}-\d{2}-\d{2}$/) ? v : v;
+    }
+    case 'to_bool_pt': {
+      const l=v.toLowerCase().trim();
+      if (['sim','true','1','yes'].includes(l)) return 'true';
+      if (['não','nao','false','0','no'].includes(l)) return 'false';
+      return v;
+    }
+    default: return v;
+  }
+}
+function impApplyTransforms(val, transforms) {
+  return (transforms||[]).reduce((acc, t) => impApplyTransform(acc, t), val);
+}
+
+function impNormalizeCSV(csvText, template) {
+  const delimiter = impDetectDelimiter(csvText);
+  // Parse simples sem PapaParse
+  const lines = csvText.split(/\r?\n/).filter(l => l.trim());
+  const headers = lines[0].split(delimiter).map(h => h.replace(/^"|"$/g, '').trim());
+
+  // Mapeamento aliases
+  const aliases = template.aliases_json || {};
+  const mapping = new Map();
+  const normHeaders = headers.map(impNormalizeHeader);
+  for (const [target, aliasList] of Object.entries(aliases)) {
+    const normAliases = (aliasList||[]).map(impNormalizeHeader);
+    for (let i = 0; i < normHeaders.length; i++) {
+      if (normHeaders[i] === impNormalizeHeader(target) || normAliases.includes(normHeaders[i])) {
+        mapping.set(headers[i], target); break;
+      }
+    }
+  }
+
+  const schema = template.schema_json?.columns || {};
+  const schemaCols = Object.keys(schema);
+  const errors = [], data = [];
+
+  for (let ri = 1; ri < lines.length; ri++) {
+    const cells = lines[ri].split(delimiter).map(c => c.replace(/^"|"$/g, '').trim());
+    const row = {};
+    for (const col of schemaCols) {
+      const cfg = schema[col];
+      let val = '';
+      for (const [csvH, mapped] of mapping.entries()) {
+        if (mapped === col) { val = cells[headers.indexOf(csvH)] || ''; break; }
+      }
+      if (!val && cfg.default) {
+        val = cfg.default === 'now' ? new Date().toISOString() : cfg.default === 'AUTO' ? '' : cfg.default;
+      }
+      if (cfg.transform?.length) val = impApplyTransforms(val, cfg.transform);
+      row[col] = val;
+      if (cfg.required && !val) {
+        const ex = errors.find(e => e.row === ri+1);
+        ex ? ex.columns.push(col) : errors.push({ row: ri+1, columns: [col] });
+      }
+    }
+    data.push(row);
+  }
+  return { data, errors };
 }
 
 // ── PWA SERVICE WORKER ────────────────────────────────────────────
