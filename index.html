@@ -1489,25 +1489,24 @@ async function promoverCliente(leadId){
 function openCliente(id){
   const c=allClientes.find(x=>x.id===id);
   if(!c) return;
-  const l=c.leads||{};
-  const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
-  const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
+  const sm={ativo:'b-ok',inativo:'b-dim',fechado_ganho:'b-ok',pos_venda:'b-blue',suporte_aberto:'b-warn',inadimplente:'b-err'};
+  const sl={ativo:'Ativo',inativo:'Inativo',fechado_ganho:'Fechado',pos_venda:'Pós-venda',suporte_aberto:'Suporte',inadimplente:'Inadimplente'};
   document.getElementById('dp-cli-body').innerHTML=`
     <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:18px">
       <span class="badge ${sm[c.customer_status]||'b-dim'}">${sl[c.customer_status]||c.customer_status}</span>
     </div>
-    <div class="dp-name">${l.nome||'—'}</div>
-    <div class="dp-sub">${l.empresa_cliente||'—'}</div>
+    <div class="dp-name">${c.nome||'—'}</div>
+    <div class="dp-sub">${c.empresa_cliente||'—'}</div>
     <div class="dp-acts">
-      ${l.telefone?`<a href="tel:${l.telefone}" class="btn btn-p btn-sm">◉ Ligar</a>`:''}
-      ${l.telefone?`<a href="https://wa.me/55${l.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
-      ${l.email?`<a href="mailto:${l.email}" class="btn btn-g btn-sm">◎ Email</a>`:''}
+      ${c.telefone?`<a href="tel:${c.telefone}" class="btn btn-p btn-sm">◉ Ligar</a>`:''}
+      ${c.telefone?`<a href="https://wa.me/55${c.telefone.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
+      ${c.email?`<a href="mailto:${c.email}" class="btn btn-g btn-sm">◎ Email</a>`:''}
     </div>
     <div class="dp-sec">Contato</div>
-    ${l.telefone?`<div class="dp-f"><div class="dp-fl">Telefone</div><div class="dp-fv">${l.telefone}</div></div>`:''}
-    ${l.email?`<div class="dp-f"><div class="dp-fl">Email</div><div class="dp-fv">${l.email}</div></div>`:''}
-    ${l.segmento?`<div class="dp-f"><div class="dp-fl">Segmento</div><div class="dp-fv">${l.segmento}</div></div>`:''}
-    ${l.cidade||l.estado?`<div class="dp-f"><div class="dp-fl">Localização</div><div class="dp-fv">${[l.cidade,l.estado].filter(Boolean).join(' — ')}</div></div>`:''}
+    ${c.telefone?`<div class="dp-f"><div class="dp-fl">Telefone</div><div class="dp-fv">${c.telefone}</div></div>`:''}
+    ${c.email?`<div class="dp-f"><div class="dp-fl">Email</div><div class="dp-fv">${c.email}</div></div>`:''}
+    ${c.segmento?`<div class="dp-f"><div class="dp-fl">Segmento</div><div class="dp-fv">${c.segmento}</div></div>`:''}
+    ${c.cidade||c.estado?`<div class="dp-f"><div class="dp-fl">Localização</div><div class="dp-fv">${[c.cidade,c.estado].filter(Boolean).join(' — ')}</div></div>`:''}
     ${c.total_pedidos>0?`
     <div class="dp-sec">Histórico</div>
     <div class="dp-f"><div class="dp-fl">Total de Pedidos</div><div class="dp-fv">${c.total_pedidos}</div></div>
@@ -1534,7 +1533,7 @@ function openPedido(id){
       <span class="badge ${sc[p.status]||'b-dim'}">${sl[p.status]||p.status}</span>
     </div>
     <div class="dp-name">Pedido ${p.numero_pedido||'S/N'}</div>
-    <div class="dp-sub">${p.nome||p.leads?.nome||'—'} · ${p.empresa_cliente||p.leads?.empresa_cliente||''}</div>
+    <div class="dp-sub">${p.customers?.nome||'—'}${p.customers?.empresa_cliente?' · '+p.customers.empresa_cliente:''}</div>
     <div class="dp-sec">Valores</div>
     <div class="dp-f"><div class="dp-fl">Valor Total</div><div class="dp-fv" style="color:var(--brand);font-size:18px;font-weight:600">R$ ${fval(p.valor_total)}</div></div>
     ${p.previsao_entrega?`<div class="dp-f"><div class="dp-fl">Previsão de Entrega</div><div class="dp-fv">${fdl(p.previsao_entrega)}</div></div>`:''}
@@ -1571,31 +1570,31 @@ function renderClientes() {
   const el = document.getElementById('clientes-grid');
   let data = allClientes || [];
   if (cliTabAtual === 'ativos') data = data.filter(c => c.customer_status === 'ativo');
-  if (q) data = data.filter(c => {
-    const l = c.leads || {};
-    return (l.nome||'').toLowerCase().includes(q) || (l.empresa_cliente||'').toLowerCase().includes(q) || (l.telefone||'').includes(q);
-  });
+  if (q) data = data.filter(c =>
+    (c.nome||'').toLowerCase().includes(q) ||
+    (c.empresa_cliente||'').toLowerCase().includes(q) ||
+    (c.telefone||'').includes(q)
+  );
   if (!data.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1"><i>◉</i>Nenhum cliente encontrado.</div>'; return; }
-  const sm={ativo:'b-ok',inativo:'b-dim',prospect:'b-warn'};
-  const sl={ativo:'Ativo',inativo:'Inativo',prospect:'Prospect'};
-  el.innerHTML=data.map(c=>{
-    const l=c.leads||{};
-    return `<div class="card click" onclick="openCliente('${c.id}')">
+  const sm={ativo:'b-ok',inativo:'b-dim',fechado_ganho:'b-ok',pos_venda:'b-blue',suporte_aberto:'b-warn',inadimplente:'b-err'};
+  const sl={ativo:'Ativo',inativo:'Inativo',fechado_ganho:'Fechado',pos_venda:'Pós-venda',suporte_aberto:'Suporte',inadimplente:'Inadimplente'};
+  el.innerHTML=data.map(c=>`
+    <div class="card click" onclick="openCliente('${c.id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
         <div>
-          <div style="font-weight:500;margin-bottom:2px">${l.nome||'—'}</div>
-          <div style="font-size:12px;color:var(--muted)">${l.empresa_cliente||''}</div>
+          <div style="font-weight:500;margin-bottom:2px">${c.nome||'—'}</div>
+          <div style="font-size:12px;color:var(--muted)">${c.empresa_cliente||''}</div>
         </div>
         <span class="badge ${sm[c.customer_status]||'b-dim'}">${sl[c.customer_status]||c.customer_status}</span>
       </div>
       <div style="font-size:12px;color:var(--muted);display:flex;gap:10px;flex-wrap:wrap">
-        ${l.segmento?`<span>◈ ${l.segmento}</span>`:''}
-        ${l.telefone?`<span>◉ ${l.telefone}</span>`:''}
-        ${l.cidade?`<span>◎ ${l.cidade}${l.estado?' — '+l.estado:''}</span>`:''}
+        ${c.segmento?`<span>◈ ${c.segmento}</span>`:''}
+        ${c.telefone?`<span>◉ ${c.telefone}</span>`:''}
+        ${c.cidade?`<span>◎ ${c.cidade}${c.estado?' — '+c.estado:''}</span>`:''}
       </div>
       ${c.total_pedidos>0?`<div style="margin-top:10px;font-family:var(--FM);font-size:10px;color:var(--ok)">◫ ${c.total_pedidos} pedidos · R$ ${fval(c.lifetime_value)}</div>`:''}
-    </div>`;
-  }).join('');
+    </div>`
+  ).join('');
 }
 async function loadClientes(){
   const {data}=await sb.from('customers')
