@@ -1,19 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="96" fill="#0a0a0f"/>
-  <!-- Hexágono geométrico de fundo -->
-  <polygon points="256,60 420,155 420,357 256,452 92,357 92,155" fill="none" stroke="#c9a84c" stroke-width="8" opacity="0.3"/>
-  <!-- B geométrico -->
-  <!-- Barra vertical -->
-  <rect x="148" y="140" width="36" height="232" rx="8" fill="#c9a84c"/>
-  <!-- Bump superior -->
-  <path d="M184 140 L184 256 Q290 256 290 198 Q290 140 184 140Z" fill="#c9a84c"/>
-  <!-- Bump inferior (maior) -->
-  <path d="M184 256 L184 372 Q308 372 308 314 Q308 256 184 256Z" fill="#c9a84c"/>
-  <!-- Recorte interno superior -->
-  <path d="M196 156 L196 240 Q268 240 268 198 Q268 156 196 156Z" fill="#0a0a0f"/>
-  <!-- Recorte interno inferior -->
-  <path d="M196 272 L196 356 Q280 356 280 314 Q280 272 196 272Z" fill="#0a0a0f"/>
-  <!-- Ponto dourado decorativo -->
-  <circle cx="380" cy="132" r="18" fill="#c9a84c" opacity="0.6"/>
-  <circle cx="380" cy="132" r="9" fill="#c9a84c"/>
+
+  <!-- B wireframe elegante -->
+  <line x1="140" y1="120" x2="140" y2="392" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+  <path d="M140 120 Q300 120 300 186 Q300 252 140 252" fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+  <path d="M140 252 Q318 252 318 318 Q318 392 140 392" fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- área preenchida sob a linha de tendência -->
+  <polygon points="175,375 395,155 395,175 195,375" fill="#c9a84c" opacity="0.12"/>
+
+  <!-- linha de tendência sólida -->
+  <line x1="175" y1="375" x2="395" y2="155" stroke="#c9a84c" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- ponto superior (destaque) -->
+  <circle cx="395" cy="155" r="12" fill="#c9a84c"/>
+  <!-- brilho interno no ponto -->
+  <circle cx="395" cy="155" r="5" fill="#0a0a0f" opacity="0.4"/>
+
+  <!-- ponto inferior (origem) -->
+  <circle cx="175" cy="375" r="7" fill="#c9a84c" opacity="0.5"/>
 </svg>
