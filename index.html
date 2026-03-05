@@ -505,6 +505,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" onclick="go('visitas',this)"><i class="nav-ic">◎</i> Visitas</div>
     <div class="nav" onclick="go('pedidos',this)"><i class="nav-ic">◫</i> Pedidos</div>
     <div class="nav" id="nav-equipe" onclick="go('equipe',this)" style="display:none"><i class="nav-ic">⊕</i> Equipe</div>
+    <div class="nav" id="nav-produtos" onclick="go('produtos',this)" style="display:none"><i class="nav-ic">⬡</i> Produtos</div>
     <div class="nav" onclick="go('relatorios',this)"><i class="nav-ic">◫</i> Relatórios</div>
     <div class="nav" onclick="go('alertas',this)">
       <i class="nav-ic">◬</i> Alertas
@@ -785,6 +786,23 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
       <div class="sh" style="margin-top:6px"><div class="sh-t">⊕ Vendedores</div></div>
       <div class="g2" id="eq-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- PRODUTOS -->
+    <div id="page-produtos" class="page" style="display:none">
+      <div class="page-ey">Tabela</div>
+      <div class="page-ti">Produtos</div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+        <div class="fbar" style="margin:0;flex:1">
+          <input class="fsearch" id="prod-q" placeholder="Buscar produto..." oninput="renderProdutos()" autocomplete="off"/>
+          <span class="chip on" id="pf-todos" onclick="prodTab('todos')">Todos</span>
+          <span class="chip" id="pf-combustivel" onclick="prodTab('combustivel')">Combustível</span>
+          <span class="chip" id="pf-lubrificante" onclick="prodTab('lubrificante')">Lubrificante</span>
+          <span class="chip" id="pf-aditivo" onclick="prodTab('aditivo')">Aditivo</span>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="openImport('produtos')">⬡ Importar CSV</button>
+      </div>
+      <div id="produtos-grid" class="g2"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
 
     <!-- ALERTAS -->
@@ -1249,7 +1267,7 @@ async function onLogin(user){
   document.getElementById('d-hi').textContent=`${s}, ${nome.split(' ')[0]} 👋`;
   document.getElementById('d-ey').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   // Mostrar Equipe só p/ gerente
-  if(P?.cargo==='gerente') document.getElementById('nav-equipe').style.display='flex';
+  if(P?.cargo==='gerente') { document.getElementById('nav-equipe').style.display='flex'; document.getElementById('nav-produtos').style.display='flex'; }
   document.getElementById('login-screen').classList.add('hidden');
   pedirPush();
   await loadEmpresa();
@@ -2050,6 +2068,7 @@ function go(page,navEl){
   document.getElementById('burger').classList.remove('open');
   // carregar página
   if(page==='alertas')loadAlertas();
+  if(page==='produtos')loadProdutos();
   if(page==='equipe')loadEquipe();
   if(page==='relatorios')initRelatorios();
   if(page==='visitas')initRoteiro();
@@ -2979,7 +2998,7 @@ let _impTable = null;
 let _impTemplate = null;
 let _impData = [];
 
-const TABLE_LABELS = { leads: 'Leads', customers: 'Clientes', pedidos: 'Pedidos' };
+const TABLE_LABELS = { leads: 'Leads', customers: 'Clientes', pedidos: 'Pedidos', produtos: 'Produtos' };
 
 async function openImport(table) {
   _impTable = table;
@@ -3272,6 +3291,97 @@ function impNormalizeCSV(csvText, template) {
     data.push(row);
   }
   return { data, errors };
+}
+
+
+// ── PRODUTOS ──────────────────────────────────────────────────────
+let allProdutos = [];
+let prodFiltroCategoria = 'todos';
+
+async function loadProdutos() {
+  const { data } = await sb.from('produtos')
+    .select('*')
+    .eq('empresa_id', P.empresa_id)
+    .eq('ativo', true)
+    .order('created_at', { ascending: false });
+  allProdutos = data || [];
+  renderProdutos();
+}
+
+function prodTab(cat) {
+  prodFiltroCategoria = cat;
+  ['todos','combustivel','lubrificante','aditivo'].forEach(c => {
+    document.getElementById('pf-'+c)?.classList.toggle('on', c === cat);
+  });
+  renderProdutos();
+}
+
+function renderProdutos() {
+  const q = (document.getElementById('prod-q')?.value || '').toLowerCase().trim();
+  const grid = document.getElementById('produtos-grid');
+  if (!grid) return;
+
+  // Pega só o mais recente de cada nome de produto
+  const maisRecentes = {};
+  for (const p of allProdutos) {
+    if (!maisRecentes[p.nome] || p.created_at > maisRecentes[p.nome].created_at) {
+      maisRecentes[p.nome] = p;
+    }
+  }
+  let lista = Object.values(maisRecentes);
+  if (prodFiltroCategoria !== 'todos') lista = lista.filter(p => p.categoria === prodFiltroCategoria);
+  if (q) lista = lista.filter(p => (p.nome||'').toLowerCase().includes(q) || (p.descricao||'').toLowerCase().includes(q) || (p.codigo_interno||'').toLowerCase().includes(q));
+
+  if (!lista.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1"><div class="dot"></div><div style="margin-top:12px;font-size:13px;color:var(--muted)">Nenhum produto encontrado</div></div>';
+    return;
+  }
+
+  const catColor = { combustivel: 'var(--brand)', lubrificante: 'var(--ok)', aditivo: 'var(--info)', outro: 'var(--muted)' };
+  const catLabel = { combustivel: 'Combustível', lubrificante: 'Lubrificante', aditivo: 'Aditivo', outro: 'Outro' };
+  const unLabel  = { litro: 'L', kg: 'kg', tambor: 'tambor', galao: 'galão', unidade: 'un', cx: 'cx' };
+
+  grid.innerHTML = lista.map(p => {
+    const cor = catColor[p.categoria] || 'var(--muted)';
+    const hist = allProdutos.filter(x => x.nome === p.nome).length;
+    const freteEstados = p.frete_por_estado ? Object.entries(p.frete_por_estado).map(([uf,v]) =>
+      `<span style="font-size:10px;background:var(--bs2);padding:2px 6px;border-radius:4px;margin:2px">${uf}: R$${Number(v).toFixed(3)}/L</span>`
+    ).join('') : '';
+
+    return `<div class="card shine" style="padding:18px;cursor:default">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px">
+        <div>
+          <div style="font-size:16px;font-weight:700;color:var(--txt)">${p.nome}</div>
+          ${p.codigo_interno ? `<div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.codigo_interno}</div>` : ''}
+        </div>
+        <span style="font-size:10px;padding:3px 8px;border-radius:20px;background:${cor}22;color:${cor};font-family:var(--FM);letter-spacing:.05em">${catLabel[p.categoria]||p.categoria||'—'}</span>
+      </div>
+      ${p.descricao ? `<div style="font-size:12px;color:var(--muted);margin-bottom:12px">${p.descricao}</div>` : ''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+        <div style="background:var(--bs2);border-radius:var(--rs);padding:10px">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--FM);margin-bottom:3px">PREÇO REF.</div>
+          <div style="font-size:18px;font-weight:700;color:var(--brand)">${p.preco_referencia ? 'R$ '+Number(p.preco_referencia).toFixed(4) : '—'}<span style="font-size:11px;font-weight:400;color:var(--muted)">/${unLabel[p.unidade]||p.unidade}</span></div>
+        </div>
+        <div style="background:var(--bs2);border-radius:var(--rs);padding:10px">
+          <div style="font-size:10px;color:var(--muted);font-family:var(--FM);margin-bottom:3px">MARGEM SUG.</div>
+          <div style="font-size:18px;font-weight:700;color:var(--ok)">${p.margem_sugerida_pct ? Number(p.margem_sugerida_pct).toFixed(1)+'%' : '—'}</div>
+        </div>
+      </div>
+      ${(p.icms_pct||p.cide||p.pis_cofins) ? `
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px">
+        ${p.icms_pct ? `<span style="font-size:11px;color:var(--muted)">ICMS: <b style="color:var(--txt)">${p.icms_pct}%</b></span>` : ''}
+        ${p.cide ? `<span style="font-size:11px;color:var(--muted)">CIDE: <b style="color:var(--txt)">R$${p.cide}</b></span>` : ''}
+        ${p.pis_cofins ? `<span style="font-size:11px;color:var(--muted)">PIS/COFINS: <b style="color:var(--txt)">${p.pis_cofins}%</b></span>` : ''}
+      </div>` : ''}
+      ${freteEstados ? `<div style="margin-bottom:10px"><div style="font-size:10px;color:var(--muted);font-family:var(--FM);margin-bottom:4px">FRETE/ESTADO</div><div style="display:flex;flex-wrap:wrap;gap:2px">${freteEstados}</div></div>` : ''}
+      ${(p.preco_min_alerta||p.preco_max_alerta) ? `
+      <div style="display:flex;gap:8px;font-size:11px;color:var(--muted);border-top:1px solid var(--bb);padding-top:8px;margin-top:4px">
+        ${p.preco_min_alerta ? `<span>Mín: <b style="color:var(--err)">R$${Number(p.preco_min_alerta).toFixed(4)}</b></span>` : ''}
+        ${p.preco_max_alerta ? `<span>Máx: <b style="color:var(--ok)">R$${Number(p.preco_max_alerta).toFixed(4)}</b></span>` : ''}
+        <span style="margin-left:auto;color:var(--muted)">${hist} versão${hist!==1?'ões':''}</span>
+      </div>` : `<div style="text-align:right;font-size:11px;color:var(--muted);border-top:1px solid var(--bb);padding-top:8px;margin-top:4px">${hist} versão${hist!==1?'ões':''}</div>`}
+    </div>`;
+  }).join('');
 }
 
 // ── PWA SERVICE WORKER ────────────────────────────────────────────
