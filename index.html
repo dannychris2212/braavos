@@ -3230,10 +3230,16 @@ function impNormalizeCSV(csvText, template) {
       for (const [csvH, mapped] of mapping.entries()) {
         if (mapped === col) { val = cells[headers.indexOf(csvH)] || ''; break; }
       }
+      // Aplica default se valor vazio
       if (!val && cfg.default) {
         val = cfg.default === 'now' ? new Date().toISOString() : cfg.default === 'AUTO' ? '' : cfg.default;
       }
+      // Aplica transforms
       if (cfg.transform?.length) val = impApplyTransforms(val, cfg.transform);
+      // Se ainda vazio após default+transform, aplica default novamente (ex: bool vazio)
+      if (!val && cfg.default && cfg.default !== 'now' && cfg.default !== 'AUTO') {
+        val = impApplyTransforms(cfg.default, cfg.transform||[]);
+      }
       row[col] = val;
       // empresa_id e vendedor_id são injetados pelo app — ignorar na validação
       if (cfg.required && !val && col !== 'empresa_id' && col !== 'vendedor_id') {
@@ -3241,6 +3247,8 @@ function impNormalizeCSV(csvText, template) {
         ex ? ex.columns.push(col) : errors.push({ row: ri+1, columns: [col] });
       }
     }
+    // Converte strings vazias para null (Postgres não aceita '' em campos tipados)
+    Object.keys(row).forEach(k => { if (row[k] === '') row[k] = null; });
     data.push(row);
   }
   return { data, errors };
