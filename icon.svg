@@ -1,22 +1,31 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
   <rect width="512" height="512" rx="96" fill="#0a0a0f"/>
 
-  <!-- B wireframe elegante -->
-  <line x1="140" y1="120" x2="140" y2="392" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
-  <path d="M140 120 Q300 120 300 186 Q300 252 140 252" fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
-  <path d="M140 252 Q318 252 318 318 Q318 392 140 392" fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+  <!-- coluna central compartilhada -->
 
-  <!-- área preenchida sob a linha de tendência -->
-  <polygon points="175,375 395,155 395,175 195,375" fill="#c9a84c" opacity="0.12"/>
+  <line x1="256" y1="88" x2="256" y2="424" stroke="#c9a84c" stroke-width="22" stroke-linecap="round"/>
 
-  <!-- linha de tendência sólida -->
-  <line x1="175" y1="375" x2="395" y2="155" stroke="#c9a84c" stroke-width="7" stroke-linecap="round"/>
+  <!-- bump superior esquerdo -->
 
-  <!-- ponto superior (destaque) -->
-  <circle cx="395" cy="155" r="12" fill="#c9a84c"/>
-  <!-- brilho interno no ponto -->
-  <circle cx="395" cy="155" r="5" fill="#0a0a0f" opacity="0.4"/>
+<path d="M256 88 Q124 88 124 164 Q124 240 256 240"
+fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
 
-  <!-- ponto inferior (origem) -->
-  <circle cx="175" cy="375" r="7" fill="#c9a84c" opacity="0.5"/>
+  <!-- bump superior direito -->
+
+<path d="M256 88 Q388 88 388 164 Q388 240 256 240"
+fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- bump inferior esquerdo (maior) -->
+
+<path d="M256 240 Q108 240 108 332 Q108 424 256 424"
+fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- bump inferior direito (maior) -->
+
+<path d="M256 240 Q404 240 404 332 Q404 424 256 424"
+fill="none" stroke="#c9a84c" stroke-width="20" stroke-linecap="round"/>
+
+  <!-- divisória central sutil -->
+
+  <line x1="148" y1="240" x2="364" y2="240" stroke="#c9a84c" stroke-width="3" opacity="0.2"/>
 </svg>
