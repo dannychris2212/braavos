@@ -345,6 +345,18 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .eq-prog{display:flex;align-items:center;gap:8px}
 .eq-pct{font-family:var(--FM);font-size:10px;width:32px;text-align:right;flex-shrink:0}
 
+/* ── PROXIMIDADE ──────────────────────────────────────────────── */
+#prox-banner{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--bg2);border:1px solid var(--brand);border-radius:14px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;box-shadow:0 4px 24px rgba(0,0,0,.4);
+  z-index:999;opacity:0;pointer-events:none;transition:all .3s ease;max-width:320px;width:90%}
+#prox-banner.show{opacity:1;pointer-events:all;transform:translateX(-50%) translateY(0)}
+#prox-banner .prox-icon{font-size:22px;flex-shrink:0}
+#prox-banner .prox-info{flex:1}
+#prox-banner .prox-nome{font-size:14px;font-weight:600;color:var(--txt)}
+#prox-banner .prox-sub{font-size:11px;color:var(--muted);margin-top:2px}
+#prox-banner .prox-btn{background:var(--brand);color:#0a0a0f;border:none;border-radius:8px;
+  padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;flex-shrink:0}
 /* ── TOAST ─────────────────────────────────────────────── */
 .toast{position:fixed;bottom:22px;right:22px;z-index:999;background:rgba(15,15,26,.95);border:1px solid var(--bb);border-radius:var(--rs);padding:11px 16px;font-size:13px;font-family:var(--FM);transform:translateY(16px);opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
@@ -1301,6 +1313,7 @@ sb.auth.getSession().then(({data:{session}})=>{if(session)onLogin(session.user);
 async function loadAll(){
   await Promise.all([loadLeads(),loadClientes(),loadVisitas(),loadPedidos(),loadAlertas()]);
   await loadDashboard();
+  iniciarProximidade(); // inicia monitoramento de proximidade
   if(P?.cargo==='gerente') loadEquipe();
 }
 
@@ -1966,6 +1979,75 @@ function vtab(t){
   document.getElementById('vtab-lead').classList.toggle('on',t==='lead');
 }
 
+// ── PROXIMIDADE ───────────────────────────────────────────────
+let _proxWatcher = null;
+let _proxClienteAtual = null;
+const PROX_RAIO = 50; // metros
+
+function calcDistancia(lat1, lng1, lat2, lng2) {
+  const R = 6371000;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180) * Math.cos(lat2*Math.PI/180) * Math.sin(dLng/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
+
+function iniciarProximidade() {
+  if (!navigator.geolocation) return;
+  if (_proxWatcher) navigator.geolocation.clearWatch(_proxWatcher);
+  _proxWatcher = navigator.geolocation.watchPosition(pos => {
+    const { latitude, longitude } = pos.coords;
+    verificarProximidade(latitude, longitude);
+  }, null, { enableHighAccuracy: true, maximumAge: 15000 });
+}
+
+function verificarProximidade(lat, lng) {
+  if (!allClientes?.length) return;
+  const banner = document.getElementById('prox-banner');
+  // Verifica clientes com coordenadas
+  const perto = allClientes.find(c =>
+    c.lat && c.lng && calcDistancia(lat, lng, parseFloat(c.lat), parseFloat(c.lng)) <= PROX_RAIO
+  );
+  if (perto && perto.id !== _proxClienteAtual) {
+    _proxClienteAtual = perto.id;
+    document.getElementById('prox-nome').textContent = perto.nome || perto.empresa_cliente || '—';
+    document.getElementById('prox-sub').textContent = perto.empresa_cliente || 'Toque para registrar visita';
+    banner.classList.add('show');
+    // Guarda lat/lng atual pra usar no check-in
+    banner.dataset.lat = lat;
+    banner.dataset.lng = lng;
+    banner.dataset.clienteId = perto.id;
+    // Auto-esconde em 15 segundos se não interagir
+    clearTimeout(banner._timer);
+    banner._timer = setTimeout(() => {
+      banner.classList.remove('show');
+      _proxClienteAtual = null;
+    }, 15000);
+  } else if (!perto) {
+    banner.classList.remove('show');
+    _proxClienteAtual = null;
+  }
+}
+
+function proxCheckin() {
+  const banner = document.getElementById('prox-banner');
+  banner.classList.remove('show');
+  const clienteId = banner.dataset.clienteId;
+  if (!clienteId) return;
+  // Abre modal de visita pré-selecionando o cliente
+  const sel = document.getElementById('v-cliente');
+  if (sel) sel.value = clienteId;
+  // Troca pra aba cliente se necessário
+  if (typeof vTab === 'function') vTab('cliente');
+  // Preenche data/hora atual
+  const now = new Date();
+  const dateEl = document.getElementById('v-data');
+  if (dateEl) dateEl.value = now.toISOString().split('T')[0];
+  const horaEl = document.getElementById('v-hora');
+  if (horaEl) horaEl.value = now.toTimeString().slice(0,5);
+  openM('m-visita');
+}
+
 async function salvarVisita(){
   const dt=document.getElementById('v-data').value;
   if(!dt){showToast('Informe a data','er');return;}
@@ -2011,6 +2093,22 @@ async function salvarVisita(){
 
   const {error}=await sb.rpc('inserir_visita',{payload});
   if(error){console.error('Erro visita:',error);showToast('Erro: '+error.message,'er');return;}
+
+  // Salva lat/lng no customer se ainda não tiver (primeira visita = ponto de referência)
+  if(clienteId){
+    const cliente = allClientes.find(c=>c.id===clienteId);
+    if(cliente && !cliente.lat && navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(async pos=>{
+        await sb.from('customers').update({
+          lat: pos.coords.latitude.toString(),
+          lng: pos.coords.longitude.toString()
+        }).eq('id', clienteId);
+        // Atualiza em memória também
+        if(cliente){ cliente.lat=pos.coords.latitude.toString(); cliente.lng=pos.coords.longitude.toString(); }
+      }, null, { enableHighAccuracy: true });
+    }
+  }
+
   closeM('m-visita');
   showToast('◎ Visita registrada!','ok');
   ['v-resumo','v-proximo-passo','v-followup'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
@@ -3543,5 +3641,15 @@ function instalarApp(){
   deferredPrompt.userChoice.then(()=>deferredPrompt=null);
 }
 </script>
+<!-- BANNER DE PROXIMIDADE -->
+<div id="prox-banner">
+  <div class="prox-icon">◉</div>
+  <div class="prox-info">
+    <div class="prox-nome" id="prox-nome">—</div>
+    <div class="prox-sub" id="prox-sub">Você está próximo</div>
+  </div>
+  <button class="prox-btn" onclick="proxCheckin()">Check-in</button>
+</div>
+
 </body>
 </html>
