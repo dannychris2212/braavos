@@ -345,6 +345,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .eq-prog{display:flex;align-items:center;gap:8px}
 .eq-pct{font-family:var(--FM);font-size:10px;width:32px;text-align:right;flex-shrink:0}
 
+/* ── TEMAS ─────────────────────────────────────────────────────── */
+.tema-opt{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:99px;
+  border:1px solid var(--bb);cursor:pointer;font-size:13px;color:var(--muted);
+  background:var(--bs2);transition:all .2s}
+.tema-opt:hover{border-color:var(--brand);color:var(--txt)}
+.tema-opt.on{border-color:var(--brand);color:var(--txt);background:var(--dim)}
+.tema-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
 /* ── PROXIMIDADE ──────────────────────────────────────────────── */
 #prox-banner{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
   background:var(--bg2);border:1px solid var(--brand);border-radius:14px;padding:14px 18px;
@@ -517,6 +524,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" onclick="go('visitas',this)"><i class="nav-ic">◎</i> Visitas</div>
     <div class="nav" onclick="go('pedidos',this)"><i class="nav-ic">◫</i> Pedidos</div>
     <div class="nav" id="nav-equipe" onclick="go('equipe',this)" style="display:none"><i class="nav-ic">⊕</i> Equipe</div>
+    <div class="nav" id="nav-config" onclick="go('config',this)" style="display:none"><i class="nav-ic">◧</i> Configurações</div>
     <div class="nav" id="nav-produtos" onclick="go('produtos',this)" style="display:none"><i class="nav-ic">⬡</i> Produtos</div>
     <div class="nav" onclick="go('relatorios',this)"><i class="nav-ic">◫</i> Relatórios</div>
     <div class="nav" onclick="go('alertas',this)">
@@ -828,6 +836,57 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div id="al-fechados"><div class="empty"><div class="dot"></div></div></div>
       <div class="ag-ti" style="margin-top:24px"><span>◬</span> Atenção</div>
       <div id="al-atencao"><div class="empty"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- CONFIGURAÇÕES -->
+    <div id="page-config" class="page" style="display:none">
+      <div class="page-ey">Sistema</div>
+      <div class="page-ti">Configurações</div>
+
+      <!-- Temas -->
+      <div class="sh"><div class="sh-t">◧ Tema da Empresa</div></div>
+      <div class="card" style="margin-bottom:20px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Escolha o tema visual do app para todos os usuários da empresa.</div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px" id="tema-chips">
+          <div class="tema-opt" data-tema="braavos"   data-cor="#c9a84c" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#c9a84c"></div>Braavos</div>
+          <div class="tema-opt" data-tema="combustivel" data-cor="#e07050" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#e07050"></div>Combustível</div>
+          <div class="tema-opt" data-tema="techwave"  data-cor="#0ea5e9" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#0ea5e9"></div>Tech</div>
+          <div class="tema-opt" data-tema="fintech"   data-cor="#10b981" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#10b981"></div>Verde</div>
+          <div class="tema-opt" data-tema="royal"     data-cor="#3b82f6" onclick="selecionarTema(this)"><div class="tema-opt" style="background:#3b82f6"></div>Azul Royal</div>
+          <div class="tema-opt" data-tema="saude"     data-cor="#a855f7" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#a855f7"></div>Roxo</div>
+          <div class="tema-opt" data-tema="indigo"    data-cor="#818cf8" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#818cf8"></div>Índigo</div>
+          <div class="tema-opt" data-tema="logistica" data-cor="#f97316" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#f97316"></div>Laranja</div>
+        </div>
+        <button class="btn btn-p btn-sm" onclick="salvarTema()" id="btn-salvar-tema" style="opacity:.5;pointer-events:none">◧ Salvar Tema</button>
+        <span id="tema-status" style="font-size:12px;color:var(--muted);margin-left:12px"></span>
+      </div>
+
+      <!-- Cor personalizada -->
+      <div class="sh"><div class="sh-t">◉ Cor Personalizada</div></div>
+      <div class="card" style="margin-bottom:20px;padding:18px">
+        <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Defina uma cor exata para a marca da empresa (HEX).</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <input type="color" id="cfg-cor-picker" value="#c9a84c" style="width:44px;height:44px;border:none;border-radius:8px;cursor:pointer;background:none">
+          <input class="fsearch" id="cfg-cor-hex" placeholder="#c9a84c" style="max-width:120px;flex:none" oninput="syncCorHex(this.value)"/>
+          <button class="btn btn-p btn-sm" onclick="aplicarCorCustom()">Aplicar</button>
+        </div>
+      </div>
+
+      <!-- Dados da empresa -->
+      <div class="sh"><div class="sh-t">⬡ Dados da Empresa</div></div>
+      <div class="card" style="padding:18px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Nome da empresa</div>
+            <input class="fsearch" id="cfg-nome" placeholder="Nome da empresa" style="max-width:100%;width:100%"/>
+          </div>
+          <div>
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">URL do logo (opcional)</div>
+            <input class="fsearch" id="cfg-logo" placeholder="https://..." style="max-width:100%;width:100%"/>
+          </div>
+          <button class="btn btn-p btn-sm" style="align-self:flex-start" onclick="salvarDadosEmpresa()">⬡ Salvar Dados</button>
+        </div>
+      </div>
     </div>
 
   </div><!-- /main -->
@@ -1289,7 +1348,7 @@ async function onLogin(user){
   document.getElementById('d-hi').textContent=`${s}, ${nome.split(' ')[0]} 👋`;
   document.getElementById('d-ey').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   // Mostrar Equipe só p/ gerente
-  if(P?.cargo==='gerente') { document.getElementById('nav-equipe').style.display='flex'; document.getElementById('nav-produtos').style.display='flex'; }
+  if(P?.cargo==='gerente') { document.getElementById('nav-equipe').style.display='flex'; document.getElementById('nav-produtos').style.display='flex'; document.getElementById('nav-config').style.display='flex'; }
   document.getElementById('login-screen').classList.add('hidden');
   pedirPush();
   await loadEmpresa();
@@ -1979,6 +2038,92 @@ function vtab(t){
   document.getElementById('vtab-lead').classList.toggle('on',t==='lead');
 }
 
+// ── TEMAS ─────────────────────────────────────────────────────
+let _temaSelecionado = null;
+
+function selecionarTema(el) {
+  document.querySelectorAll('.tema-opt').forEach(e => e.classList.remove('on'));
+  el.classList.add('on');
+  _temaSelecionado = el.dataset.tema;
+  const cor = el.dataset.cor;
+  // Preview em tempo real
+  const root = document.documentElement;
+  root.style.setProperty('--brand', cor);
+  const hex = cor.replace('#','');
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  root.style.setProperty('--dim', `rgba(${r},${g},${b},0.12)`);
+  // Habilita botão salvar
+  const btn = document.getElementById('btn-salvar-tema');
+  if(btn){ btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
+  document.getElementById('tema-status').textContent = 'Preview ativo — clique em Salvar para confirmar';
+}
+
+async function salvarTema() {
+  if(!_temaSelecionado) return;
+  const opt = document.querySelector(`.tema-opt[data-tema="${_temaSelecionado}"]`);
+  const cor = opt?.dataset.cor;
+  const { error } = await sb.from('empresas').update({ tema: _temaSelecionado, cor_primaria: cor }).eq('id', P.empresa_id);
+  if(error){ showToast('Erro ao salvar tema: '+error.message,'er'); return; }
+  showToast('◧ Tema salvo!','ok');
+  document.getElementById('tema-status').textContent = 'Tema salvo com sucesso!';
+  const btn = document.getElementById('btn-salvar-tema');
+  if(btn){ btn.style.opacity='.5'; btn.style.pointerEvents='none'; }
+}
+
+function syncCorHex(val) {
+  if(/^#[0-9A-Fa-f]{6}$/.test(val)) {
+    document.getElementById('cfg-cor-picker').value = val;
+  }
+}
+
+async function aplicarCorCustom() {
+  const cor = document.getElementById('cfg-cor-hex').value.trim() ||
+              document.getElementById('cfg-cor-picker').value;
+  if(!/^#[0-9A-Fa-f]{6}$/.test(cor)){ showToast('Cor inválida — use formato #RRGGBB','er'); return; }
+  const root = document.documentElement;
+  root.style.setProperty('--brand', cor);
+  const hex = cor.replace('#','');
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  root.style.setProperty('--dim', `rgba(${r},${g},${b},0.12)`);
+  const { error } = await sb.from('empresas').update({ cor_primaria: cor }).eq('id', P.empresa_id);
+  if(error){ showToast('Erro: '+error.message,'er'); return; }
+  showToast('◉ Cor aplicada!','ok');
+}
+
+async function salvarDadosEmpresa() {
+  const nome = document.getElementById('cfg-nome').value.trim();
+  const logo = document.getElementById('cfg-logo').value.trim();
+  const payload = {};
+  if(nome) payload.nome = nome;
+  if(logo) payload.logo_url = logo;
+  if(!Object.keys(payload).length){ showToast('Nada para salvar','er'); return; }
+  const { error } = await sb.from('empresas').update(payload).eq('id', P.empresa_id);
+  if(error){ showToast('Erro: '+error.message,'er'); return; }
+  if(EMPRESA) Object.assign(EMPRESA, payload);
+  applyEmpresa({ ...EMPRESA, ...payload });
+  showToast('⬡ Dados salvos!','ok');
+}
+
+function initConfigPage() {
+  // Preenche campos com dados atuais da empresa
+  if(!EMPRESA) return;
+  if(EMPRESA.nome) document.getElementById('cfg-nome').value = EMPRESA.nome;
+  if(EMPRESA.logo_url) document.getElementById('cfg-logo').value = EMPRESA.logo_url;
+  if(EMPRESA.cor_primaria) {
+    document.getElementById('cfg-cor-picker').value = EMPRESA.cor_primaria;
+    document.getElementById('cfg-cor-hex').value = EMPRESA.cor_primaria;
+  }
+  // Marca tema atual
+  if(EMPRESA.tema) {
+    const opt = document.querySelector(`.tema-opt[data-tema="${EMPRESA.tema}"]`);
+    if(opt) opt.classList.add('on');
+  }
+  // Sync color picker com hex input
+  document.getElementById('cfg-cor-picker').addEventListener('input', e => {
+    document.getElementById('cfg-cor-hex').value = e.target.value;
+  });
+}
+
 // ── PROXIMIDADE ───────────────────────────────────────────────
 let _proxWatcher = null;
 let _proxClienteAtual = null;
@@ -2200,6 +2345,7 @@ function go(page,navEl){
   if(page==='equipe')loadEquipe();
   if(page==='relatorios')initRelatorios();
   if(page==='visitas')initRoteiro();
+  if(page==='config')setTimeout(initConfigPage,50);
 }
 function navEl(i){return document.querySelectorAll('.nav')[i];}
 
