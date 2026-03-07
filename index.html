@@ -524,7 +524,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" onclick="go('visitas',this)"><i class="nav-ic">◎</i> Visitas</div>
     <div class="nav" onclick="go('pedidos',this)"><i class="nav-ic">◫</i> Pedidos</div>
     <div class="nav" id="nav-equipe" onclick="go('equipe',this)" style="display:none"><i class="nav-ic">⊕</i> Equipe</div>
-    <div class="nav" id="nav-config" onclick="go('config',this)" style="display:none"><i class="nav-ic">◧</i> Configurações</div>
     <div class="nav" id="nav-produtos" onclick="go('produtos',this)" style="display:none"><i class="nav-ic">⬡</i> Produtos</div>
     <div class="nav" onclick="go('relatorios',this)"><i class="nav-ic">◫</i> Relatórios</div>
     <div class="nav" onclick="go('alertas',this)">
@@ -533,6 +532,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     </div>
     <div class="nav-spacer"></div>
     <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
+    <div class="nav" id="nav-config" onclick="go('config',this)" style="display:none"><i class="nav-ic">◧</i> Configurações</div>
     <div id="powered-by" style="padding:8px 22px 4px;font-family:var(--FM);font-size:9px;color:var(--muted);letter-spacing:.08em">powered by <span style="color:var(--brand)">Braavos</span></div>
     <div id="btn-instalar" class="nav" onclick="instalarApp()" style="display:none;color:var(--brand)"><i class="nav-ic">⊕</i> Instalar App</div>
     <div style="padding:0 10px">
@@ -2062,7 +2062,7 @@ async function salvarTema() {
   if(!_temaSelecionado) return;
   const opt = document.querySelector(`.tema-opt[data-tema="${_temaSelecionado}"]`);
   const cor = opt?.dataset.cor;
-  const { error } = await sb.from('empresas').update({ tema: _temaSelecionado, cor_primaria: cor }).eq('id', P.empresa_id);
+  const { error } = await sb.from('empresas').update({ cor_primaria: cor }).eq('id', P.empresa_id);
   if(error){ showToast('Erro ao salvar tema: '+error.message,'er'); return; }
   showToast('◧ Tema salvo!','ok');
   document.getElementById('tema-status').textContent = 'Tema salvo com sucesso!';
@@ -2113,9 +2113,9 @@ function initConfigPage() {
     document.getElementById('cfg-cor-picker').value = EMPRESA.cor_primaria;
     document.getElementById('cfg-cor-hex').value = EMPRESA.cor_primaria;
   }
-  // Marca tema atual
-  if(EMPRESA.tema) {
-    const opt = document.querySelector(`.tema-opt[data-tema="${EMPRESA.tema}"]`);
+  // Marca tema atual pela cor salva
+  if(EMPRESA.cor_primaria) {
+    const opt = document.querySelector(`.tema-opt[data-cor="${EMPRESA.cor_primaria}"]`);
     if(opt) opt.classList.add('on');
   }
   // Sync color picker com hex input
