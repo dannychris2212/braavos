@@ -480,6 +480,16 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
   .m-val{font-size:42px}
   .page-ti{font-size:30px}
 }
+
+@media print {
+  .sidebar, .nav, button, #prox-banner { display: none !important; }
+  .page { display: block !important; }
+  [id^="page-"]:not(#page-vendedor) { display: none !important; }
+  #page-vendedor { display: block !important; animation: none !important; }
+  body { background: white !important; color: black !important; }
+  .card { border: 1px solid #ddd !important; background: white !important; box-shadow: none !important; }
+  .pfill { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+}
 </style>
 </head>
 <body class="t-braavos">
@@ -806,7 +816,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="card" id="eq-rv"><div class="empty"><div class="dot"></div></div></div>
         </div>
       </div>
-      <div class="sh" style="margin-top:6px"><div class="sh-t">⊕ Vendedores</div></div>
+      <!-- Comparativo de equipe -->
+      <div class="sh" style="margin-top:6px"><div class="sh-t">◎ Comparativo da Equipe</div></div>
+      <div class="card" style="padding:16px;margin-bottom:16px">
+        <canvas id="chart-comparativo-equipe" height="160"></canvas>
+      </div>
+      <div class="sh"><div class="sh-t">⊕ Vendedores — clique para detalhes</div></div>
       <div class="g2" id="eq-grid"><div class="empty" style="grid-column:1/-1"><div class="dot"></div></div></div>
     </div>
 
@@ -918,6 +933,45 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <button class="btn btn-p btn-sm" onclick="openNovasMetas()">◈ Lançar Metas</button>
       </div>
       <div id="metas-list"><div class="empty"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- PÁGINA DO VENDEDOR -->
+    <div id="page-vendedor" class="page" style="display:none">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
+        <button class="btn btn-g btn-sm" onclick="go('equipe',document.getElementById('nav-equipe'))">← Equipe</button>
+        <div style="display:flex;gap:6px;margin-left:auto">
+          <button class="btn btn-g btn-sm" onclick="gerarResumoIA()" id="btn-ia-resumo">⬡ Resumo IA</button>
+          <button class="btn btn-g btn-sm" onclick="exportarPDF()">◫ PDF</button>
+        </div>
+      </div>
+      <div id="vend-header" style="margin-bottom:20px"></div>
+      <!-- Mês selector -->
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:18px">
+        <button class="btn btn-g btn-sm" onclick="vendMes(-1)">←</button>
+        <div style="font-family:var(--FD);font-size:18px;letter-spacing:.06em;flex:1;text-align:center" id="vend-mes-label">—</div>
+        <button class="btn btn-g btn-sm" onclick="vendMes(1)">→</button>
+      </div>
+      <!-- KPIs -->
+      <div class="g3" style="margin-bottom:16px" id="vend-kpis"></div>
+      <!-- Faixas de meta -->
+      <div id="vend-faixas" style="margin-bottom:16px"></div>
+      <!-- Flags -->
+      <div id="vend-flags" style="margin-bottom:16px"></div>
+      <!-- Resumo IA -->
+      <div id="vend-ia-box" style="display:none;margin-bottom:16px">
+        <div class="sh"><div class="sh-t">⬡ Análise IA</div></div>
+        <div class="card" style="padding:16px">
+          <div id="vend-ia-text" style="font-size:13px;line-height:1.7;color:var(--txt)"></div>
+        </div>
+      </div>
+      <!-- Tabela de pedidos -->
+      <div class="sh"><div class="sh-t">◫ Pedidos do Mês</div></div>
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px">
+        <div id="vend-pedidos-table" style="overflow-x:auto"></div>
+      </div>
+      <!-- Visitas do mês -->
+      <div class="sh"><div class="sh-t">◎ Visitas do Mês</div></div>
+      <div class="card" id="vend-visitas-list" style="padding:12px"></div>
     </div>
 
   </div><!-- /main -->
@@ -2010,7 +2064,7 @@ async function loadEquipe(){
     const nPed=pedQtdPV[p.vendedor_id]||0;
     const metaFat=fat>0?(fat/Math.max(nPed,1)*mf):50000; // estimativa baseada em fechamentos
     const pfat=Math.min(Math.round(nPed/Math.max(mf,1)*100),100);
-    return `<div class="card">
+    return `<div class="card" style="cursor:pointer" onclick="abrirVendedor('${p.vendedor_id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div>
           <div style="font-size:15px;font-weight:600;margin-bottom:1px">${p.nome||'—'}</div>
@@ -2045,6 +2099,34 @@ async function loadEquipe(){
       ${p.whatsapp_pessoal?`<a href="https://wa.me/55${p.whatsapp_pessoal.replace(/\D/g,'')}" target="_blank" class="btn btn-g btn-sm">◈ WhatsApp</a>`:''}
     </div>`;
   }).join('');
+
+  // Gráfico comparativo
+  const ctxComp = document.getElementById('chart-comparativo-equipe');
+  if (ctxComp && window.Chart) {
+    if (ctxComp._chartInstance) ctxComp._chartInstance.destroy();
+    const labels = profs.map(p => p.nome?.split(' ')[0] || '?');
+    const fatData = profs.map(p => fatPV[p.vendedor_id] || 0);
+    const visData = profs.map(p => visPV[p.vendedor_id] || 0);
+    ctxComp._chartInstance = new Chart(ctxComp, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Faturamento (R$)', data: fatData, backgroundColor: 'rgba(201,168,76,.7)', borderRadius: 6, yAxisID: 'y' },
+          { label: 'Visitas', data: visData, backgroundColor: 'rgba(79,200,122,.5)', borderRadius: 6, yAxisID: 'y2' }
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: 'rgba(240,237,230,.7)', font: { size: 11 } } } },
+        scales: {
+          x: { ticks: { color: 'rgba(240,237,230,.6)' }, grid: { color: 'rgba(255,255,255,.04)' } },
+          y: { position: 'left', ticks: { color: 'rgba(240,237,230,.6)', callback: v => 'R$'+fval(v) }, grid: { color: 'rgba(255,255,255,.04)' } },
+          y2: { position: 'right', ticks: { color: 'rgba(79,200,122,.7)' }, grid: { drawOnChartArea: false } }
+        }
+      }
+    });
+  }
 }
 
 // ── META ──────────────────────────────────────────────────────────
@@ -2198,6 +2280,269 @@ function vtab(t){
   document.getElementById('v-section-lead').style.display=t==='lead'?'':'none';
   document.getElementById('vtab-cliente').classList.toggle('on',t==='cliente');
   document.getElementById('vtab-lead').classList.toggle('on',t==='lead');
+}
+
+// ── PÁGINA DO VENDEDOR ────────────────────────────────────────────
+let _vendAtual = null;  // profile do vendedor selecionado
+let _vendMesOff = 0;    // offset de mês (0 = mês atual)
+const GEMINI_KEY = 'SUA_GEMINI_KEY'; // preencha com sua chave
+
+async function abrirVendedor(vendedorId) {
+  const prof = (window._profiles||[]).find(p => p.vendedor_id === vendedorId);
+  if (!prof) return;
+  _vendAtual = prof;
+  _vendMesOff = 0;
+  go('vendedor', null);
+  await renderVendedor();
+}
+
+function vendMes(dir) {
+  _vendMesOff += dir;
+  renderVendedor();
+}
+
+async function renderVendedor() {
+  if (!_vendAtual) return;
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() + _vendMesOff, 1);
+  const mes = d.getMonth() + 1;
+  const ano = d.getFullYear();
+  const mesLabel = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  document.getElementById('vend-mes-label').textContent = mesLabel.charAt(0).toUpperCase() + mesLabel.slice(1);
+
+  const vid = _vendAtual.vendedor_id;
+
+  // Busca dados em paralelo
+  const mesInicio = `${ano}-${String(mes).padStart(2,'0')}-01`;
+  const mesFim    = new Date(ano, mes, 0).toISOString().split('T')[0];
+
+  const [
+    { data: pedidos },
+    { data: visitas },
+    { data: metaMensal },
+    { data: metaVend }
+  ] = await Promise.all([
+    sb.from('pedidos').select('*,tabelas_preco(nome)').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).gte('created_at', mesInicio).lte('created_at', mesFim + 'T23:59:59'),
+    sb.from('visitas').select('*').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).gte('data', mesInicio).lte('data', mesFim),
+    sb.from('metas_mensais').select('*').eq('vendedor_id', vid).eq('mes', mes).eq('ano', ano).maybeSingle(),
+    sb.from('metas_vendedores').select('*').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).maybeSingle()
+  ]);
+
+  // Cálculos
+  const pedsFechados = (pedidos||[]).filter(p => ['fechado_ganho','faturado','entregue'].includes(p.status));
+  const fatReal = pedsFechados.reduce((a,p) => a + parseFloat(p.valor_total||0), 0);
+  const volReal = pedsFechados.reduce((a,p) => a + parseFloat(p.quantidade||0), 0);
+  const margemMedia = pedsFechados.length
+    ? pedsFechados.reduce((a,p) => a + parseFloat(p.margem_realizada_pct||0), 0) / pedsFechados.length
+    : 0;
+
+  const metaFat  = metaMensal?.meta_faturamento || 0;
+  const metaVol  = metaMensal?.meta_volume || 0;
+  const metaMarg = metaMensal?.meta_margem_pct || 0;
+  const diasUteis = metaMensal?.dias_uteis || 22;
+  const gastos   = metaMensal?.gastos || 0;
+  const contrib  = fatReal * (margemMedia / 100);
+  const contriGastos = contrib - gastos;
+
+  const pctFat = metaFat ? Math.round(fatReal / metaFat * 100) : 0;
+  const pctVol = metaVol ? Math.round(volReal / metaVol * 100) : 0;
+
+  // Header
+  document.getElementById('vend-header').innerHTML = `
+    <div style="display:flex;align-items:center;gap:14px;margin-top:8px">
+      <div style="width:52px;height:52px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:22px;color:var(--dark);flex-shrink:0">
+        ${_vendAtual.nome?.[0]?.toUpperCase()||'?'}
+      </div>
+      <div>
+        <div style="font-size:20px;font-weight:700">${_vendAtual.nome}</div>
+        <div style="font-size:12px;color:var(--muted)">${_vendAtual.cargo||'vendedor'}${_vendAtual.regiao?' · '+_vendAtual.regiao:''}</div>
+      </div>
+    </div>`;
+
+  // KPIs
+  document.getElementById('vend-kpis').innerHTML = `
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Faturamento</div>
+      <div style="font-family:var(--FD);font-size:24px;color:${pctFat>=100?'var(--ok)':'var(--brand)'}">R$ ${fval(fatReal)}</div>
+      <div style="font-size:11px;color:var(--muted)">meta R$ ${fval(metaFat)}</div>
+      <div class="ptrack" style="margin-top:6px"><div class="pfill" style="width:${Math.min(pctFat,100)}%;background:${pctFat>=100?'var(--ok)':'var(--brand)'}"></div></div>
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Volume</div>
+      <div style="font-family:var(--FD);font-size:24px;color:${pctVol>=100?'var(--ok)':'var(--brand)'}">
+        ${volReal.toLocaleString('pt-BR',{maximumFractionDigits:0})}
+      </div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaVol.toLocaleString('pt-BR')}</div>
+      <div class="ptrack" style="margin-top:6px"><div class="pfill" style="width:${Math.min(pctVol,100)}%"></div></div>
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Margem Média</div>
+      <div style="font-family:var(--FD);font-size:24px;color:${margemMedia>=(metaMarg||0)?'var(--ok)':'var(--warn)'}">
+        ${margemMedia.toFixed(1)}%
+      </div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaMarg||'—'}%</div>
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Contribuição</div>
+      <div style="font-family:var(--FD);font-size:20px;color:var(--txt)">R$ ${fval(contrib)}</div>
+      <div style="font-size:11px;color:${contriGastos>=0?'var(--ok)':'var(--err)'}">Contri-Gastos: R$ ${fval(contriGastos)}</div>
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Pedidos Fechados</div>
+      <div style="font-family:var(--FD);font-size:24px;color:var(--brand)">${pedsFechados.length}</div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaVend?.meta_fechamentos||'—'}</div>
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Visitas</div>
+      <div style="font-family:var(--FD);font-size:24px;color:var(--brand)">${(visitas||[]).length}</div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaVend?.meta_visitas||'—'} · ${diasUteis} dias úteis</div>
+    </div>`;
+
+  // Faixas 85/100/110%
+  const faixas = [
+    { label: '85%', pct: 85, cor: 'var(--warn)' },
+    { label: '100%', pct: 100, cor: 'var(--brand)' },
+    { label: '110%', pct: 110, cor: 'var(--ok)' }
+  ];
+  document.getElementById('vend-faixas').innerHTML = `
+    <div class="sh"><div class="sh-t">◎ Faixas de Meta — Faturamento</div></div>
+    <div class="card" style="padding:14px">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        ${faixas.map(f => {
+          const val = metaFat * f.pct / 100;
+          const ating = fatReal >= val;
+          return `<div style="text-align:center;padding:10px;background:${ating?'rgba(79,200,122,.1)':'var(--bs)'};border:1px solid ${ating?'rgba(79,200,122,.3)':'var(--bb)'};border-radius:10px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">${f.label}</div>
+            <div style="font-family:var(--FD);font-size:16px;color:${f.cor}">R$ ${fval(val)}</div>
+            <div style="font-size:11px;margin-top:4px;color:${ating?'var(--ok)':'var(--muted)'}">${ating?'✓ Atingido':'Faltam R$ '+fval(val-fatReal)}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>`;
+
+  // Flags
+  if (metaMensal) {
+    document.getElementById('vend-flags').innerHTML = `
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="chip ${metaMensal.flag_premium?'b-brand':''}" style="opacity:${metaMensal.flag_premium?1:.4}">⭐ Premium</span>
+        <span class="chip ${metaMensal.flag_documentos?'b-ok':''}" style="opacity:${metaMensal.flag_documentos?1:.4}">📄 Documentos</span>
+        <span class="chip ${metaMensal.flag_testemunho?'b-ok':''}" style="opacity:${metaMensal.flag_testemunho?1:.4}">💬 Testemunho</span>
+        ${gastos>0?`<span class="chip">💳 Gastos: R$ ${fval(gastos)}</span>`:''}
+      </div>`;
+  } else {
+    document.getElementById('vend-flags').innerHTML = '';
+  }
+
+  // Tabela de pedidos
+  if (pedsFechados.length) {
+    document.getElementById('vend-pedidos-table').innerHTML = `
+      <table style="width:100%;border-collapse:collapse;font-size:12px">
+        <thead>
+          <tr style="border-bottom:1px solid var(--bb)">
+            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Data</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Nº Pedido</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Cidade/UF</th>
+            <th style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:500">Qtd</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Tabela</th>
+            <th style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:500">Valor NF</th>
+            <th style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:500">Margem</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${pedsFechados.map(p => `
+            <tr style="border-bottom:1px solid var(--bb2)">
+              <td style="padding:8px 12px">${new Date(p.created_at).toLocaleDateString('pt-BR')}</td>
+              <td style="padding:8px 12px;font-family:var(--FM);font-size:11px">${p.numero_pedido||'—'}</td>
+              <td style="padding:8px 12px;color:var(--muted)">${[p.cidade_entrega,p.uf_entrega].filter(Boolean).join('/')||'—'}</td>
+              <td style="padding:8px 12px;text-align:right">${p.quantidade?parseFloat(p.quantidade).toLocaleString('pt-BR'):'—'}</td>
+              <td style="padding:8px 12px">${p.tabelas_preco?.nome||'—'}</td>
+              <td style="padding:8px 12px;text-align:right;font-weight:600">R$ ${fval(p.valor_total)}</td>
+              <td style="padding:8px 12px;text-align:right;color:${parseFloat(p.margem_realizada_pct||0)>0?'var(--ok)':'var(--muted)'}">
+                ${p.margem_realizada_pct?parseFloat(p.margem_realizada_pct).toFixed(1)+'%':'—'}
+              </td>
+            </tr>`).join('')}
+          <tr style="background:var(--bs2)">
+            <td colspan="5" style="padding:8px 12px;font-weight:600">Total</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:700;color:var(--brand)">R$ ${fval(fatReal)}</td>
+            <td style="padding:8px 12px;text-align:right;font-weight:600">${margemMedia.toFixed(1)}%</td>
+          </tr>
+        </tbody>
+      </table>`;
+  } else {
+    document.getElementById('vend-pedidos-table').innerHTML = '<div class="empty" style="padding:20px">Nenhum pedido fechado neste mês.</div>';
+  }
+
+  // Visitas
+  document.getElementById('vend-visitas-list').innerHTML = (visitas||[]).length
+    ? (visitas||[]).map(v => `
+        <div style="padding:8px 0;border-bottom:1px solid var(--bb2);display:flex;justify-content:space-between;align-items:flex-start">
+          <div>
+            <div style="font-size:13px;font-weight:500">${v.resumo||'—'}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">${v.tipo} · ${new Date(v.data).toLocaleDateString('pt-BR')}</div>
+          </div>
+          <span class="badge ${v.resultado==='venda'?'b-ok':v.resultado?'b-brand':'b-dim'}" style="font-size:10px;flex-shrink:0">${v.resultado||'—'}</span>
+        </div>`).join('')
+    : '<div class="empty">Nenhuma visita neste mês.</div>';
+
+  // Salva contexto pra IA
+  window._vendContexto = { vendedor: _vendAtual, mesLabel, fatReal, volReal, margemMedia, metaFat, metaVol, metaMarg, pctFat, pctVol, pedsFechados, visitas, metaVend, metaMensal, contrib, contriGastos, gastos };
+}
+
+async function gerarResumoIA() {
+  const ctx = window._vendContexto;
+  if (!ctx) return;
+  const btn = document.getElementById('btn-ia-resumo');
+  btn.textContent = '⏳ Analisando...';
+  btn.disabled = true;
+  document.getElementById('vend-ia-box').style.display = 'block';
+  document.getElementById('vend-ia-text').textContent = 'Gerando análise...';
+
+  const prompt = `Você é um analista de desempenho comercial. Gere um resumo executivo conciso e direto sobre o vendedor abaixo, para ser apresentado em reunião de equipe.
+
+Vendedor: ${ctx.vendedor.nome} | Região: ${ctx.vendedor.regiao||'N/A'}
+Mês: ${ctx.mesLabel}
+
+RESULTADOS:
+- Faturamento: R$ ${ctx.fatReal.toFixed(2)} de R$ ${ctx.metaFat.toFixed(2)} meta (${ctx.pctFat}%)
+- Volume: ${ctx.volReal} de ${ctx.metaVol} meta (${ctx.pctVol}%)
+- Margem média: ${ctx.margemMedia.toFixed(1)}% (meta: ${ctx.metaMarg||'N/A'}%)
+- Pedidos fechados: ${ctx.pedsFechados.length}
+- Visitas realizadas: ${(ctx.visitas||[]).length} (meta: ${ctx.metaVend?.meta_visitas||'N/A'})
+- Contribuição: R$ ${ctx.contrib.toFixed(2)}
+- Contribuição - Gastos: R$ ${ctx.contriGastos.toFixed(2)}
+
+Responda em português, de forma objetiva com:
+1. **Desempenho geral** (1-2 frases)
+2. **Pontos positivos** (máx 3 bullets)
+3. **Pontos de atenção** (máx 3 bullets)
+4. **Sugestão de feedback** para o gerente dar ao vendedor (1-2 frases diretas)`;
+
+  try {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+    });
+    const data = await r.json();
+    const txt = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Não foi possível gerar análise.';
+    // Formata markdown simples
+    document.getElementById('vend-ia-text').innerHTML = txt
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/
+/g, '<br/>');
+  } catch(e) {
+    document.getElementById('vend-ia-text').textContent = 'Erro ao conectar com a IA.';
+  }
+  btn.textContent = '⬡ Resumo IA';
+  btn.disabled = false;
+}
+
+function exportarPDF() {
+  const nome = _vendAtual?.nome || 'vendedor';
+  const mes = document.getElementById('vend-mes-label').textContent;
+  document.title = `Braavos — ${nome} — ${mes}`;
+  window.print();
+  setTimeout(() => { document.title = 'Braavos'; }, 2000);
 }
 
 // ── TABELAS DE PREÇO ──────────────────────────────────────────────
@@ -2702,6 +3047,7 @@ function go(page,navEl){
   if(page==='config')setTimeout(initConfigPage,50);
   if(page==='tabelas')loadTabelasPage();
   if(page==='metas')initMetasPage();
+  if(page==='vendedor'){}  // renderVendedor() chamado diretamente
 }
 function navEl(i){return document.querySelectorAll('.nav')[i];}
 
