@@ -524,6 +524,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" onclick="go('visitas',this)"><i class="nav-ic">◎</i> Visitas</div>
     <div class="nav" onclick="go('pedidos',this)"><i class="nav-ic">◫</i> Pedidos</div>
     <div class="nav" id="nav-equipe" onclick="go('equipe',this)" style="display:none"><i class="nav-ic">⊕</i> Equipe</div>
+    <div class="nav" id="nav-tabelas" onclick="go('tabelas',this)" style="display:none"><i class="nav-ic">◈</i> Tabelas de Preço</div>
+    <div class="nav" id="nav-metas" onclick="go('metas',this)" style="display:none"><i class="nav-ic">◎</i> Metas Mensais</div>
     <div class="nav" id="nav-produtos" onclick="go('produtos',this)" style="display:none"><i class="nav-ic">⬡</i> Produtos</div>
     <div class="nav" onclick="go('relatorios',this)"><i class="nav-ic">◫</i> Relatórios</div>
     <div class="nav" onclick="go('alertas',this)">
@@ -763,7 +765,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         <div class="g3" style="flex:1;margin:0">
           <div class="card shine" style="padding:14px"><div class="m-lbl">Faturamento</div><div class="m-val" id="ped-fat" style="color:var(--brand);font-size:26px">—</div><div class="m-sub">pedidos fechados</div></div>
           <div class="card shine" style="padding:14px"><div class="m-lbl">Em Aberto</div><div class="m-val" id="ped-aberto" style="color:var(--warn);font-size:26px">—</div><div class="m-sub">aguardando fechamento</div></div>
-          <div class="card shine" style="padding:14px"><div class="m-lbl">Qtd Pedidos</div><div class="m-val" id="ped-qtd" style="color:var(--ok);font-size:26px">—</div><div class="m-sub" id="ped-qtd-s">este mês</div></div>
+          <div class="card shine" style="padding:14px"><div class="m-lbl">Qtd Pedidos</div><div class="m-val" id="dash-ped-qtd" style="color:var(--ok);font-size:26px">—</div><div class="m-sub" id="dash-ped-qtd-s">este mês</div></div>
         </div>
       </div>
       <!-- Linha 1: botões -->
@@ -889,8 +891,112 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
     </div>
 
+    <!-- TABELAS DE PREÇO -->
+    <div id="page-tabelas" class="page" style="display:none">
+      <div class="page-ey">Comercial</div>
+      <div class="page-ti">Tabelas de Preço</div>
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <button class="btn btn-p btn-sm" onclick="openM('m-tabela')">◈ Nova Tabela</button>
+      </div>
+      <div id="tabelas-list"><div class="empty"><div class="dot"></div></div></div>
+    </div>
+
+    <!-- METAS MENSAIS -->
+    <div id="page-metas" class="page" style="display:none">
+      <div class="page-ey">Gestão</div>
+      <div class="page-ti">Metas Mensais</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+        <select class="fsearch" id="meta-mes-sel" onchange="loadMetas()" style="max-width:140px">
+          <option value="1">Janeiro</option><option value="2">Fevereiro</option>
+          <option value="3">Março</option><option value="4">Abril</option>
+          <option value="5">Maio</option><option value="6">Junho</option>
+          <option value="7">Julho</option><option value="8">Agosto</option>
+          <option value="9">Setembro</option><option value="10">Outubro</option>
+          <option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+        <select class="fsearch" id="meta-ano-sel" onchange="loadMetas()" style="max-width:100px"></select>
+        <button class="btn btn-p btn-sm" onclick="openNovasMetas()">◈ Lançar Metas</button>
+      </div>
+      <div id="metas-list"><div class="empty"><div class="dot"></div></div></div>
+    </div>
+
   </div><!-- /main -->
 </div><!-- /app -->
+
+<!-- ── MODAL: NOVA TABELA DE PREÇO ──────────────────────────────── -->
+<div class="ov" id="m-tabela">
+  <div class="modal">
+    <button class="mcl" onclick="closeM('m-tabela')">✕</button>
+    <div class="modal-ti">◈ Nova Tabela de Preço</div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label class="fl">Nome da Tabela *</label><input type="text" class="fi" id="tab-nome" placeholder="Ex: NHAG, Actioil, CONAREM"/></div>
+      <div class="fg"><label class="fl">Tipo</label>
+        <select class="fs" id="tab-tipo">
+          <option value="interna">Interna</option>
+          <option value="referencia">Referência</option>
+          <option value="regional">Regional</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Descrição (opcional)</label><input type="text" class="fi" id="tab-desc" placeholder="Ex: Tabela de referência do mercado agrícola"/></div>
+    <div class="msec" style="margin-top:12px">Preços por Produto</div>
+    <div id="tab-produtos-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+    <button class="btn btn-g btn-sm" onclick="tabAddProduto()">+ Adicionar Produto</button>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeM('m-tabela')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarTabela()">◈ Salvar Tabela</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: LANÇAR METAS ────────────────────────────────────────── -->
+<div class="ov" id="m-meta-mensal">
+  <div class="modal">
+    <button class="mcl" onclick="closeM('m-meta-mensal')">✕</button>
+    <div class="modal-ti">◈ Lançar Metas</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Vendedor *</label>
+        <select class="fs" id="mm-vendedor"></select>
+      </div>
+      <div class="fg"><label class="fl">Mês/Ano</label>
+        <div style="display:flex;gap:4px">
+          <select class="fs" id="mm-mes">
+            <option value="1">Jan</option><option value="2">Fev</option><option value="3">Mar</option>
+            <option value="4">Abr</option><option value="5">Mai</option><option value="6">Jun</option>
+            <option value="7">Jul</option><option value="8">Ago</option><option value="9">Set</option>
+            <option value="10">Out</option><option value="11">Nov</option><option value="12">Dez</option>
+          </select>
+          <select class="fs" id="mm-ano" style="max-width:90px"></select>
+        </div>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Meta Volume</label><input type="number" class="fi" id="mm-volume" placeholder="0"/></div>
+      <div class="fg"><label class="fl">Meta Faturamento (R$)</label><input type="number" class="fi" id="mm-fat" placeholder="0,00"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Meta Margem (%)</label><input type="number" class="fi" id="mm-margem" placeholder="0,0" step="0.1"/></div>
+      <div class="fg"><label class="fl">Dias Úteis</label><input type="number" class="fi" id="mm-dias" placeholder="22"/></div>
+    </div>
+    <div class="fg"><label class="fl">Gastos (R$)</label><input type="number" class="fi" id="mm-gastos" placeholder="0,00"/></div>
+    <div class="msec" style="margin-top:4px">Flags</div>
+    <div style="display:flex;gap:16px;margin-bottom:12px">
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="mm-premium"/> Premium
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="mm-docs"/> Documentos
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="mm-test"/> Testemunho
+      </label>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-g" onclick="closeM('m-meta-mensal')">Cancelar</button>
+      <button class="btn btn-p" onclick="salvarMetaMensal()">◈ Salvar Meta</button>
+    </div>
+  </div>
+</div>
 
 <!-- ── DETAIL PANEL ──────────────────────────────────────────────── -->
 <div class="dpov" id="dpov" onclick="closeDP()"></div>
@@ -1144,6 +1250,48 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div id="ped-cli-lista" style="display:none;max-height:180px;overflow-y:auto;background:var(--bg2);border:1px solid var(--bb2);border-radius:var(--rs);margin-top:2px;box-shadow:0 8px 24px rgba(0,0,0,.3)"></div>
       <input type="hidden" id="ped-cli-sel"/>
     </div>
+    <div class="msec">Produto</div>
+    <div class="fr">
+      <div class="fg" style="flex:2"><label class="fl">Produto *</label>
+        <select class="fs" id="ped-produto" onchange="pedProdutoChange()">
+          <option value="">Selecione...</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Qtd / Unidade</label>
+        <div style="display:flex;gap:4px">
+          <input type="number" class="fi" id="ped-qtd" placeholder="0" step="0.01" oninput="pedCalcMargem()"/>
+          <input type="text" class="fi" id="ped-unidade" placeholder="L" style="width:52px;flex:none" readonly/>
+        </div>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Tabela de Preço</label>
+        <select class="fs" id="ped-tabela" onchange="pedTabelaChange()">
+          <option value="">Sem tabela (manual)</option>
+        </select>
+      </div>
+      <div class="fg"><label class="fl">Preço Unitário (R$)</label>
+        <input type="number" class="fi" id="ped-preco-unit" placeholder="0,00" step="0.01" oninput="pedCalcTotal()"/>
+      </div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Valor Total (R$) *</label>
+        <input type="number" class="fi" id="ped-valor" placeholder="0,00" step="0.01" oninput="pedCalcMargem()"/>
+      </div>
+      <div class="fg"><label class="fl">Margem Realizada</label>
+        <div class="fi" id="ped-margem-display" style="display:flex;align-items:center;color:var(--brand);font-weight:600">—</div>
+        <input type="hidden" id="ped-margem-pct"/>
+      </div>
+    </div>
+    <div class="msec">Entrega</div>
+    <div class="fr">
+      <div class="fg"><label class="fl">Cidade</label><input type="text" class="fi" id="ped-cidade" placeholder="São Paulo"/></div>
+      <div class="fg"><label class="fl">UF</label><input type="text" class="fi" id="ped-uf" placeholder="SP" maxlength="2" style="text-transform:uppercase"/></div>
+    </div>
+    <div class="fr">
+      <div class="fg"><label class="fl">CNPJ do Cliente</label><input type="text" class="fi" id="ped-cnpj" placeholder="00.000.000/0001-00"/></div>
+      <div class="fg"><label class="fl">Previsão de Entrega</label><input type="date" class="fi" id="ped-prev"/></div>
+    </div>
     <div class="msec">Pedido</div>
     <div class="fr">
       <div class="fg"><label class="fl">Número do Pedido</label><input type="text" class="fi" id="ped-numero" placeholder="BRV-009"/></div>
@@ -1158,10 +1306,6 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <option value="cancelado">Cancelado</option>
         </select>
       </div>
-    </div>
-    <div class="fr">
-      <div class="fg"><label class="fl">Valor Total (R$) *</label><input type="number" class="fi" id="ped-valor" placeholder="0,00" step="0.01"/></div>
-      <div class="fg"><label class="fl">Previsão de Entrega</label><input type="date" class="fi" id="ped-prev"/></div>
     </div>
     <div class="fg"><label class="fl">Observações</label><textarea class="fta" id="ped-obs" placeholder="Detalhes do pedido..."></textarea></div>
     <div class="mfoot">
@@ -1348,7 +1492,7 @@ async function onLogin(user){
   document.getElementById('d-hi').textContent=`${s}, ${nome.split(' ')[0]} 👋`;
   document.getElementById('d-ey').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   // Mostrar Equipe só p/ gerente
-  if(P?.cargo==='gerente') { document.getElementById('nav-equipe').style.display='flex'; document.getElementById('nav-produtos').style.display='flex'; document.getElementById('nav-config').style.display='flex'; }
+  if(P?.cargo==='gerente') { ['nav-equipe','nav-produtos','nav-config','nav-tabelas','nav-metas'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='flex'; }); }
   document.getElementById('login-screen').classList.add('hidden');
   pedirPush();
   await loadEmpresa();
@@ -1751,8 +1895,8 @@ function renderPedidos(){
   const abertoTotal = f.filter(p=>['rascunho','enviado','em_producao'].includes(p.status)).reduce((s,p)=>s+parseFloat(p.valor_total||0),0);
   const el2=document.getElementById('ped-fat'); if(el2) el2.textContent='R$ '+fval(fatTotal);
   const el3=document.getElementById('ped-aberto'); if(el3) el3.textContent='R$ '+fval(abertoTotal);
-  const el4=document.getElementById('ped-qtd'); if(el4) el4.textContent=f.length;
-  const el5=document.getElementById('ped-qtd-s'); if(el5) el5.textContent=f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' fechados';
+  const el4=document.getElementById('dash-ped-qtd'); if(el4) el4.textContent=f.length;
+  const el5=document.getElementById('dash-ped-qtd-s'); if(el5) el5.textContent=f.filter(p=>['fechado_ganho','faturado','entregue'].includes(p.status)).length+' fechados';
   el.innerHTML=f.map(p=>`
     <div class="ped-card ped-status-${p.status}" style="cursor:pointer" onclick="openPedido('${p.id}')">
       <div class="ped-num">${p.numero_pedido||'S/N'}</div>
@@ -2038,6 +2182,197 @@ function vtab(t){
   document.getElementById('vtab-lead').classList.toggle('on',t==='lead');
 }
 
+// ── TABELAS DE PREÇO ──────────────────────────────────────────────
+async function loadTabelasPage() {
+  await loadTabelasPreco();
+  const el = document.getElementById('tabelas-list');
+  if (!allTabelas.length) { el.innerHTML = '<div class="empty"><div class="dot"></div>Nenhuma tabela cadastrada.</div>'; return; }
+  el.innerHTML = allTabelas.map(t => `
+    <div class="card" style="padding:14px 16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-weight:600;font-size:15px">${t.nome}</div>
+          <div style="font-size:12px;color:var(--muted)">${t.tipo}${t.descricao ? ' — '+t.descricao : ''}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-g btn-sm" onclick="editarTabela('${t.id}')">Editar</button>
+          <button class="btn btn-g btn-sm" onclick="toggleTabela('${t.id}',${t.ativa})">
+            ${t.ativa ? 'Desativar' : 'Ativar'}
+          </button>
+        </div>
+      </div>
+      <div id="tab-itens-${t.id}" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+        ${allTabelaItens.filter(i=>i.tabela_id===t.id).map(i=>{
+          const prod = (window.allProdutos||[]).find(p=>p.id===i.produto_id);
+          return `<span class="chip">
+            ${prod?.nome||'Produto'}: R$ ${parseFloat(i.preco_venda).toFixed(2)}
+          </span>`;
+        }).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+let _tabProdutos = []; // linhas de produto no modal
+
+function tabAddProduto() {
+  const idx = _tabProdutos.length;
+  _tabProdutos.push({ produto_id: '', preco: '' });
+  const container = document.getElementById('tab-produtos-list');
+  const row = document.createElement('div');
+  row.id = 'tab-row-' + idx;
+  row.style.cssText = 'display:flex;gap:8px;align-items:center';
+  row.innerHTML = `
+    <select class="fs" style="flex:2" onchange="_tabProdutos[${idx}].produto_id=this.value">
+      <option value="">Selecione produto...</option>
+      ${(window.allProdutos||[]).map(p=>`<option value="${p.id}">${p.nome}</option>`).join('')}
+    </select>
+    <input type="number" class="fi" placeholder="R$ preço" style="flex:1"
+      oninput="_tabProdutos[${idx}].preco=this.value"/>
+    <button class="btn btn-g btn-sm" onclick="tabRemoveProduto(${idx})">✕</button>
+  `;
+  container.appendChild(row);
+}
+
+function tabRemoveProduto(idx) {
+  _tabProdutos[idx] = null;
+  const row = document.getElementById('tab-row-' + idx);
+  if (row) row.remove();
+}
+
+async function salvarTabela() {
+  const nome = document.getElementById('tab-nome').value.trim();
+  if (!nome) { showToast('Informe o nome da tabela','er'); return; }
+  const { data: tab, error } = await sb.from('tabelas_preco').insert({
+    empresa_id: P.empresa_id,
+    nome,
+    tipo: document.getElementById('tab-tipo').value,
+    descricao: document.getElementById('tab-desc').value.trim() || null,
+  }).select('id').single();
+  if (error) { showToast('Erro: '+error.message,'er'); return; }
+  // Salva itens
+  const itens = _tabProdutos.filter(i => i && i.produto_id && i.preco).map(i => ({
+    tabela_id: tab.id, produto_id: i.produto_id, preco_venda: parseFloat(i.preco)
+  }));
+  if (itens.length) await sb.from('tabela_preco_itens').insert(itens);
+  showToast('◈ Tabela salva!','ok');
+  closeM('m-tabela');
+  document.getElementById('tab-nome').value='';
+  document.getElementById('tab-desc').value='';
+  document.getElementById('tab-produtos-list').innerHTML='';
+  _tabProdutos=[];
+  loadTabelasPage();
+}
+
+async function toggleTabela(id, ativa) {
+  await sb.from('tabelas_preco').update({ ativa: !ativa }).eq('id', id);
+  loadTabelasPage();
+}
+
+async function editarTabela(id) {
+  // Abre modal preenchido — implementação futura
+  showToast('Edição em breve!','ok');
+}
+
+// ── METAS MENSAIS ──────────────────────────────────────────────────
+function initMetasPage() {
+  // Popula anos
+  const anoSel = document.getElementById('meta-ano-sel');
+  const mmAno  = document.getElementById('mm-ano');
+  const now = new Date();
+  anoSel.innerHTML = ''; mmAno.innerHTML = '';
+  for (let a = now.getFullYear() - 1; a <= now.getFullYear() + 1; a++) {
+    anoSel.innerHTML += `<option value="${a}" ${a===now.getFullYear()?'selected':''}>${a}</option>`;
+    mmAno.innerHTML  += `<option value="${a}" ${a===now.getFullYear()?'selected':''}>${a}</option>`;
+  }
+  // Mês atual
+  document.getElementById('meta-mes-sel').value = now.getMonth() + 1;
+  document.getElementById('mm-mes').value = now.getMonth() + 1;
+  loadMetas();
+}
+
+async function loadMetas() {
+  const mes = document.getElementById('meta-mes-sel').value;
+  const ano = document.getElementById('meta-ano-sel').value;
+  const { data } = await sb.from('metas_mensais')
+    .select('*, profiles(nome)')
+    .eq('empresa_id', P.empresa_id).eq('mes', mes).eq('ano', ano);
+  const el = document.getElementById('metas-list');
+  if (!data?.length) { el.innerHTML = '<div class="empty"><div class="dot"></div>Nenhuma meta lançada para este período.</div>'; return; }
+  el.innerHTML = data.map(m => {
+    const pct85  = (m.meta_faturamento * 0.85).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    const pct100 = (m.meta_faturamento * 1.00).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    const pct110 = (m.meta_faturamento * 1.10).toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+    return `<div class="card" style="padding:16px;margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <div style="font-weight:600;font-size:15px">${m.profiles?.nome || '—'}</div>
+        <div style="display:flex;gap:6px">
+          ${m.flag_premium?'<span class="chip b-brand" style="font-size:11px">Premium</span>':''}
+          ${m.flag_documentos?'<span class="chip b-ok" style="font-size:11px">Docs</span>':''}
+          ${m.flag_testemunho?'<span class="chip b-ok" style="font-size:11px">Test.</span>':''}
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">
+        <div class="card shine" style="padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted)">Volume</div>
+          <div style="font-weight:600">${m.meta_volume||'—'}</div>
+        </div>
+        <div class="card shine" style="padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted)">Faturamento</div>
+          <div style="font-weight:600;font-size:12px">${m.meta_faturamento?.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})||'—'}</div>
+        </div>
+        <div class="card shine" style="padding:10px;text-align:center">
+          <div style="font-size:10px;color:var(--muted)">Margem</div>
+          <div style="font-weight:600">${m.meta_margem_pct||'—'}%</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;justify-content:center">
+        <span class="chip" style="font-size:11px;color:var(--warn)">85% ${pct85}</span>
+        <span class="chip b-brand" style="font-size:11px">100% ${pct100}</span>
+        <span class="chip b-ok" style="font-size:11px">110% ${pct110}</span>
+      </div>
+      ${m.gastos ? `<div style="font-size:12px;color:var(--muted);margin-top:8px;text-align:center">Gastos: ${parseFloat(m.gastos).toLocaleString('pt-BR',{style:'currency',currency:'BRL'})} · Dias úteis: ${m.dias_uteis||'—'}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function openNovasMetas() {
+  // Popula vendedores no select
+  const sel = document.getElementById('mm-vendedor');
+  sel.innerHTML = '<option value="">Selecione...</option>';
+  (window._profiles || []).forEach(p => {
+    if (p.cargo === 'vendedor') {
+      sel.innerHTML += `<option value="${p.vendedor_id}">${p.nome}</option>`;
+    }
+  });
+  openM('m-meta-mensal');
+}
+
+async function salvarMetaMensal() {
+  const vendedorId = document.getElementById('mm-vendedor').value;
+  if (!vendedorId) { showToast('Selecione um vendedor','er'); return; }
+  const mes = parseInt(document.getElementById('mm-mes').value);
+  const ano = parseInt(document.getElementById('mm-ano').value);
+  const payload = {
+    empresa_id:       P.empresa_id,
+    vendedor_id:      vendedorId,
+    mes, ano,
+    meta_volume:      parseFloat(document.getElementById('mm-volume').value) || null,
+    meta_faturamento: parseFloat(document.getElementById('mm-fat').value) || null,
+    meta_margem_pct:  parseFloat(document.getElementById('mm-margem').value) || null,
+    dias_uteis:       parseInt(document.getElementById('mm-dias').value) || null,
+    gastos:           parseFloat(document.getElementById('mm-gastos').value) || null,
+    flag_premium:     document.getElementById('mm-premium').checked,
+    flag_documentos:  document.getElementById('mm-docs').checked,
+    flag_testemunho:  document.getElementById('mm-test').checked,
+  };
+  const { error } = await sb.from('metas_mensais').upsert(payload, { onConflict: 'vendedor_id,mes,ano' });
+  if (error) { showToast('Erro: '+error.message,'er'); return; }
+  showToast('◈ Meta salva!','ok');
+  closeM('m-meta-mensal');
+  loadMetas();
+}
+
 // ── TEMAS ─────────────────────────────────────────────────────
 let _temaSelecionado = null;
 
@@ -2306,6 +2641,7 @@ function openM(id){
     vtab('cliente');
   }
   if(id==='m-pedido'){
+    loadTabelasPreco().then(()=>{ pedPopulateTabelas(); pedPopulateProdutos(); });
     // Carrega leads
     sb.from('leads').select('id,nome,empresa_cliente')
       .eq('empresa_id', P.empresa_id)
@@ -2346,6 +2682,8 @@ function go(page,navEl){
   if(page==='relatorios')initRelatorios();
   if(page==='visitas')initRoteiro();
   if(page==='config')setTimeout(initConfigPage,50);
+  if(page==='tabelas')loadTabelasPage();
+  if(page==='metas')initMetasPage();
 }
 function navEl(i){return document.querySelectorAll('.nav')[i];}
 
@@ -3264,6 +3602,96 @@ function pedSelecionar(id, label, tipo) {
 }
 
 // ── SALVAR PEDIDO ─────────────────────────────────────────────────
+// ── TABELAS DE PREÇO & PEDIDO ─────────────────────────────────────
+let allTabelas = [];
+let allTabelaItens = [];
+
+async function loadTabelasPreco() {
+  const { data: tabs } = await sb.from('tabelas_preco').select('*').eq('empresa_id', P.empresa_id).eq('ativa', true);
+  const { data: itens } = await sb.from('tabela_preco_itens').select('*');
+  allTabelas = tabs || [];
+  allTabelaItens = itens || [];
+}
+
+function pedPopulateProdutos() {
+  const sel = document.getElementById('ped-produto');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Selecione...</option>';
+  (window.allProdutos || []).filter(p => p.ativo !== false).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.id;
+    opt.textContent = p.nome + (p.unidade ? ` (${p.unidade})` : '');
+    opt.dataset.unidade = p.unidade || '';
+    opt.dataset.preco = p.preco_referencia || '';
+    opt.dataset.margem = p.margem_sugerida_pct || '';
+    sel.appendChild(opt);
+  });
+}
+
+function pedPopulateTabelas() {
+  const sel = document.getElementById('ped-tabela');
+  if (!sel) return;
+  sel.innerHTML = '<option value="">Sem tabela (manual)</option>';
+  allTabelas.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.nome + (t.tipo !== 'interna' ? ` (${t.tipo})` : '');
+    sel.appendChild(opt);
+  });
+}
+
+function pedProdutoChange() {
+  const sel = document.getElementById('ped-produto');
+  const opt = sel.options[sel.selectedIndex];
+  if (!opt || !opt.value) return;
+  document.getElementById('ped-unidade').value = opt.dataset.unidade || '';
+  // Tenta preencher preço pela tabela selecionada
+  pedTabelaChange();
+}
+
+function pedTabelaChange() {
+  const prodId   = document.getElementById('ped-produto').value;
+  const tabelaId = document.getElementById('ped-tabela').value;
+  if (!prodId) return;
+  if (tabelaId) {
+    const item = allTabelaItens.find(i => i.produto_id === prodId && i.tabela_id === tabelaId);
+    if (item) {
+      document.getElementById('ped-preco-unit').value = item.preco_venda;
+      pedCalcTotal();
+      return;
+    }
+  }
+  // Fallback: preço de referência do produto
+  const prod = (window.allProdutos || []).find(p => p.id === prodId);
+  if (prod?.preco_referencia) {
+    document.getElementById('ped-preco-unit').value = prod.preco_referencia;
+    pedCalcTotal();
+  }
+}
+
+function pedCalcTotal() {
+  const qtd   = parseFloat(document.getElementById('ped-qtd').value) || 0;
+  const preco = parseFloat(document.getElementById('ped-preco-unit').value) || 0;
+  if (qtd && preco) {
+    document.getElementById('ped-valor').value = (qtd * preco).toFixed(2);
+  }
+  pedCalcMargem();
+}
+
+function pedCalcMargem() {
+  const prodId = document.getElementById('ped-produto').value;
+  const prod   = (window.allProdutos || []).find(p => p.id === prodId);
+  const precoRef = prod?.preco_referencia || 0;
+  const precoVenda = parseFloat(document.getElementById('ped-preco-unit').value) || 0;
+  const display = document.getElementById('ped-margem-display');
+  const hidden  = document.getElementById('ped-margem-pct');
+  if (!precoRef || !precoVenda) { display.textContent = '—'; hidden.value = ''; return; }
+  const margem = ((precoVenda - precoRef) / precoVenda * 100);
+  hidden.value = margem.toFixed(2);
+  display.textContent = margem.toFixed(1) + '%';
+  display.style.color = margem >= 0 ? 'var(--ok)' : 'var(--err)';
+}
+
 async function salvarPedido() {
   const valor = parseFloat(document.getElementById('ped-valor').value);
   if (!valor || valor <= 0) { showToast('Informe o valor do pedido','er'); return; }
@@ -3277,17 +3705,30 @@ async function salvarPedido() {
   }
   if (!clienteId) { showToast('Selecione um cliente/lead','er'); return; }
 
+  const tabelaId   = document.getElementById('ped-tabela').value || null;
+  const produtoId  = document.getElementById('ped-produto').value || null;
+  const qtd        = parseFloat(document.getElementById('ped-qtd').value) || null;
+  const precoUnit  = parseFloat(document.getElementById('ped-preco-unit').value) || null;
+  const margemPct  = parseFloat(document.getElementById('ped-margem-pct').value) || null;
+
   const payload = {
-    empresa_id:      P.empresa_id,
-    vendedor_id:     P.vendedor_id,
-    cliente_id:      clienteId,
-    numero_pedido:   document.getElementById('ped-numero').value.trim() || null,
-    status:          document.getElementById('ped-status').value,
-    valor_total:     valor,
-    valor_subtotal:  valor,
-    previsao_entrega: document.getElementById('ped-prev').value || null,
-    observacoes:     document.getElementById('ped-obs').value.trim() || null,
-    origem:          'app',
+    empresa_id:           P.empresa_id,
+    vendedor_id:          P.vendedor_id,
+    cliente_id:           clienteId,
+    numero_pedido:        document.getElementById('ped-numero').value.trim() || null,
+    status:               document.getElementById('ped-status').value,
+    valor_total:          valor,
+    valor_subtotal:       valor,
+    previsao_entrega:     document.getElementById('ped-prev').value || null,
+    observacoes:          document.getElementById('ped-obs').value.trim() || null,
+    origem:               'app',
+    tabela_preco_id:      tabelaId,
+    quantidade:           qtd,
+    preco_unitario_venda: precoUnit,
+    margem_realizada_pct: margemPct,
+    cnpj_cliente:         document.getElementById('ped-cnpj').value.trim() || null,
+    cidade_entrega:       document.getElementById('ped-cidade').value.trim() || null,
+    uf_entrega:           document.getElementById('ped-uf').value.trim().toUpperCase() || null,
   };
 
   const { error } = await sb.from('pedidos').insert(payload);
@@ -3310,7 +3751,11 @@ async function salvarPedido() {
 
   showToast('◫ Pedido salvo!', 'ok');
   closeM('m-pedido');
-  ['ped-numero','ped-valor','ped-prev','ped-obs'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  ['ped-numero','ped-valor','ped-prev','ped-obs','ped-qtd','ped-preco-unit','ped-margem-pct','ped-cnpj','ped-cidade','ped-uf'].forEach(id => { const e=document.getElementById(id); if(e) e.value=''; });
+  document.getElementById('ped-margem-display').textContent='—';
+  document.getElementById('ped-produto').value='';
+  document.getElementById('ped-tabela').value='';
+  document.getElementById('ped-unidade').value='';
   document.getElementById('ped-status').value = 'fechado_ganho';
   loadPedidos();
 }
