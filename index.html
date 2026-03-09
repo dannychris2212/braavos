@@ -1200,7 +1200,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="modal-ti">⊕ Editar Meta</div>
     <div id="m-meta-nome" style="font-size:14px;color:var(--muted);margin-bottom:16px">—</div>
     <input type="hidden" id="meta-vid"/>
-    <div class="fg"><label class="fl">Meta Mensal — Faturamento (R$)</label><input type="number" class="fi" id="meta-fat" min="0" step="1000" placeholder="50000"/></div>
+    <div class="fg"><label class="fl">Meta — Fechamentos</label><input type="number" class="fi" id="meta-fat" min="0" step="1" placeholder="10"/></div>
     <div class="fr">
       <div class="fg"><label class="fl">Meta — Leads Ganhos</label><input type="number" class="fi" id="meta-leads" min="1" max="999"/></div>
       <div class="fg"><label class="fl">Meta — Visitas</label><input type="number" class="fi" id="meta-visitas" min="1" max="999"/></div>
@@ -1475,6 +1475,9 @@ async function onLogin(user){
   U=user;
   const {data:prof}=await sb.from('profiles').select('*').eq('user_id',user.id).single();
   P=prof;
+  // Busca metas do vendedor e injeta no objeto P
+  const {data:mv}=await sb.from('metas_vendedores').select('*').eq('vendedor_id',prof.vendedor_id).eq('empresa_id',prof.empresa_id).maybeSingle();
+  if(mv){ P._metaLeads=mv.meta_leads; P._metaVisitas=mv.meta_visitas; P._metaFechamentos=mv.meta_fechamentos; }
   const nome=P?.nome||user.email.split('@')[0];
   document.getElementById('sb-nome').textContent=nome;
   document.getElementById('sb-cargo').textContent=(P?.cargo||'vendedor')+(P?.regiao?' · '+P.regiao:'');
@@ -1944,6 +1947,11 @@ async function loadEquipe(){
     }
   });
 
+  // Busca metas_vendedores
+  const {data:metasVend} = await sb.from('metas_vendedores').select('*').eq('empresa_id', P.empresa_id);
+  const metasVendMap = {};
+  (metasVend||[]).forEach(m => { metasVendMap[m.vendedor_id] = m; });
+
   const vendors=profs.filter(p=>p.cargo!=='gerente');
   const fatTotal=Object.values(fatPV).reduce((a,b)=>a+b,0);
   document.getElementById('eq-tot').textContent=vendors.length||profs.length;
@@ -1955,7 +1963,7 @@ async function loadEquipe(){
   const mxL=fatPV[rkL[0]?.vendedor_id]||1;
   document.getElementById('eq-rl').innerHTML=rkL.map((p,i)=>{
     const fat=fatPV[p.vendedor_id]||0;
-    const meta=p.meta_mensal_faturamento||50000;
+    const meta=(metasVendMap[p.vendedor_id]?.meta_fechamentos*1000)||50000; // usa fechamentos*1000 como proxy ou meta_mensal
     const pct=Math.min(Math.round(fat/meta*100),100);
     return `<div class="eq-card">
       <div class="eq-rank ${i===0&&fat>0?'top':'other'}">${i+1}</div>
@@ -1975,7 +1983,7 @@ async function loadEquipe(){
   const rkV=[...profs].sort((a,b)=>(visPV[b.vendedor_id]||0)-(visPV[a.vendedor_id]||0));
   const mxV=visPV[rkV[0]?.vendedor_id]||1;
   document.getElementById('eq-rv').innerHTML=rkV.map((p,i)=>{
-    const c=visPV[p.vendedor_id]||0,m=p.meta_mensal_visitas||30;
+    const c=visPV[p.vendedor_id]||0,m=metasVendMap[p.vendedor_id]?.meta_visitas||30;
     const pct=Math.min(Math.round(c/m*100),100);
     return `<div class="eq-card">
       <div class="eq-rank ${i===0&&c>0?'top':'other'}">${i+1}</div>
@@ -1994,12 +2002,14 @@ async function loadEquipe(){
   // Cards vendedores
   document.getElementById('eq-grid').innerHTML=profs.map(p=>{
     const gl=gPV[p.vendedor_id]||0,gv=visPV[p.vendedor_id]||0;
-    const ml=p.meta_mensal_leads||20,mv=p.meta_mensal_visitas||30;
+    const mv=metasVendMap[p.vendedor_id]?.meta_visitas||30;
+    const ml=metasVendMap[p.vendedor_id]?.meta_leads||20;
+    const mf=metasVendMap[p.vendedor_id]?.meta_fechamentos||10;
     const pl=Math.min(Math.round(gl/ml*100),100),pv=Math.min(Math.round(gv/mv*100),100);
     const fat=fatPV[p.vendedor_id]||0;
     const nPed=pedQtdPV[p.vendedor_id]||0;
-    const metaFat=p.meta_mensal_faturamento||50000;
-    const pfat=Math.min(Math.round(fat/metaFat*100),100);
+    const metaFat=fat>0?(fat/Math.max(nPed,1)*mf):50000; // estimativa baseada em fechamentos
+    const pfat=Math.min(Math.round(nPed/Math.max(mf,1)*100),100);
     return `<div class="card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
         <div>
@@ -2007,7 +2017,7 @@ async function loadEquipe(){
           <div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
-          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv},${metaFat})">⊕ Meta</button>`:''}
+          ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv},${mf})">⊕ Meta</button>`:''}
         </div>
       </div>
       <!-- Faturamento destaque -->
@@ -2041,31 +2051,39 @@ async function loadEquipe(){
 function abrirMeta(vid,nome,ml,mv,mf){
   document.getElementById('meta-vid').value=vid;
   document.getElementById('m-meta-nome').textContent=nome;
-  document.getElementById('meta-fat').value=mf||50000;
-  document.getElementById('meta-leads').value=ml;
-  document.getElementById('meta-visitas').value=mv;
+  document.getElementById('meta-fat').value=mf||10;
+  document.getElementById('meta-leads').value=ml||20;
+  document.getElementById('meta-visitas').value=mv||30;
   openM('m-meta');
 }
 async function salvarMeta(){
   const vid=document.getElementById('meta-vid').value;
-  const mf=parseFloat(document.getElementById('meta-fat').value);
+  const mf=parseInt(document.getElementById('meta-fat').value);   // fechamentos
   const ml=parseInt(document.getElementById('meta-leads').value);
   const mv=parseInt(document.getElementById('meta-visitas').value);
-  if(!mf||!ml||!mv){showToast('Preencha todos os campos','er');return;}
+  if(!ml||!mv){showToast('Preencha leads e visitas','er');return;}
 
-  // Busca valores anteriores
-  const {data:curr}=await sb.from('profiles').select('meta_mensal_faturamento,meta_mensal_leads,meta_mensal_visitas').eq('vendedor_id',vid).single();
+  // Busca valores anteriores pra log
+  const {data:curr}=await sb.from('metas_vendedores').select('*').eq('vendedor_id',vid).eq('empresa_id',P.empresa_id).maybeSingle();
 
-  // Atualiza profile
-  const {error}=await sb.from('profiles').update({meta_mensal_faturamento:mf,meta_mensal_leads:ml,meta_mensal_visitas:mv}).eq('vendedor_id',vid);
+  // Upsert em metas_vendedores
+  const {error}=await sb.from('metas_vendedores').upsert({
+    empresa_id:    P.empresa_id,
+    vendedor_id:   vid,
+    meta_leads:    ml,
+    meta_visitas:  mv,
+    meta_fechamentos: mf||0,
+    atualizado_por: P.vendedor_id,
+    atualizado_em: new Date().toISOString()
+  }, { onConflict: 'vendedor_id' });
   if(error){showToast('Erro: '+error.message,'er');return;}
 
-  // Registra histórico
+  // Registra log
   const logs=[];
-  if(curr?.meta_mensal_faturamento!==mf) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_faturamento',valor_anterior:curr?.meta_mensal_faturamento,valor_novo:mf});
-  if(curr?.meta_mensal_leads!==ml) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_leads',valor_anterior:curr?.meta_mensal_leads,valor_novo:ml});
-  if(curr?.meta_mensal_visitas!==mv) logs.push({vendedor_id:vid,gerente_id:P.vendedor_id,campo:'meta_mensal_visitas',valor_anterior:curr?.meta_mensal_visitas,valor_novo:mv});
-  if(logs.length) await sb.from('metas_historico').insert(logs);
+  if(curr?.meta_leads!==ml) logs.push({empresa_id:P.empresa_id,vendedor_id:vid,alterado_por:P.vendedor_id,campo:'meta_leads',valor_antigo:String(curr?.meta_leads||''),valor_novo:String(ml)});
+  if(curr?.meta_visitas!==mv) logs.push({empresa_id:P.empresa_id,vendedor_id:vid,alterado_por:P.vendedor_id,campo:'meta_visitas',valor_antigo:String(curr?.meta_visitas||''),valor_novo:String(mv)});
+  if(curr?.meta_fechamentos!==mf) logs.push({empresa_id:P.empresa_id,vendedor_id:vid,alterado_por:P.vendedor_id,campo:'meta_fechamentos',valor_antigo:String(curr?.meta_fechamentos||''),valor_novo:String(mf)});
+  if(logs.length) await sb.from('metas_log').insert(logs);
 
   closeM('m-meta');showToast('⊕ Meta atualizada!','ok');loadEquipe();
 }
@@ -2883,7 +2901,7 @@ async function drawDashboardCharts(){
     perdido:allLeads.filter(l=>l.status==='fechado_perdido').length,
   };
   drawFunil(counts);
-  const meta=P?.meta_mensal_leads||20;
+  const meta=P?._metaLeads||20;
   const hoje=new Date();
   const novosDoMes=allLeads.filter(l=>{const d=new Date(l.created_at);return d.getMonth()===hoje.getMonth()&&d.getFullYear()===hoje.getFullYear();}).length;
   drawGauge((novosDoMes/meta)*100,meta);
@@ -2980,7 +2998,7 @@ async function loadRelMensal(){
   document.getElementById('rm-visitas').textContent=(vis||[]).length;
   document.getElementById('rm-conv').textContent=conv+'%';
   // Chart meta
-  const meta=P?.meta_mensal_leads||20;
+  const meta=P?._metaLeads||20;
   const c1=document.getElementById('chart-meta-mensal');
   if(c1){
     if(chartMetaMensal) chartMetaMensal.destroy();
@@ -2990,13 +3008,13 @@ async function loadRelMensal(){
         labels:['Leads Criados','Leads Ganhos','Visitas'],
         datasets:[
           {label:'Realizado',data:[total,ganhos,(vis||[]).length],backgroundColor:[CHART_COLORS.brand,'rgba(79,200,122,.8)','rgba(14,165,233,.8)'],borderRadius:8,barPercentage:.5},
-          {label:'Meta',data:[meta,Math.round(meta*.3),P?.meta_mensal_visitas||30],backgroundColor:'rgba(255,255,255,.06)',borderRadius:8,barPercentage:.5},
+          {label:'Meta',data:[meta,Math.round(meta*.3),P?._metaVisitas||30],backgroundColor:'rgba(255,255,255,.06)',borderRadius:8,barPercentage:.5},
         ]
       },
       options:{...chartDefaults(),plugins:{legend:{display:true,labels:{color:'rgba(255,255,255,.4)',font:{family:'Outfit',size:11},boxWidth:10}}}}
     });
     // Detail row
-    const metaLeads=meta;const metaGanhos=Math.round(meta*.3);const metaVisitas=P?.meta_mensal_visitas||30;
+    const metaLeads=meta;const metaGanhos=Math.round(meta*.3);const metaVisitas=P?._metaVisitas||30;
     const det=document.getElementById('meta-detail');
     if(det) det.innerHTML=[
       {label:'Leads Criados',real:total,meta:metaLeads,color:'var(--brand)'},
@@ -3417,7 +3435,7 @@ function openChartModal(tipo) {
 
   } else if (tipo === 'meta') {
     title.textContent = 'Meta do Mês';
-    const meta = P?.meta_mensal_leads || 20;
+    const meta = P?._metaLeads || 20;
     const hoje = new Date();
     const novosDoMes = allLeads.filter(l=>{
       const d=new Date(l.created_at);
