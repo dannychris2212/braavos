@@ -151,6 +151,9 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nbadge{margin-left:auto;min-width:18px;height:18px;border-radius:99px;background:var(--err);color:#fff;font-size:10px;font-family:var(--FM);font-weight:700;padding:0 5px;display:inline-flex;align-items:center;justify-content:center}
 .nbadge.hide{display:none}
 .nav-spacer{flex:1}
+.nav-group-label{display:flex;align-items:center;padding:4px 22px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;margin-top:6px}
+.nav-group-label:hover{color:var(--txt)}
+.nav-sub{padding-left:32px !important;font-size:13px}
 .s-user{margin:0 10px;padding:12px;background:var(--bs);border:1px solid var(--bb);border-radius:var(--rs)}
 .s-user-name{font-size:13px;font-weight:500;margin-bottom:2px}
 .s-user-role{font-family:var(--FM);font-size:10px;color:var(--brand);letter-spacing:.08em;text-transform:uppercase}
@@ -533,14 +536,22 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" id="nav-clientes" onclick="go('clientes',this)"><i class="nav-ic">◉</i> Clientes</div>
     <div class="nav" onclick="go('visitas',this)"><i class="nav-ic">◎</i> Visitas</div>
     <div class="nav" onclick="go('pedidos',this)"><i class="nav-ic">◫</i> Pedidos</div>
-    <div class="nav" id="nav-equipe" onclick="go('equipe',this)" style="display:none"><i class="nav-ic">⊕</i> Equipe</div>
-    <div class="nav" id="nav-tabelas" onclick="go('tabelas',this)" style="display:none"><i class="nav-ic">◈</i> Tabelas de Preço</div>
-    <div class="nav" id="nav-metas" onclick="go('metas',this)" style="display:none"><i class="nav-ic">◎</i> Metas Mensais</div>
-    <div class="nav" id="nav-produtos" onclick="go('produtos',this)" style="display:none"><i class="nav-ic">⬡</i> Produtos</div>
     <div class="nav" onclick="go('relatorios',this)"><i class="nav-ic">◫</i> Relatórios</div>
     <div class="nav" onclick="go('alertas',this)">
       <i class="nav-ic">◬</i> Alertas
       <span class="nbadge hide" id="sb-badge">0</span>
+    </div>
+    <!-- Grupo Gestão — só gerente -->
+    <div id="nav-grupo-gestao" style="display:none">
+      <div class="nav-group-label" onclick="toggleNavGrupo('gestao')">
+        <span>Gestão</span><span id="nav-grupo-gestao-ic" style="font-size:10px;margin-left:auto;transition:transform .2s">▾</span>
+      </div>
+      <div id="nav-grupo-gestao-items">
+        <div class="nav nav-sub" id="nav-equipe" onclick="go('equipe',this)"><i class="nav-ic">⊕</i> Equipe</div>
+        <div class="nav nav-sub" id="nav-metas" onclick="go('metas',this)"><i class="nav-ic">◎</i> Metas Mensais</div>
+        <div class="nav nav-sub" id="nav-tabelas" onclick="go('tabelas',this)"><i class="nav-ic">◈</i> Tabelas de Preço</div>
+        <div class="nav nav-sub" id="nav-produtos" onclick="go('produtos',this)"><i class="nav-ic">⬡</i> Produtos</div>
+      </div>
     </div>
     <div class="nav-spacer"></div>
     <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
@@ -869,7 +880,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div class="tema-opt" data-tema="combustivel" data-cor="#e07050" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#e07050"></div>Combustível</div>
           <div class="tema-opt" data-tema="techwave"  data-cor="#0ea5e9" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#0ea5e9"></div>Tech</div>
           <div class="tema-opt" data-tema="fintech"   data-cor="#10b981" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#10b981"></div>Verde</div>
-          <div class="tema-opt" data-tema="royal"     data-cor="#3b82f6" onclick="selecionarTema(this)"><div class="tema-opt" style="background:#3b82f6"></div>Azul Royal</div>
+          <div class="tema-opt" data-tema="royal"     data-cor="#3b82f6" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#3b82f6"></div>Azul Royal</div>
           <div class="tema-opt" data-tema="saude"     data-cor="#a855f7" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#a855f7"></div>Roxo</div>
           <div class="tema-opt" data-tema="indigo"    data-cor="#818cf8" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#818cf8"></div>Índigo</div>
           <div class="tema-opt" data-tema="logistica" data-cor="#f97316" onclick="selecionarTema(this)"><div class="tema-dot" style="background:#f97316"></div>Laranja</div>
@@ -1455,14 +1466,15 @@ async function loadEmpresa(){
 function applyEmpresa(e){
   // Cores dinâmicas
   const root=document.documentElement;
-  if(e.cor_primaria){
+  if(e.tema && _TEMAS[e.tema]) {
+    _aplicarTemaVisual(e.tema);
+  } else if(e.cor_primaria){
     root.style.setProperty('--brand',e.cor_primaria);
     const hex=e.cor_primaria.replace('#','');
     const r=parseInt(hex.slice(0,2),16);
     const g=parseInt(hex.slice(2,4),16);
     const b=parseInt(hex.slice(4,6),16);
     root.style.setProperty('--dim',`rgba(${r},${g},${b},0.12)`);
-    // Atualiza theme-color do PWA dinamicamente
     const tm=document.querySelector('meta[name="theme-color"]');
     if(tm) tm.content=e.cor_primaria;
   }
@@ -1549,7 +1561,12 @@ async function onLogin(user){
   document.getElementById('d-hi').textContent=`${s}, ${nome.split(' ')[0]} 👋`;
   document.getElementById('d-ey').textContent=new Date().toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   // Mostrar Equipe só p/ gerente
-  if(P?.cargo==='gerente') { ['nav-equipe','nav-produtos','nav-config','nav-tabelas','nav-metas'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='flex'; }); }
+  if(P?.cargo==='gerente') {
+    const grupo = document.getElementById('nav-grupo-gestao');
+    if(grupo) grupo.style.display='block';
+    const cfg = document.getElementById('nav-config');
+    if(cfg) cfg.style.display='flex';
+  }
   document.getElementById('login-screen').classList.add('hidden');
   pedirPush();
   await loadEmpresa();
@@ -2739,32 +2756,58 @@ async function salvarMetaMensal() {
 
 // ── TEMAS ─────────────────────────────────────────────────────
 let _temaSelecionado = null;
+const _TEMAS = {
+  braavos:    { brand:'#c9a84c', bg:'#0b0c0e', bg2:'#111214' },
+  combustivel:{ brand:'#e07050', bg:'#0d0a09', bg2:'#130e0b' },
+  techwave:   { brand:'#0ea5e9', bg:'#070d14', bg2:'#091018' },
+  fintech:    { brand:'#10b981', bg:'#060e0b', bg2:'#08120e' },
+  royal:      { brand:'#3b82f6', bg:'#070a14', bg2:'#0a1020' },
+  saude:      { brand:'#a855f7', bg:'#0a070e', bg2:'#120a18' },
+  indigo:     { brand:'#818cf8', bg:'#08080f', bg2:'#0d0d18' },
+  logistica:  { brand:'#f97316', bg:'#0e0a07', bg2:'#140e09' }
+};
+
+function _aplicarTemaVisual(tema) {
+  const t = _TEMAS[tema];
+  if (!t) return;
+  const root = document.documentElement;
+  root.style.setProperty('--brand', t.brand);
+  const hex = t.brand.replace('#','');
+  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
+  root.style.setProperty('--dim', `rgba(${r},${g},${b},0.12)`);
+  if (!document.body.classList.contains('light')) {
+    root.style.setProperty('--bg', t.bg);
+    root.style.setProperty('--bg2', t.bg2);
+    document.body.style.background = t.bg;
+  }
+  const tm = document.querySelector('meta[name="theme-color"]');
+  if (tm) tm.content = t.brand;
+}
 
 function selecionarTema(el) {
   document.querySelectorAll('.tema-opt').forEach(e => e.classList.remove('on'));
   el.classList.add('on');
   _temaSelecionado = el.dataset.tema;
-  const cor = el.dataset.cor;
-  // Preview em tempo real
-  const root = document.documentElement;
-  root.style.setProperty('--brand', cor);
-  const hex = cor.replace('#','');
-  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
-  root.style.setProperty('--dim', `rgba(${r},${g},${b},0.12)`);
-  // Habilita botão salvar
+  _aplicarTemaVisual(_temaSelecionado);
   const btn = document.getElementById('btn-salvar-tema');
   if(btn){ btn.style.opacity='1'; btn.style.pointerEvents='auto'; }
-  document.getElementById('tema-status').textContent = 'Preview ativo — clique em Salvar para confirmar';
+  const st = document.getElementById('tema-status');
+  if(st) st.textContent = 'Preview ativo — clique em Salvar para confirmar';
 }
 
 async function salvarTema() {
   if(!_temaSelecionado) return;
-  const opt = document.querySelector(`.tema-opt[data-tema="${_temaSelecionado}"]`);
-  const cor = opt?.dataset.cor;
-  const { error } = await sb.from('empresas').update({ cor_primaria: cor }).eq('id', P.empresa_id);
+  const t = _TEMAS[_temaSelecionado];
+  if (!t) return;
+  const { error } = await sb.from('empresas').update({
+    cor_primaria: t.brand,
+    tema: _temaSelecionado
+  }).eq('id', P.empresa_id);
   if(error){ showToast('Erro ao salvar tema: '+error.message,'er'); return; }
+  if(EMPRESA) { EMPRESA.cor_primaria = t.brand; EMPRESA.tema = _temaSelecionado; }
   showToast('◧ Tema salvo!','ok');
-  document.getElementById('tema-status').textContent = 'Tema salvo com sucesso!';
+  const st = document.getElementById('tema-status');
+  if(st) st.textContent = 'Tema salvo com sucesso!';
   const btn = document.getElementById('btn-salvar-tema');
   if(btn){ btn.style.opacity='.5'; btn.style.pointerEvents='none'; }
 }
@@ -2804,7 +2847,6 @@ async function salvarDadosEmpresa() {
 }
 
 function initConfigPage() {
-  // Preenche campos com dados atuais da empresa
   if(!EMPRESA) return;
   if(EMPRESA.nome) document.getElementById('cfg-nome').value = EMPRESA.nome;
   if(EMPRESA.logo_url) document.getElementById('cfg-logo').value = EMPRESA.logo_url;
@@ -2812,12 +2854,14 @@ function initConfigPage() {
     document.getElementById('cfg-cor-picker').value = EMPRESA.cor_primaria;
     document.getElementById('cfg-cor-hex').value = EMPRESA.cor_primaria;
   }
-  // Marca tema atual pela cor salva
-  if(EMPRESA.cor_primaria) {
-    const opt = document.querySelector(`.tema-opt[data-cor="${EMPRESA.cor_primaria}"]`);
+  // Marca tema atual — preferencia por slug, fallback por cor
+  const temaAtual = EMPRESA.tema ||
+    Object.entries(_TEMAS).find(([,t]) => t.brand === EMPRESA.cor_primaria)?.[0];
+  if(temaAtual) {
+    const opt = document.querySelector(`.tema-opt[data-tema="${temaAtual}"]`);
     if(opt) opt.classList.add('on');
+    _temaSelecionado = temaAtual;
   }
-  // Sync color picker com hex input
   document.getElementById('cfg-cor-picker').addEventListener('input', e => {
     document.getElementById('cfg-cor-hex').value = e.target.value;
   });
@@ -3029,6 +3073,15 @@ function closeM(id){document.getElementById(id).classList.remove('open');}
 document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o && o.id!=='m-import')o.classList.remove('open');}));
 
 // ── NAV ───────────────────────────────────────────────────────────
+function toggleNavGrupo(nome) {
+  const items = document.getElementById(`nav-grupo-${nome}-items`);
+  const ic    = document.getElementById(`nav-grupo-${nome}-ic`);
+  if (!items) return;
+  const open = items.style.display !== 'none';
+  items.style.display = open ? 'none' : 'block';
+  if (ic) ic.style.transform = open ? 'rotate(-90deg)' : '';
+}
+
 function go(page,navEl){
   document.querySelectorAll('[id^="page-"]').forEach(el=>el.style.display='none');
   const t=document.getElementById('page-'+page);
