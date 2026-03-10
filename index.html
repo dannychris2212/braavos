@@ -2006,6 +2006,7 @@ async function loadEquipe(){
   const metasVendMap = {};
   (metasVend||[]).forEach(m => { metasVendMap[m.vendedor_id] = m; });
 
+  window._profiles = profs; // torna disponivel globalmente
   const vendors=profs.filter(p=>p.cargo!=='gerente');
   const fatTotal=Object.values(fatPV).reduce((a,b)=>a+b,0);
   document.getElementById('eq-tot').textContent=vendors.length||profs.length;
@@ -2285,7 +2286,7 @@ function vtab(t){
 // ── PÁGINA DO VENDEDOR ────────────────────────────────────────────
 let _vendAtual = null;  // profile do vendedor selecionado
 let _vendMesOff = 0;    // offset de mês (0 = mês atual)
-const GEMINI_KEY = 'AIzaSyB44pynwRG3F2K0C8b6VgUjQtLDdgU6mac'; // preencha com sua chave
+const GEMINI_KEY = 'SUA_GEMINI_KEY'; // preencha com sua chave
 
 async function abrirVendedor(vendedorId) {
   const prof = (window._profiles||[]).find(p => p.vendedor_id === vendedorId);
@@ -2528,8 +2529,7 @@ Responda em português, de forma objetiva com:
     // Formata markdown simples
     document.getElementById('vend-ia-text').innerHTML = txt
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/
-/g, '<br/>');
+      .replace(/\n/g, '<br/>');
   } catch(e) {
     document.getElementById('vend-ia-text').textContent = 'Erro ao conectar com a IA.';
   }
