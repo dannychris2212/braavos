@@ -627,54 +627,66 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ey">Insights</div>
       <div class="page-ti">Relatórios</div>
 
-      <!-- Tabs -->
       <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
-        <span class="chip on" id="rtab-diario" onclick="relTab('diario')">◎ Diário</span>
-        <span class="chip" id="rtab-mensal" onclick="relTab('mensal')">◫ Mensal</span>
+        <span class="chip on" id="rtab-desempenho" onclick="relTab('desempenho')">◎ Meu Desempenho</span>
+        <span class="chip" id="rtab-automacao" onclick="relTab('automacao')">◈ Automação WhatsApp</span>
         <span id="rtab-gerente-wrap">
           <span class="chip" id="rtab-gerente" onclick="relTab('gerente')">⊕ Equipe</span>
         </span>
       </div>
 
-      <!-- DIÁRIO -->
-      <div id="rel-diario">
-        <div class="g4" style="margin-bottom:14px">
-          <div class="card shine"><div class="m-lbl">Visitas Hoje</div><div class="m-val" id="rd-visitas" style="color:var(--brand)">—</div><div class="m-sub">realizadas</div></div>
-          <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rd-leads">—</div><div class="m-sub">hoje</div></div>
-          <div class="card shine"><div class="m-lbl">Alertas</div><div class="m-val" id="rd-alertas" style="color:var(--warn)">—</div><div class="m-sub">pendentes</div></div>
-          <div class="card shine"><div class="m-lbl">Follow-ups</div><div class="m-val" id="rd-followups" style="color:var(--err)">—</div><div class="m-sub">vencidos</div></div>
-        </div>
-        <div class="sh"><div class="sh-t">Visitas do Dia</div></div>
-        <div class="card" id="rd-visitas-list"><div class="empty"><i>◎</i>Nenhuma visita hoje.</div></div>
-        <div class="sh" style="margin-top:14px"><div class="sh-t">Leads Criados Hoje</div></div>
-        <div class="card" id="rd-leads-list"><div class="empty"><i>◈</i>Nenhum lead hoje.</div></div>
-      </div>
-
-      <!-- MENSAL -->
-      <div id="rel-mensal" style="display:none">
+      <!-- MEU DESEMPENHO -->
+      <div id="rel-desempenho">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
           <button class="btn btn-g btn-sm" onclick="relMes(-1)">←</button>
-          <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rm-mes-label">—</div>
+          <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rd-mes-label">—</div>
           <button class="btn btn-g btn-sm" onclick="relMes(1)">→</button>
         </div>
-        <div class="g4" style="margin-bottom:14px">
-          <div class="card shine"><div class="m-lbl">Leads Criados</div><div class="m-val" id="rm-leads" style="color:var(--brand)">—</div><div class="m-sub">no mês</div></div>
-          <div class="card shine"><div class="m-lbl">Leads Ganhos</div><div class="m-val" id="rm-ganhos" style="color:var(--ok)">—</div><div class="m-sub">fechados</div></div>
-          <div class="card shine"><div class="m-lbl">Visitas</div><div class="m-val" id="rm-visitas">—</div><div class="m-sub">realizadas</div></div>
-          <div class="card shine"><div class="m-lbl">Conversão</div><div class="m-val" id="rm-conv" style="color:var(--warn)">—</div><div class="m-sub">do mês</div></div>
-        </div>
-        <div class="sh"><div class="sh-t">Meta vs Realizado</div></div>
+        <div class="g3" style="margin-bottom:16px" id="rd-kpis"></div>
+        <div class="sh"><div class="sh-t">◎ Leads por Status</div></div>
         <div class="card" style="padding:16px;margin-bottom:14px">
-          <canvas id="chart-meta-mensal" height="120"></canvas>
-          <div id="meta-detail" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid rgba(255,255,255,.06)"></div>
-        </div>
-        <div class="sh"><div class="sh-t">Leads por Status</div></div>
-        <div class="card" style="padding:16px">
           <canvas id="chart-status-mensal" height="140"></canvas>
+        </div>
+        <div class="sh"><div class="sh-t">◎ Últimas Visitas</div></div>
+        <div class="card" id="rd-visitas-list" style="padding:12px;margin-bottom:14px"></div>
+        <div class="sh"><div class="sh-t">◈ Leads em Aberto</div></div>
+        <div class="card" id="rd-leads-abertos" style="padding:12px"></div>
+      </div>
+
+      <!-- AUTOMAÇÃO WHATSAPP -->
+      <div id="rel-automacao" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+          <button class="btn btn-g btn-sm" onclick="relMesAuto(-1)">←</button>
+          <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="ra-mes-label">—</div>
+          <button class="btn btn-g btn-sm" onclick="relMesAuto(1)">→</button>
+        </div>
+        <div class="g3" style="margin-bottom:16px">
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Leads via WhatsApp</div>
+            <div class="m-val" id="ra-leads-wpp" style="color:var(--brand)">—</div>
+            <div style="font-size:11px;color:var(--muted)">captados no mês</div>
+          </div>
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Qualificados por IA</div>
+            <div class="m-val" id="ra-qualificados" style="color:var(--ok)">—</div>
+            <div style="font-size:11px;color:var(--muted)">com intenção detectada</div>
+          </div>
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Escalados p/ Humano</div>
+            <div class="m-val" id="ra-escalados" style="color:var(--warn)">—</div>
+            <div style="font-size:11px;color:var(--muted)">needs_human = true</div>
+          </div>
+        </div>
+        <div class="sh"><div class="sh-t">◈ Leads Capturados via WhatsApp</div></div>
+        <div class="card" id="ra-leads-list" style="padding:12px;margin-bottom:14px"></div>
+        <div style="padding:14px;background:var(--bs2);border:1px solid var(--bb);border-radius:12px">
+          <div style="font-size:11px;color:var(--muted);line-height:1.7">
+            ⬡ <strong style="color:var(--txt)">Como funciona:</strong> Leads que entram pelo WhatsApp são qualificados automaticamente pelo agente IA (Gemini). Quando o lead demonstra intenção de compra clara, o agente sinaliza <code style="color:var(--brand)">needs_human=true</code> e você recebe um alerta para assumir. Leads sem resposta por 7 dias recebem follow-up automático.
+          </div>
         </div>
       </div>
 
-      <!-- GERENTE / EQUIPE -->
+      <!-- EQUIPE (gerente) -->
       <div id="rel-gerente" style="display:none">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
           <button class="btn btn-g btn-sm" onclick="relMesG(-1)">←</button>
@@ -1464,21 +1476,20 @@ async function loadEmpresa(){
 }
 
 function applyEmpresa(e){
-  // Cores dinâmicas
-  const root=document.documentElement;
   if(e.tema && _TEMAS[e.tema]) {
     _aplicarTemaVisual(e.tema);
   } else if(e.cor_primaria){
+    // Cor customizada — aplica via inline var sem classe
+    const root=document.documentElement;
     root.style.setProperty('--brand',e.cor_primaria);
     const hex=e.cor_primaria.replace('#','');
-    const r=parseInt(hex.slice(0,2),16);
-    const g=parseInt(hex.slice(2,4),16);
-    const b=parseInt(hex.slice(4,6),16);
+    const r=parseInt(hex.slice(0,2),16),g=parseInt(hex.slice(2,4),16),b=parseInt(hex.slice(4,6),16);
     root.style.setProperty('--dim',`rgba(${r},${g},${b},0.12)`);
     const tm=document.querySelector('meta[name="theme-color"]');
     if(tm) tm.content=e.cor_primaria;
   }
   if(e.cor_fundo && !document.body.classList.contains('light')){
+    const root=document.documentElement;
     root.style.setProperty('--bg',e.cor_fundo);
     root.style.setProperty('--bg2',e.cor_fundo);
     document.body.style.background=e.cor_fundo;
@@ -2770,16 +2781,17 @@ const _TEMAS = {
 function _aplicarTemaVisual(tema) {
   const t = _TEMAS[tema];
   if (!t) return;
+  // Troca classe do body (t-braavos, t-royal, etc) — isso é o que realmente muda tudo
+  const body = document.body;
+  body.className = body.className.replace(/\bt-\S+/g, '').trim();
+  body.classList.add('t-' + tema);
+  // Remove overrides inline que possam sobrescrever a classe
   const root = document.documentElement;
-  root.style.setProperty('--brand', t.brand);
-  const hex = t.brand.replace('#','');
-  const r=parseInt(hex.slice(0,2),16), g=parseInt(hex.slice(2,4),16), b=parseInt(hex.slice(4,6),16);
-  root.style.setProperty('--dim', `rgba(${r},${g},${b},0.12)`);
-  if (!document.body.classList.contains('light')) {
-    root.style.setProperty('--bg', t.bg);
-    root.style.setProperty('--bg2', t.bg2);
-    document.body.style.background = t.bg;
-  }
+  root.style.removeProperty('--brand');
+  root.style.removeProperty('--dim');
+  root.style.removeProperty('--bg');
+  root.style.removeProperty('--bg2');
+  body.style.removeProperty('background');
   const tm = document.querySelector('meta[name="theme-color"]');
   if (tm) tm.content = t.brand;
 }
@@ -3309,138 +3321,90 @@ async function drawDashboardCharts(){
 }
 
 // ── RELATÓRIOS ────────────────────────────────────────────────────
-let relMesAtual=new Date();
-let relMesGerenteAtual=new Date();
+let relMesAtual = new Date();
+let relMesGerenteAtual = new Date();
+let relMesAutoAtual = new Date();
 
-function relTab(t){
-  ['diario','mensal','gerente'].forEach(x=>{
-    document.getElementById('rel-'+x).style.display=x===t?'':'none';
-    const chip=document.getElementById('rtab-'+x);
-    if(chip) chip.classList.toggle('on',x===t);
+function relTab(t) {
+  ['desempenho','automacao','gerente'].forEach(x => {
+    const el = document.getElementById('rel-'+x);
+    if(el) el.style.display = x===t ? '' : 'none';
+    const chip = document.getElementById('rtab-'+x);
+    if(chip) chip.classList.toggle('on', x===t);
   });
-  if(t==='diario') loadRelDiario();
-  if(t==='mensal') loadRelMensal();
+  if(t==='desempenho') loadRelDesempenho();
+  if(t==='automacao') loadRelAutomacao();
   if(t==='gerente') loadRelGerente();
 }
 
-function initRelatorios(){
-  // Esconde aba gerente se não for gerente
-  const gw=document.getElementById('rtab-gerente-wrap');
-  if(gw) gw.style.display=P?.cargo==='gerente'?'':'none';
-  relTab('diario');
+function initRelatorios() {
+  const gw = document.getElementById('rtab-gerente-wrap');
+  if(gw) gw.style.display = P?.cargo==='gerente' ? '' : 'none';
+  relTab('desempenho');
 }
 
-async function loadRelDiario(){
-  const hoje=new Date().toISOString().split('T')[0];
-  // Visitas hoje
-  const {data:vis}=await sb.from('visitas').select('*, customers(nome,empresa_cliente)')
-    .eq('empresa_id',P.empresa_id).eq('vendedor_id',P.vendedor_id).eq('data',hoje);
-  document.getElementById('rd-visitas').textContent=(vis||[]).length;
-  // Leads hoje
-  const {data:leads}=await sb.from('leads').select('id,nome,empresa_cliente,status,created_at')
-    .eq('empresa_id',P.empresa_id).eq('vendedor_id',P.vendedor_id)
-    .gte('created_at',hoje+'T00:00:00').lte('created_at',hoje+'T23:59:59');
-  document.getElementById('rd-leads').textContent=(leads||[]).length;
-  // Alertas pendentes
-  const {data:alts}=await sb.from('alertas').select('id').eq('empresa_id',P.empresa_id).eq('lido',false);
-  document.getElementById('rd-alertas').textContent=(alts||[]).length;
-  // Follow-ups vencidos
-  const {data:fups}=await sb.from('leads').select('id').eq('empresa_id',P.empresa_id)
-    .eq('vendedor_id',P.vendedor_id).lt('proximo_contato',hoje).not('status','in','("fechado_ganho","fechado_perdido")');
-  document.getElementById('rd-followups').textContent=(fups||[]).length;
-  // Lista visitas
-  const elV=document.getElementById('rd-visitas-list');
-  elV.innerHTML=(vis||[]).length?(vis||[]).map(v=>`
-    <div class="row">
-      <div class="av">${v.customers?.nome?.[0]||'?'}</div>
-      <div class="row-info">
-        <div class="row-name">${v.customers?.nome||'—'}</div>
-        <div class="row-sub">${v.resumo||'Sem resumo'}</div>
-      </div>
-      <span class="badge ${v.resultado==='positivo'?'b-ok':v.resultado==='negativo'?'b-err':'b-dim'}">${v.resultado||'—'}</span>
-    </div>`).join(''):'<div class="empty"><i>◎</i>Nenhuma visita hoje.</div>';
-  // Lista leads
-  const elL=document.getElementById('rd-leads-list');
-  elL.innerHTML=(leads||[]).length?(leads||[]).map(l=>`
-    <div class="row">
-      <div class="av">${l.nome?.[0]||'?'}</div>
-      <div class="row-info">
-        <div class="row-name">${l.nome||'—'}</div>
-        <div class="row-sub">${l.empresa_cliente||''}</div>
-      </div>
-      ${sBadge(l.status)}
-    </div>`).join(''):'<div class="empty"><i>◈</i>Nenhum lead criado hoje.</div>';
-}
+function relMes(dir) { relMesAtual = new Date(relMesAtual.getFullYear(), relMesAtual.getMonth()+dir, 1); loadRelDesempenho(); }
+function relMesG(dir) { relMesGerenteAtual = new Date(relMesGerenteAtual.getFullYear(), relMesGerenteAtual.getMonth()+dir, 1); loadRelGerente(); }
+function relMesAuto(dir) { relMesAutoAtual = new Date(relMesAutoAtual.getFullYear(), relMesAutoAtual.getMonth()+dir, 1); loadRelAutomacao(); }
 
-function relMes(dir){ relMesAtual=new Date(relMesAtual.getFullYear(),relMesAtual.getMonth()+dir,1); loadRelMensal(); }
-function relMesG(dir){ relMesGerenteAtual=new Date(relMesGerenteAtual.getFullYear(),relMesGerenteAtual.getMonth()+dir,1); loadRelGerente(); }
+async function loadRelDesempenho() {
+  const d = relMesAtual;
+  const label = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  document.getElementById('rd-mes-label').textContent = label.toUpperCase();
+  const ini = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+  const fim = new Date(d.getFullYear(), d.getMonth()+1, 0, 23, 59, 59).toISOString();
+  const iniD = ini.split('T')[0], fimD = fim.split('T')[0];
 
-async function loadRelMensal(){
-  const d=relMesAtual;
-  const label=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  document.getElementById('rm-mes-label').textContent=label.toUpperCase();
-  const ini=new Date(d.getFullYear(),d.getMonth(),1).toISOString();
-  const fim=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59).toISOString();
-  // Leads do mês
-  const {data:leads}=await sb.from('leads').select('id,status,created_at')
-    .eq('empresa_id',P.empresa_id).eq('vendedor_id',P.vendedor_id)
-    .gte('created_at',ini).lte('created_at',fim);
-  // Visitas do mês
-  const iniD=ini.split('T')[0];const fimD=fim.split('T')[0];
-  const {data:vis}=await sb.from('visitas').select('id')
-    .eq('empresa_id',P.empresa_id).eq('vendedor_id',P.vendedor_id)
-    .gte('data',iniD).lte('data',fimD);
-  const total=(leads||[]).length;
-  const ganhos=(leads||[]).filter(l=>l.status==='fechado_ganho').length;
-  const conv=total>0?Math.round((ganhos/total)*100):0;
-  document.getElementById('rm-leads').textContent=total;
-  document.getElementById('rm-ganhos').textContent=ganhos;
-  document.getElementById('rm-visitas').textContent=(vis||[]).length;
-  document.getElementById('rm-conv').textContent=conv+'%';
-  // Chart meta
-  const meta=P?._metaLeads||20;
-  const c1=document.getElementById('chart-meta-mensal');
-  if(c1){
-    if(chartMetaMensal) chartMetaMensal.destroy();
-    chartMetaMensal=new Chart(c1,{
-      type:'bar',
-      data:{
-        labels:['Leads Criados','Leads Ganhos','Visitas'],
-        datasets:[
-          {label:'Realizado',data:[total,ganhos,(vis||[]).length],backgroundColor:[CHART_COLORS.brand,'rgba(79,200,122,.8)','rgba(14,165,233,.8)'],borderRadius:8,barPercentage:.5},
-          {label:'Meta',data:[meta,Math.round(meta*.3),P?._metaVisitas||30],backgroundColor:'rgba(255,255,255,.06)',borderRadius:8,barPercentage:.5},
-        ]
-      },
-      options:{...chartDefaults(),plugins:{legend:{display:true,labels:{color:'rgba(255,255,255,.4)',font:{family:'Outfit',size:11},boxWidth:10}}}}
-    });
-    // Detail row
-    const metaLeads=meta;const metaGanhos=Math.round(meta*.3);const metaVisitas=P?._metaVisitas||30;
-    const det=document.getElementById('meta-detail');
-    if(det) det.innerHTML=[
-      {label:'Leads Criados',real:total,meta:metaLeads,color:'var(--brand)'},
-      {label:'Leads Ganhos',real:ganhos,meta:metaGanhos,color:'var(--ok)'},
-      {label:'Visitas',real:(vis||[]).length,meta:metaVisitas,color:'rgba(14,165,233,.9)'},
-    ].map(item=>{
-      const pct=item.meta>0?Math.round((item.real/item.meta)*100):0;
-      const falta=Math.max(0,item.meta-item.real);
-      return `<div style="flex:1;min-width:120px;background:rgba(255,255,255,.03);border-radius:10px;padding:10px 12px;border:1px solid rgba(255,255,255,.06)">
-        <div style="font-size:10px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px">${item.label}</div>
-        <div style="font-family:var(--FD);font-size:26px;color:${item.color}">${item.real}</div>
-        <div style="font-size:11px;color:var(--muted);margin-top:2px">de ${item.meta} • <span style="color:${pct>=100?'var(--ok)':'var(--err)'}">${pct}%</span></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:1px">${falta>0?`Faltam <strong style="color:var(--err)">${falta}</strong>`:'<span style="color:var(--ok)">✓ Meta batida!</span>'}</div>
-      </div>`;
-    }).join('');
-  }
+  const [{ data: leads }, { data: vis }, { data: leadsAbertos }] = await Promise.all([
+    sb.from('leads').select('id,nome,empresa_cliente,status,created_at')
+      .eq('empresa_id', P.empresa_id).eq('vendedor_id', P.vendedor_id)
+      .gte('created_at', ini).lte('created_at', fim),
+    sb.from('visitas').select('*,customers(nome,empresa_cliente)')
+      .eq('empresa_id', P.empresa_id).eq('vendedor_id', P.vendedor_id)
+      .gte('data', iniD).lte('data', fimD).order('data', {ascending:false}),
+    sb.from('leads').select('id,nome,empresa_cliente,status,proximo_contato')
+      .eq('empresa_id', P.empresa_id).eq('vendedor_id', P.vendedor_id)
+      .not('status', 'in', '("fechado_ganho","fechado_perdido")')
+      .order('proximo_contato', {ascending:true}).limit(10)
+  ]);
+
+  const total = (leads||[]).length;
+  const ganhos = (leads||[]).filter(l => l.status==='fechado_ganho').length;
+  const conv = total > 0 ? Math.round((ganhos/total)*100) : 0;
+  const metaL = P?._metaLeads || 0;
+  const metaV = P?._metaVisitas || 0;
+  const metaF = P?._metaFechamentos || 0;
+
+  // KPIs
+  document.getElementById('rd-kpis').innerHTML = `
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Leads no Mês</div>
+      <div style="font-family:var(--FD);font-size:28px;color:var(--brand)">${total}</div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaL||'—'}</div>
+      ${metaL ? `<div class="ptrack" style="margin-top:6px"><div class="pfill" style="width:${Math.min(Math.round(total/metaL*100),100)}%"></div></div>` : ''}
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Visitas</div>
+      <div style="font-family:var(--FD);font-size:28px;color:var(--brand)">${(vis||[]).length}</div>
+      <div style="font-size:11px;color:var(--muted)">meta ${metaV||'—'}</div>
+      ${metaV ? `<div class="ptrack" style="margin-top:6px"><div class="pfill" style="width:${Math.min(Math.round((vis||[]).length/metaV*100),100)}%"></div></div>` : ''}
+    </div>
+    <div class="card shine" style="padding:14px">
+      <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Fechamentos</div>
+      <div style="font-family:var(--FD);font-size:28px;color:${ganhos>0?'var(--ok)':'var(--brand)'}">${ganhos}</div>
+      <div style="font-size:11px;color:var(--muted)">conversão ${conv}%${metaF?' · meta '+metaF:''}</div>
+    </div>`;
+
   // Chart status
-  const statusCounts={novo:0,qualificando:0,em_negociacao:0,fechado_ganho:0,fechado_perdido:0};
-  (leads||[]).forEach(l=>{
+  const statusCounts = {novo:0,qualificando:0,em_negociacao:0,fechado_ganho:0,fechado_perdido:0};
+  (leads||[]).forEach(l => {
     if(['qualificando','aguardando_cliente','pronto_para_compra'].includes(l.status)) statusCounts.qualificando++;
-    else if(statusCounts[l.status]!==undefined) statusCounts[l.status]++;
+    else if(statusCounts[l.status] !== undefined) statusCounts[l.status]++;
   });
-  const c2=document.getElementById('chart-status-mensal');
-  if(c2){
+  const c2 = document.getElementById('chart-status-mensal');
+  if(c2 && window.Chart) {
     if(chartStatusMensal) chartStatusMensal.destroy();
-    chartStatusMensal=new Chart(c2,{
+    chartStatusMensal = new Chart(c2, {
       type:'doughnut',
       data:{
         labels:['Novo','Qualificando','Negociação','Ganho','Perdido'],
@@ -3449,39 +3413,109 @@ async function loadRelMensal(){
       options:{responsive:true,maintainAspectRatio:true,plugins:{legend:{display:true,position:'right',labels:{color:'rgba(255,255,255,.5)',font:{family:'Outfit',size:11},boxWidth:10,padding:10}}}}
     });
   }
+
+  // Últimas visitas
+  const elV = document.getElementById('rd-visitas-list');
+  elV.innerHTML = (vis||[]).length ? (vis||[]).slice(0,8).map(v => `
+    <div class="row">
+      <div class="av">${v.customers?.nome?.[0]||'◎'}</div>
+      <div class="row-info">
+        <div class="row-name">${v.customers?.nome||v.customers?.empresa_cliente||'—'}</div>
+        <div class="row-sub">${v.resumo||v.tipo||'Visita'} · ${new Date(v.data+'T12:00:00').toLocaleDateString('pt-BR')}</div>
+      </div>
+      <span class="badge ${v.resultado==='venda'?'b-ok':v.resultado?'b-brand':'b-dim'}" style="font-size:10px;flex-shrink:0">${v.resultado||'—'}</span>
+    </div>`).join('') : '<div class="empty"><i>◎</i>Nenhuma visita neste mês.</div>';
+
+  // Leads em aberto
+  const elLA = document.getElementById('rd-leads-abertos');
+  elLA.innerHTML = (leadsAbertos||[]).length ? (leadsAbertos||[]).map(l => {
+    const atrasado = l.proximo_contato && new Date(l.proximo_contato) < new Date();
+    return `<div class="row">
+      <div class="av">${l.nome?.[0]||'?'}</div>
+      <div class="row-info">
+        <div class="row-name">${l.nome||'—'} ${l.empresa_cliente?'<span style="color:var(--muted);font-size:11px">· '+l.empresa_cliente+'</span>':''}</div>
+        <div class="row-sub" style="color:${atrasado?'var(--warn)':'var(--muted)'}">
+          ${atrasado?'⚠ Atrasado':'Follow-up'}: ${l.proximo_contato?new Date(l.proximo_contato+'T12:00:00').toLocaleDateString('pt-BR'):'—'}
+        </div>
+      </div>
+      ${sBadge(l.status)}
+    </div>`;
+  }).join('') : '<div class="empty"><i>◈</i>Sem leads em aberto.</div>';
 }
 
-async function loadRelGerente(){
-  const d=relMesGerenteAtual;
-  const label=d.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
-  document.getElementById('rg-mes-label').textContent=label.toUpperCase();
-  const ini=new Date(d.getFullYear(),d.getMonth(),1).toISOString();
-  const fim=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59).toISOString();
-  // Busca todos os profiles da empresa
-  const {data:profiles}=await sb.from('profiles').select('vendedor_id,nome').eq('empresa_id',P.empresa_id);
-  const {data:leads}=await sb.from('leads').select('vendedor_id,status,created_at')
-    .eq('empresa_id',P.empresa_id).gte('created_at',ini).lte('created_at',fim);
-  const {data:vis}=await sb.from('visitas').select('vendedor_id,data')
-    .eq('empresa_id',P.empresa_id)
-    .gte('data',ini.split('T')[0]).lte('data',fim.split('T')[0]);
-  const nomes=(profiles||[]).map(p=>p.nome?.split(' ')[0]||'—');
-  const leadsCount=(profiles||[]).map(p=>(leads||[]).filter(l=>l.vendedor_id===p.vendedor_id).length);
-  const visitasCount=(profiles||[]).map(p=>(vis||[]).filter(v=>v.vendedor_id===p.vendedor_id).length);
-  const c1=document.getElementById('chart-ranking');
-  if(c1){
+async function loadRelAutomacao() {
+  const d = relMesAutoAtual;
+  const label = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  document.getElementById('ra-mes-label').textContent = label.toUpperCase();
+  const ini = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+  const fim = new Date(d.getFullYear(), d.getMonth()+1, 0, 23, 59, 59).toISOString();
+
+  // Leads com canal whatsapp ou origem automacao
+  const { data: leadsWpp } = await sb.from('leads').select('*')
+    .eq('empresa_id', P.empresa_id)
+    .eq('vendedor_id', P.vendedor_id)
+    .in('canal', ['whatsapp','WhatsApp','wpp'])
+    .gte('created_at', ini).lte('created_at', fim);
+
+  // Leads com needs_human (escalados)
+  const { data: escalados } = await sb.from('leads').select('id')
+    .eq('empresa_id', P.empresa_id)
+    .eq('vendedor_id', P.vendedor_id)
+    .eq('needs_human', true)
+    .gte('created_at', ini).lte('created_at', fim);
+
+  // Qualificados = leads com intencao_compra preenchida
+  const qualificados = (leadsWpp||[]).filter(l => l.intencao_compra && l.intencao_compra !== 'nenhuma');
+
+  document.getElementById('ra-leads-wpp').textContent = (leadsWpp||[]).length;
+  document.getElementById('ra-qualificados').textContent = qualificados.length;
+  document.getElementById('ra-escalados').textContent = (escalados||[]).length;
+
+  const el = document.getElementById('ra-leads-list');
+  el.innerHTML = (leadsWpp||[]).length ? (leadsWpp||[]).map(l => `
+    <div class="row">
+      <div class="av" style="background:var(--dim);color:var(--brand)">◈</div>
+      <div class="row-info">
+        <div class="row-name">${l.nome||l.telefone||'Lead WhatsApp'}</div>
+        <div class="row-sub">${l.empresa_cliente||''} · ${new Date(l.created_at).toLocaleDateString('pt-BR')}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
+        ${sBadge(l.status)}
+        ${l.needs_human ? '<span style="font-size:10px;color:var(--warn)">⚠ humano</span>' : ''}
+      </div>
+    </div>`).join('')
+    : '<div class="empty"><i>◈</i>Nenhum lead via WhatsApp neste mês.</div>';
+}
+
+async function loadRelGerente() {
+  const d = relMesGerenteAtual;
+  const label = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+  document.getElementById('rg-mes-label').textContent = label.toUpperCase();
+  const ini = new Date(d.getFullYear(), d.getMonth(), 1).toISOString();
+  const fim = new Date(d.getFullYear(), d.getMonth()+1, 0, 23, 59, 59).toISOString();
+  const {data:profiles} = await sb.from('profiles').select('vendedor_id,nome').eq('empresa_id', P.empresa_id);
+  const {data:leads} = await sb.from('leads').select('vendedor_id,status')
+    .eq('empresa_id', P.empresa_id).gte('created_at', ini).lte('created_at', fim);
+  const {data:vis} = await sb.from('visitas').select('vendedor_id')
+    .eq('empresa_id', P.empresa_id).gte('data', ini.split('T')[0]).lte('data', fim.split('T')[0]);
+  const nomes = (profiles||[]).map(p => p.nome?.split(' ')[0]||'—');
+  const leadsCount = (profiles||[]).map(p => (leads||[]).filter(l => l.vendedor_id===p.vendedor_id).length);
+  const visitasCount = (profiles||[]).map(p => (vis||[]).filter(v => v.vendedor_id===p.vendedor_id).length);
+  const c1 = document.getElementById('chart-ranking');
+  if(c1 && window.Chart) {
     if(chartRanking) chartRanking.destroy();
-    chartRanking=new Chart(c1,{
+    chartRanking = new Chart(c1, {
       type:'bar',
       data:{labels:nomes,datasets:[{label:'Leads',data:leadsCount,backgroundColor:CHART_COLORS.brand,borderRadius:6,barPercentage:.6}]},
       options:{...chartDefaults(),plugins:{legend:{display:false}}}
     });
   }
-  const c2=document.getElementById('chart-visitas-equipe');
-  if(c2){
+  const c2 = document.getElementById('chart-visitas-equipe');
+  if(c2 && window.Chart) {
     if(chartVisitasEquipe) chartVisitasEquipe.destroy();
-    chartVisitasEquipe=new Chart(c2,{
+    chartVisitasEquipe = new Chart(c2, {
       type:'bar',
-      data:{labels:nomes,datasets:[{label:'Visitas',data:visitasCount,backgroundColor:'rgba(14,165,233,.7)',borderRadius:6,barPercentage:.6}]},
+      data:{labels:nomes,datasets:[{label:'Visitas',data:visitasCount,backgroundColor:'rgba(79,200,122,.7)',borderRadius:6,barPercentage:.6}]},
       options:{...chartDefaults(),plugins:{legend:{display:false}}}
     });
   }
