@@ -2323,7 +2323,7 @@ async function renderVendedor() {
     { data: metaMensal },
     { data: metaVend }
   ] = await Promise.all([
-    sb.from('pedidos').select('*,tabelas_preco(nome)').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).gte('created_at', mesInicio).lte('created_at', mesFim + 'T23:59:59'),
+    sb.from('pedidos').select('*,tabelas_preco(nome),customers(nome,empresa)').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).gte('created_at', mesInicio).lte('created_at', mesFim + 'T23:59:59'),
     sb.from('visitas').select('*').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).gte('data', mesInicio).lte('data', mesFim),
     sb.from('metas_mensais').select('*').eq('vendedor_id', vid).eq('mes', mes).eq('ano', ano).maybeSingle(),
     sb.from('metas_vendedores').select('*').eq('vendedor_id', vid).eq('empresa_id', P.empresa_id).maybeSingle()
@@ -2408,7 +2408,8 @@ async function renderVendedor() {
   document.getElementById('vend-faixas').innerHTML = `
     <div class="sh"><div class="sh-t">◎ Faixas de Meta — Faturamento</div></div>
     <div class="card" style="padding:14px">
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+      ${!metaFat ? `<div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">⚠️ Meta mensal não lançada — acesse Metas Mensais para configurar.</div>` :
+      `<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
         ${faixas.map(f => {
           const val = metaFat * f.pct / 100;
           const ating = fatReal >= val;
@@ -2418,7 +2419,7 @@ async function renderVendedor() {
             <div style="font-size:11px;margin-top:4px;color:${ating?'var(--ok)':'var(--muted)'}">${ating?'✓ Atingido':'Faltam R$ '+fval(val-fatReal)}</div>
           </div>`;
         }).join('')}
-      </div>
+      </div>`}
     </div>`;
 
   // Flags
@@ -2441,7 +2442,7 @@ async function renderVendedor() {
         <thead>
           <tr style="border-bottom:1px solid var(--bb)">
             <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Data</th>
-            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Nº Pedido</th>
+            <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Cliente</th>
             <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Cidade/UF</th>
             <th style="padding:10px 12px;text-align:right;color:var(--muted);font-weight:500">Qtd</th>
             <th style="padding:10px 12px;text-align:left;color:var(--muted);font-weight:500">Tabela</th>
@@ -2453,7 +2454,7 @@ async function renderVendedor() {
           ${pedsFechados.map(p => `
             <tr style="border-bottom:1px solid var(--bb2)">
               <td style="padding:8px 12px">${new Date(p.created_at).toLocaleDateString('pt-BR')}</td>
-              <td style="padding:8px 12px;font-family:var(--FM);font-size:11px">${p.numero_pedido||'—'}</td>
+              <td style="padding:8px 12px;font-weight:500">${p.customers?.nome||p.customers?.empresa||p.cnpj_cliente||'—'}</td>
               <td style="padding:8px 12px;color:var(--muted)">${[p.cidade_entrega,p.uf_entrega].filter(Boolean).join('/')||'—'}</td>
               <td style="padding:8px 12px;text-align:right">${p.quantidade?parseFloat(p.quantidade).toLocaleString('pt-BR'):'—'}</td>
               <td style="padding:8px 12px">${p.tabelas_preco?.nome||'—'}</td>
