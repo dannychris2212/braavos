@@ -566,22 +566,21 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div class="nav" id="nav-config" onclick="go('config',this)" style="display:none"><i class="nav-ic">◧</i> Configurações</div>
     <div id="powered-by" style="padding:8px 22px 4px;font-family:var(--FM);font-size:9px;color:var(--muted);letter-spacing:.08em">powered by <span style="color:var(--brand)">Braavos</span></div>
     <div id="btn-instalar" class="nav" onclick="instalarApp()" style="display:none;color:var(--brand)"><i class="nav-ic">⊕</i> Instalar App</div>
-    <div style="padding:0 10px">
+    <div style="padding:0 10px 12px">
       <div class="s-user">
-        <div style="display:flex;align-items:center;gap:9px;margin-bottom:8px">
-          <div id="sb-avatar" style="width:32px;height:32px;border-radius:8px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:16px;color:var(--brand);flex-shrink:0;overflow:hidden">?</div>
-          <div>
-            <div class="s-user-name" id="sb-nome">—</div>
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:10px">
+          <div id="sb-avatar" style="width:46px;height:46px;border-radius:11px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:22px;color:var(--brand);flex-shrink:0;overflow:hidden">?</div>
+          <div style="flex:1;min-width:0">
+            <div class="s-user-name" id="sb-nome" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
             <div class="s-user-role" id="sb-cargo">—</div>
           </div>
         </div>
-        <div style="display:flex;gap:6px;align-items:center">
-          <label style="font-family:var(--FM);font-size:10px;color:var(--muted);cursor:pointer;transition:color .2s" onmouseover="this.style.color='var(--brand)'" onmouseout="this.style.color='var(--muted)'">
+        <div style="display:flex;gap:6px">
+          <label style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--bb);font-family:var(--FM);font-size:9px;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.06em;text-transform:uppercase" onmouseover="this.style.borderColor='var(--brand)';this.style.color='var(--brand)'" onmouseout="this.style.borderColor='var(--bb)';this.style.color='var(--muted)'">
             ◈ foto
             <input type="file" accept="image/*" style="display:none" onchange="uploadAvatar(this)"/>
           </label>
-          <span style="color:var(--bb)">·</span>
-          <span class="s-logout" onclick="doLogout()">↪ sair</span>
+          <span onclick="doLogout()" style="flex:1;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.04);border:1px solid var(--bb);font-family:var(--FM);font-size:9px;color:var(--muted);cursor:pointer;transition:all .2s;letter-spacing:.06em;text-transform:uppercase" onmouseover="this.style.borderColor='var(--err)';this.style.color='var(--err)'" onmouseout="this.style.borderColor='var(--bb)';this.style.color='var(--muted)'">↪ sair</span>
         </div>
       </div>
     </div>
@@ -2059,6 +2058,7 @@ async function loadEquipe(){
     const pct=Math.min(Math.round(fat/meta*100),100);
     return `<div class="eq-card">
       <div class="eq-rank ${i===0&&fat>0?'top':'other'}">${i+1}</div>
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--dim);border:1px solid var(--bb);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:14px;color:var(--brand);flex-shrink:0;overflow:hidden">${p.avatar_url?`<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>`:( p.nome?p.nome[0].toUpperCase():'?')}</div>
       <div class="eq-info">
         <div class="eq-name">${p.nome||'—'} ${p.regiao?`<span style="font-size:11px;color:var(--muted)">· ${p.regiao}</span>`:''}</div>
         <div class="eq-prog">
@@ -2079,6 +2079,7 @@ async function loadEquipe(){
     const pct=Math.min(Math.round(c/m*100),100);
     return `<div class="eq-card">
       <div class="eq-rank ${i===0&&c>0?'top':'other'}">${i+1}</div>
+      <div style="width:32px;height:32px;border-radius:8px;background:var(--dim);border:1px solid var(--bb);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:14px;color:var(--brand);flex-shrink:0;overflow:hidden">${p.avatar_url?`<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>`:( p.nome?p.nome[0].toUpperCase():'?')}</div>
       <div class="eq-info">
         <div class="eq-name">${p.nome||'—'} ${p.regiao?`<span style="font-size:11px;color:var(--muted)">· ${p.regiao}</span>`:''}</div>
         <div class="eq-prog">
@@ -2104,9 +2105,12 @@ async function loadEquipe(){
     const pfat=Math.min(Math.round(nPed/Math.max(mf,1)*100),100);
     return `<div class="card" style="cursor:pointer" onclick="abrirVendedor('${p.vendedor_id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-        <div>
-          <div style="font-size:15px;font-weight:600;margin-bottom:1px">${p.nome||'—'}</div>
-          <div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
+        <div style="display:flex;align-items:center;gap:10px">
+          <div style="width:40px;height:40px;border-radius:10px;background:var(--dim);border:1px solid var(--brand);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:18px;color:var(--brand);flex-shrink:0;overflow:hidden">${p.avatar_url?`<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover"/>`:( p.nome?p.nome[0].toUpperCase():'?')}</div>
+          <div>
+            <div style="font-size:15px;font-weight:600;margin-bottom:1px">${p.nome||'—'}</div>
+            <div style="font-size:11px;color:var(--muted);font-family:var(--FM)">${p.cargo||'vendedor'}${p.regiao?' · '+p.regiao:''}</div>
+          </div>
         </div>
         <div style="display:flex;gap:6px;align-items:center">
           ${P.cargo==='gerente'?`<button class="btn btn-g btn-sm" onclick="abrirMeta('${p.vendedor_id}','${p.nome||''}',${ml},${mv},${mf})">⊕ Meta</button>`:''}
