@@ -140,7 +140,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .app{display:flex;height:100vh;overflow:hidden;position:relative}
 
 /* ── SIDEBAR ───────────────────────────────────────────── */
-.sidebar{width:220px;height:100vh;background:rgba(255,255,255,0.025);border-right:1px solid var(--bb);backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:24px 0;flex-shrink:0;position:fixed;left:0;top:0;z-index:15;transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.sidebar{width:220px;height:100vh;background:rgba(255,255,255,0.025);border-right:1px solid var(--bb);backdrop-filter:blur(16px);display:flex;flex-direction:column;padding:24px 0 0;flex-shrink:0;position:fixed;left:0;top:0;z-index:15;transition:transform .3s cubic-bezier(.4,0,.2,1)}
 .s-logo{padding:0 22px 22px;font-family:var(--FD);font-size:30px;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bb);margin-bottom:10px}
 .s-logo .sg{color:var(--gold)}.s-logo .sr{color:var(--brand)}
 .s-logo small{display:block;font-family:var(--FM);font-size:9px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-top:3px}
@@ -151,6 +151,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .nbadge{margin-left:auto;min-width:18px;height:18px;border-radius:99px;background:var(--err);color:#fff;font-size:10px;font-family:var(--FM);font-weight:700;padding:0 5px;display:inline-flex;align-items:center;justify-content:center}
 .nbadge.hide{display:none}
 .nav-spacer{flex:1}
+.nav-scroll{flex:1;overflow-y:auto;display:flex;flex-direction:column;min-height:0}
+.nav-scroll::-webkit-scrollbar{width:3px}
+.nav-scroll::-webkit-scrollbar-thumb{background:var(--bb2);border-radius:2px}
+.sidebar-footer{flex-shrink:0;padding-top:8px}
 .nav-group-label{display:flex;align-items:center;padding:4px 22px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);cursor:pointer;user-select:none;margin-top:6px}
 .nav-group-label:hover{color:var(--txt)}
 .nav-sub{padding-left:32px !important;font-size:13px}
@@ -531,6 +535,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div><span class="sg">B</span><span class="sr" id="sb-brand">raavos</span></div>
       <small id="sb-tag">Sales Intelligence</small>
     </div>
+    <div class="nav-scroll">
     <div class="nav active" onclick="go('dashboard',this)"><i class="nav-ic">⬡</i> Dashboard</div>
     <div class="nav" onclick="go('leads',this)"><i class="nav-ic">◈</i> Leads</div>
     <div class="nav" id="nav-clientes" onclick="go('clientes',this)"><i class="nav-ic">◉</i> Clientes</div>
@@ -554,6 +559,8 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       </div>
     </div>
     <div class="nav-spacer"></div>
+    </div><!-- fim nav-scroll -->
+    <div class="sidebar-footer">
     <div class="nav" onclick="toggleTheme()" id="theme-btn"><i class="nav-ic">◑</i> <span id="theme-label">Modo Claro</span></div>
     <div class="nav" id="nav-config" onclick="go('config',this)" style="display:none"><i class="nav-ic">◧</i> Configurações</div>
     <div id="powered-by" style="padding:8px 22px 4px;font-family:var(--FM);font-size:9px;color:var(--muted);letter-spacing:.08em">powered by <span style="color:var(--brand)">Braavos</span></div>
@@ -577,6 +584,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
         </div>
       </div>
     </div>
+    </div><!-- fim sidebar-footer -->
   </div>
 
   <div class="main">
