@@ -1103,6 +1103,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 <div class="dp" id="dp-ped">
   <button class="dp-cl" onclick="closePedDetail()">✕</button>
   <div id="dp-ped-body"></div>
+  <div id="dp-ped-acoes" class="dp-acts" style="margin-top:16px"></div>
 </div>
 <!-- ── MODAL: NOVO LEAD ──────────────────────────────────────────── -->
 <div class="ov" id="m-lead">
@@ -1881,10 +1882,71 @@ function openPedido(id){
     <div style="margin-top:20px;font-family:var(--FM);font-size:9px;color:var(--muted)">Criado em ${fdl(p.created_at)}</div>`;
   document.getElementById('dpov-ped').classList.add('open');
   document.getElementById('dp-ped').classList.add('open');
-}
+
+  // Botões de avanço de status — só para status relevantes
+  const proximoStatus = {
+    rascunho:     null,
+    enviado:      null,
+    fechado_ganho:'em_producao',
+    em_producao:  'faturado',
+    faturado:     'entregue',
+  };
+  const labelProximo = {
+    em_producao: '▶ Marcar Em Produção',
+    faturado:    '▶ Marcar Faturado',
+    entregue:    '▶ Marcar Entregue',
+  };
+  const prox = proximoStatus[p.status];
+  const btnsEl = document.getElementById('dp-ped-acoes');
+  if (btnsEl) {
+    btnsEl.innerHTML = '';
+    if (prox) {
+      btnsEl.innerHTML += `<button class="btn btn-ok btn-sm" onclick="atualizarStatusPedido('${p.id}','${prox}')">${labelProximo[prox]||'▶ Avançar'}</button>`;
+    }
+    if (p.status !== 'cancelado' && p.status !== 'entregue') {
+      btnsEl.innerHTML += `<button class="btn btn-err btn-sm" onclick="atualizarStatusPedido('${p.id}','cancelado')">✕ Cancelar Pedido</button>`;
+    }
+  }
 function closePedDetail(){
   document.getElementById('dpov-ped').classList.remove('open');
   document.getElementById('dp-ped').classList.remove('open');
+}
+
+// ── ATUALIZAR STATUS DO PEDIDO ────────────────────────────────────
+const N8N_PEDIDO_STATUS = 'http://srv1460846.hstgr.cloud:5678/webhook/braavos-pedido-status';
+const STATUS_NOTIFICA   = ['em_producao','faturado','entregue','cancelado'];
+
+async function atualizarStatusPedido(pedidoId, novoStatus) {
+  const { error } = await sb.from('pedidos')
+    .update({ status: novoStatus })
+    .eq('id', pedidoId);
+
+  if (error) { showToast('Erro ao atualizar status', 'er'); return; }
+
+  showToast('Status atualizado!', 'ok');
+  loadPedidos();
+  closePedDetail();
+
+  // Dispara notificação ao cliente apenas para status relevantes
+  if (STATUS_NOTIFICA.includes(novoStatus)) {
+    const pedido = allPedidos.find(p => p.id === pedidoId);
+    // instance_id vem do profile do vendedor (mesmo campo usado no resumo diário)
+    const instanceId = P.instancia || '';
+    try {
+      await fetch(N8N_PEDIDO_STATUS, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pedido_id:   pedidoId,
+          novo_status: novoStatus,
+          empresa_id:  P.empresa_id,
+          instance_id: instanceId,
+        })
+      });
+    } catch(e) {
+      console.warn('Webhook status não alcançado:', e.message);
+    }
+  }
 }
 
 // ── CLIENTES ──────────────────────────────────────────────────────
