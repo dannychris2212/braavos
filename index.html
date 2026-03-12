@@ -941,6 +941,31 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
     <div id="page-tabelas" class="page" style="display:none">
       <div class="page-ey">Comercial</div>
       <div class="page-ti">Tabelas de Preço</div>
+
+      <!-- PREÇO PETROBRAS DO DIA — só gerente -->
+      <div id="bloco-preco-petrobras" style="display:none">
+        <div class="card" style="margin-bottom:20px;border:1px solid var(--brand);padding:16px 18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+            <div>
+              <div style="font-weight:700;font-size:15px">⬡ Preço Petrobras do Dia</div>
+              <div style="font-size:12px;color:var(--muted)">Atualizar após fechamento às 16h •
+                <a href="https://precos.petrobras.com.br" target="_blank" style="color:var(--brand);text-decoration:none">precos.petrobras.com.br ↗</a>
+              </div>
+            </div>
+            <div style="font-family:var(--FM);font-size:11px;color:var(--muted)" id="preco-ultima-atualizacao">—</div>
+          </div>
+          <div id="preco-petrobras-inputs" style="display:flex;flex-direction:column;gap:8px;margin-bottom:12px"></div>
+          <button class="btn btn-p btn-sm" onclick="salvarPrecosPetrobras()">⬡ Salvar Preços do Dia</button>
+        </div>
+
+        <!-- DASHBOARD DE MARGEM -->
+        <div class="card" style="margin-bottom:20px;padding:16px 18px">
+          <div style="font-weight:700;font-size:15px;margin-bottom:4px">◈ Margem em Tempo Real</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:14px">Baseado nos preços do dia vs tabela de venda</div>
+          <div id="margem-dashboard"></div>
+        </div>
+      </div>
+
       <div style="display:flex;gap:8px;margin-bottom:16px">
         <button class="btn btn-p btn-sm" onclick="openM('m-tabela')">◈ Nova Tabela</button>
       </div>
@@ -2642,6 +2667,150 @@ Responda em português, de forma objetiva com:
   btn.disabled = false;
 }
 
+// ── PREÇO PETROBRAS ────────────────────────────────────────────────
+async function loadPrecoPetrobrasInputs() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const { data: prods } = await sb.from('produtos')
+    .select('id,nome,categoria')
+    .eq('empresa_id', P.empresa_id)
+    .eq('ativo', true)
+    .order('nome');
+
+  // Busca preços já inseridos hoje
+  const { data: precosHoje } = await sb.from('precos_petrobras')
+    .select('produto_id,preco')
+    .eq('empresa_id', P.empresa_id)
+    .eq('data', hoje);
+
+  const mapaPrecos = {};
+  (precosHoje || []).forEach(p => mapaPrecos[p.produto_id] = p.preco);
+
+  const container = document.getElementById('preco-petrobras-inputs');
+  if (!prods?.length) { container.innerHTML = '<div style="color:var(--muted);font-size:13px">Nenhum produto cadastrado.</div>'; return; }
+
+  container.innerHTML = prods.map(p => `
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="flex:1;font-size:13px;font-weight:500">${p.nome}</div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:12px;color:var(--muted)">R$</span>
+        <input type="number" step="0.0001" class="fi" id="preco-prod-${p.id}"
+          style="width:110px;text-align:right;font-family:var(--FM)"
+          placeholder="0,0000"
+          value="${mapaPrecos[p.id] !== undefined ? mapaPrecos[p.id] : ''}"/>
+        <span style="font-size:11px;color:var(--muted)">/L</span>
+      </div>
+    </div>`).join('');
+
+  if (precosHoje?.length) {
+    document.getElementById('preco-ultima-atualizacao').textContent = 'Atualizado hoje';
+  }
+}
+
+async function salvarPrecosPetrobras() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const { data: prods } = await sb.from('produtos')
+    .select('id').eq('empresa_id', P.empresa_id).eq('ativo', true);
+
+  const registros = (prods || []).map(p => {
+    const val = document.getElementById('preco-prod-' + p.id)?.value;
+    if (!val || isNaN(parseFloat(val))) return null;
+    return {
+      empresa_id: P.empresa_id,
+      produto_id: p.id,
+      preco: parseFloat(val),
+      data: hoje,
+      registrado_por: P.vendedor_id
+    };
+  }).filter(Boolean);
+
+  if (!registros.length) { alert('Preencha pelo menos um preço.'); return; }
+
+  const { error } = await sb.from('precos_petrobras')
+    .upsert(registros, { onConflict: 'empresa_id,produto_id,data' });
+
+  if (error) { alert('Erro ao salvar: ' + error.message); return; }
+
+  document.getElementById('preco-ultima-atualizacao').textContent = 'Atualizado agora';
+  await loadMargemDashboard();
+}
+
+async function loadMargemDashboard() {
+  const hoje = new Date().toISOString().slice(0,10);
+  const el = document.getElementById('margem-dashboard');
+
+  // Busca preço Petrobras de hoje
+  const { data: precosHoje } = await sb.from('precos_petrobras')
+    .select('produto_id,preco')
+    .eq('empresa_id', P.empresa_id)
+    .eq('data', hoje);
+
+  // Busca preço de ontem pra calcular variação
+  const ontem = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  const { data: precosOntem } = await sb.from('precos_petrobras')
+    .select('produto_id,preco')
+    .eq('empresa_id', P.empresa_id)
+    .eq('data', ontem);
+
+  const mapaOntem = {};
+  (precosOntem || []).forEach(p => mapaOntem[p.produto_id] = p.preco);
+
+  // Busca preços de venda das tabelas ativas
+  const { data: itensTabela } = await sb.from('produtos_com_precos')
+    .select('*')
+    .eq('empresa_id', P.empresa_id);
+
+  const mapaVenda = {};
+  (itensTabela || []).forEach(i => {
+    if (!mapaVenda[i.produto_id] || i.vigente_de > mapaVenda[i.produto_id].vigente_de)
+      mapaVenda[i.produto_id] = i;
+  });
+
+  const { data: prods } = await sb.from('produtos')
+    .select('id,nome').eq('empresa_id', P.empresa_id).eq('ativo', true).order('nome');
+
+  if (!precosHoje?.length) {
+    el.innerHTML = '<div style="color:var(--muted);font-size:13px">Insira os preços do dia acima para ver a margem.</div>';
+    return;
+  }
+
+  const rows = (prods || []).map(prod => {
+    const precoPetro = (precosHoje || []).find(p => p.produto_id === prod.id);
+    if (!precoPetro) return null;
+    const precoVenda = mapaVenda[prod.id]?.preco_venda;
+    const precOntem  = mapaOntem[prod.id];
+    const variacao   = precOntem ? precoPetro.preco - precOntem : null;
+    const margem     = precoVenda ? ((precoVenda - precoPetro.preco) / precoVenda * 100) : null;
+
+    const varIcon  = variacao === null ? '—' : variacao > 0 ? `<span style="color:var(--err)">▲ R$${Math.abs(variacao).toFixed(4)}</span>` : variacao < 0 ? `<span style="color:var(--ok)">▼ R$${Math.abs(variacao).toFixed(4)}</span>` : '<span style="color:var(--muted)">= Estável</span>';
+    const margemCor = margem === null ? 'var(--muted)' : margem < 3 ? 'var(--err)' : margem < 6 ? 'var(--warn)' : 'var(--ok)';
+
+    return `
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bb)">
+        <div style="font-size:13px;font-weight:500">${prod.nome}</div>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+          <div style="text-align:right">
+            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Petrobras</div>
+            <div style="font-family:var(--FM);font-size:13px">R$ ${parseFloat(precoPetro.preco).toFixed(4)}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Variação</div>
+            <div style="font-family:var(--FM);font-size:12px">${varIcon}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Venda</div>
+            <div style="font-family:var(--FM);font-size:13px">${precoVenda ? 'R$ ' + parseFloat(precoVenda).toFixed(4) : '—'}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Margem</div>
+            <div style="font-family:var(--FM);font-size:14px;font-weight:700;color:${margemCor}">${margem !== null ? margem.toFixed(1) + '%' : '—'}</div>
+          </div>
+        </div>
+      </div>`;
+  }).filter(Boolean);
+
+  el.innerHTML = rows.length ? rows.join('') : '<div style="color:var(--muted);font-size:13px">Nenhum produto com preço de venda configurado.</div>';
+}
+
 function exportarPDF() {
   const nome = _vendAtual?.nome || 'vendedor';
   const mes = document.getElementById('vend-mes-label').textContent;
@@ -2653,6 +2822,14 @@ function exportarPDF() {
 // ── TABELAS DE PREÇO ──────────────────────────────────────────────
 async function loadTabelasPage() {
   await loadTabelasPreco();
+
+  // Bloco preço Petrobras — só gerente
+  if (P?.cargo === 'gerente') {
+    document.getElementById('bloco-preco-petrobras').style.display = 'block';
+    await loadPrecoPetrobrasInputs();
+    await loadMargemDashboard();
+  }
+
   const el = document.getElementById('tabelas-list');
   if (!allTabelas.length) { el.innerHTML = '<div class="empty"><div class="dot"></div>Nenhuma tabela cadastrada.</div>'; return; }
   el.innerHTML = allTabelas.map(t => `
