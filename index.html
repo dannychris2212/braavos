@@ -2670,11 +2670,19 @@ Responda em português, de forma objetiva com:
 // ── PREÇO PETROBRAS ────────────────────────────────────────────────
 async function loadPrecoPetrobrasInputs() {
   const hoje = new Date().toISOString().slice(0,10);
-  const { data: prods } = await sb.from('produtos')
-    .select('id,nome,categoria')
+  const { data: prodsRaw } = await sb.from('produtos_com_precos')
+    .select('id,nome')
     .eq('empresa_id', P.empresa_id)
     .eq('ativo', true)
     .order('nome');
+
+  // Deduplica por nome — mesmo produto pode estar em várias tabelas
+  const visto = new Set();
+  const prods = (prodsRaw || []).filter(p => {
+    if (visto.has(p.nome)) return false;
+    visto.add(p.nome);
+    return true;
+  });
 
   // Busca preços já inseridos hoje
   const { data: precosHoje } = await sb.from('precos_petrobras')
