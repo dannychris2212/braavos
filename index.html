@@ -2762,58 +2762,85 @@ async function loadMargemDashboard() {
   const mapaOntem = {};
   (precosOntem || []).forEach(p => mapaOntem[p.produto_id] = p.preco);
 
-  // Busca preços de venda das tabelas ativas
+  // Busca preços de venda e margem sugerida das tabelas ativas
   const { data: itensTabela } = await sb.from('produtos_com_precos')
     .select('*')
     .eq('empresa_id', P.empresa_id);
 
   const mapaVenda = {};
   (itensTabela || []).forEach(i => {
-    if (!mapaVenda[i.produto_id] || i.vigente_de > mapaVenda[i.produto_id].vigente_de)
-      mapaVenda[i.produto_id] = i;
+    if (!mapaVenda[i.nome] || i.vigente_de > mapaVenda[i.nome].vigente_de)
+      mapaVenda[i.nome] = i;
   });
-
-  const { data: prods } = await sb.from('produtos')
-    .select('id,nome').eq('empresa_id', P.empresa_id).eq('ativo', true).order('nome');
 
   if (!precosHoje?.length) {
     el.innerHTML = '<div style="color:var(--muted);font-size:13px">Insira os preços do dia acima para ver a margem.</div>';
     return;
   }
 
-  const rows = (prods || []).map(prod => {
+  // Deduplica produtos por nome
+  const visto = new Set();
+  const prodsUnicos = (itensTabela || []).filter(i => {
+    if (visto.has(i.nome)) return false;
+    visto.add(i.nome);
+    return true;
+  }).sort((a,b) => a.nome.localeCompare(b.nome));
+
+  const rows = prodsUnicos.map(prod => {
     const precoPetro = (precosHoje || []).find(p => p.produto_id === prod.id);
     if (!precoPetro) return null;
-    const precoVenda = mapaVenda[prod.id]?.preco_venda;
-    const precOntem  = mapaOntem[prod.id];
-    const variacao   = precOntem ? precoPetro.preco - precOntem : null;
-    const margem     = precoVenda ? ((precoVenda - precoPetro.preco) / precoVenda * 100) : null;
+    const precoVenda     = prod.preco_venda;
+    const margemSugerida = prod.margem_sugerida_pct;
+    const precOntem      = mapaOntem[prod.id];
+    const variacao       = precOntem ? precoPetro.preco - precOntem : null;
+    const margemReal     = precoVenda ? ((precoVenda - precoPetro.preco) / precoVenda * 100) : null;
 
-    const varIcon  = variacao === null ? '—' : variacao > 0 ? `<span style="color:var(--err)">▲ R$${Math.abs(variacao).toFixed(4)}</span>` : variacao < 0 ? `<span style="color:var(--ok)">▼ R$${Math.abs(variacao).toFixed(4)}</span>` : '<span style="color:var(--muted)">= Estável</span>';
-    const margemCor = margem === null ? 'var(--muted)' : margem < 3 ? 'var(--err)' : margem < 6 ? 'var(--warn)' : 'var(--ok)';
+    const varIcon    = variacao === null ? '—' : variacao > 0
+      ? \`<span style="color:var(--err)">▲ R\$\${Math.abs(variacao).toFixed(4)}</span>\`
+      : variacao < 0
+      ? \`<span style="color:var(--ok)">▼ R\$\${Math.abs(variacao).toFixed(4)}</span>\`
+      : '<span style="color:var(--muted)">= Estável</span>';
 
-    return `
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--bb)">
-        <div style="font-size:13px;font-weight:500">${prod.nome}</div>
-        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
-          <div style="text-align:right">
-            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Petrobras</div>
-            <div style="font-family:var(--FM);font-size:13px">R$ ${parseFloat(precoPetro.preco).toFixed(4)}</div>
+    const margemCor  = margemReal === null ? 'var(--muted)' : margemReal < 3 ? 'var(--err)' : margemReal < 6 ? 'var(--warn)' : 'var(--ok)';
+
+    // Indicador vs margem sugerida
+    let diffIndicador = '';
+    if (margemReal !== null && margemSugerida) {
+      const diff = margemReal - margemSugerida;
+      diffIndicador = diff >= 0
+        ? \`<span style="font-size:10px;color:var(--ok)">▲ \${diff.toFixed(1)}% vs sugerida</span>\`
+        : \`<span style="font-size:10px;color:var(--err)">▼ \${Math.abs(diff).toFixed(1)}% abaixo</span>\`;
+    }
+
+    return \`
+      <div style="padding:12px 0;border-bottom:1px solid var(--bb)">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px">\${prod.nome}</div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:flex-start">
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--FM);font-size:10px;color:var(--muted);margin-bottom:2px">PETROBRAS</div>
+            <div style="font-family:var(--FM);font-size:13px">R\$ \${parseFloat(precoPetro.preco).toFixed(4)}</div>
           </div>
-          <div style="text-align:right">
-            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Variação</div>
-            <div style="font-family:var(--FM);font-size:12px">${varIcon}</div>
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--FM);font-size:10px;color:var(--muted);margin-bottom:2px">VARIAÇÃO</div>
+            <div style="font-family:var(--FM);font-size:12px">\${varIcon}</div>
           </div>
-          <div style="text-align:right">
-            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Venda</div>
-            <div style="font-family:var(--FM);font-size:13px">${precoVenda ? 'R$ ' + parseFloat(precoVenda).toFixed(4) : '—'}</div>
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--FM);font-size:10px;color:var(--muted);margin-bottom:2px">VENDA</div>
+            <div style="font-family:var(--FM);font-size:13px">\${precoVenda ? 'R\$ ' + parseFloat(precoVenda).toFixed(4) : '—'}</div>
           </div>
-          <div style="text-align:right">
-            <div style="font-family:var(--FM);font-size:12px;color:var(--muted)">Margem</div>
-            <div style="font-family:var(--FM);font-size:14px;font-weight:700;color:${margemCor}">${margem !== null ? margem.toFixed(1) + '%' : '—'}</div>
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--FM);font-size:10px;color:var(--muted);margin-bottom:2px">MARGEM REAL</div>
+            <div style="font-family:var(--FM);font-size:15px;font-weight:700;color:\${margemCor}">\${margemReal !== null ? margemReal.toFixed(1) + '%' : '—'}</div>
+          </div>
+          <div style="text-align:center;min-width:70px">
+            <div style="font-family:var(--FM);font-size:10px;color:var(--muted);margin-bottom:2px">SUGERIDA</div>
+            <div style="font-family:var(--FM);font-size:13px;color:var(--muted)">\${margemSugerida ? margemSugerida.toFixed(1) + '%' : '—'}</div>
+          </div>
+          <div style="text-align:center;min-width:90px;display:flex;align-items:center;justify-content:center">
+            \${diffIndicador}
           </div>
         </div>
-      </div>`;
+      </div>\`;
   }).filter(Boolean);
 
   el.innerHTML = rows.length ? rows.join('') : '<div style="color:var(--muted);font-size:13px">Nenhum produto com preço de venda configurado.</div>';
