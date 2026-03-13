@@ -184,6 +184,7 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
 .page-ey{font-family:var(--FM);font-size:10px;letter-spacing:.2em;color:var(--brand);text-transform:uppercase;margin-bottom:5px}
 .page-ti{font-family:var(--FD);font-size:42px;letter-spacing:.08em;text-transform:uppercase;line-height:1;margin-bottom:24px}
 .page{animation:pIn .3s ease forwards}
+#rtab-gerente{display:none}
 @keyframes pIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
 /* ── CARDS ─────────────────────────────────────────────── */
@@ -635,12 +636,10 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ey">Insights</div>
       <div class="page-ti">Relatórios</div>
 
-      <div style="display:flex;gap:6px;margin:0 -16px 18px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap">
+      <div style="display:flex;align-items:center;gap:6px;margin:0 -16px 18px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap">
         <span class="chip on" id="rtab-desempenho" onclick="relTab('desempenho')" style="flex-shrink:0;white-space:nowrap">◎ Meu Desempenho</span>
         <span class="chip" id="rtab-automacao" onclick="relTab('automacao')" style="flex-shrink:0;white-space:nowrap">◈ Automação WhatsApp</span>
-        <span id="rtab-gerente-wrap" style="display:none;flex-shrink:0">
-          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')" style="white-space:nowrap;margin-right:8px">⊕ Equipe</span>
-        </span>
+        <span class="chip" id="rtab-gerente" onclick="relTab('gerente')" style="flex-shrink:0;white-space:nowrap">⊕ Equipe</span>
         <span style="flex-shrink:0;width:8px"></span>
       </div>
 
@@ -3680,8 +3679,8 @@ function relTab(t) {
 }
 
 function initRelatorios() {
-  const gw = document.getElementById('rtab-gerente-wrap');
-  if(gw) gw.style.display = P?.cargo==='gerente' ? '' : 'none';
+  const gw = document.getElementById('rtab-gerente');
+  if(gw) gw.style.display = P?.cargo==='gerente' ? 'inline-flex' : 'none';
   relTab('desempenho');
 }
 
