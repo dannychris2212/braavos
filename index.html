@@ -635,12 +635,13 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ey">Insights</div>
       <div class="page-ti">Relatórios</div>
 
-      <div style="display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap">
+      <div style="display:flex;gap:6px;margin:0 -16px 18px;overflow-x:auto;padding:0 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap">
         <span class="chip on" id="rtab-desempenho" onclick="relTab('desempenho')" style="flex-shrink:0;white-space:nowrap">◎ Meu Desempenho</span>
         <span class="chip" id="rtab-automacao" onclick="relTab('automacao')" style="flex-shrink:0;white-space:nowrap">◈ Automação WhatsApp</span>
         <span id="rtab-gerente-wrap" style="display:none;flex-shrink:0">
-          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')" style="white-space:nowrap">⊕ Equipe</span>
+          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')" style="white-space:nowrap;margin-right:8px">⊕ Equipe</span>
         </span>
+        <span style="flex-shrink:0;width:8px"></span>
       </div>
 
       <!-- MEU DESEMPENHO -->
