@@ -635,11 +635,11 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <div class="page-ey">Insights</div>
       <div class="page-ti">Relatórios</div>
 
-      <div style="display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap">
-        <span class="chip on" id="rtab-desempenho" onclick="relTab('desempenho')">◎ Meu Desempenho</span>
-        <span class="chip" id="rtab-automacao" onclick="relTab('automacao')">◈ Automação WhatsApp</span>
-        <span id="rtab-gerente-wrap">
-          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')">⊕ Equipe</span>
+      <div style="display:flex;gap:6px;margin-bottom:18px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;-webkit-overflow-scrolling:touch;flex-wrap:nowrap">
+        <span class="chip on" id="rtab-desempenho" onclick="relTab('desempenho')" style="flex-shrink:0;white-space:nowrap">◎ Meu Desempenho</span>
+        <span class="chip" id="rtab-automacao" onclick="relTab('automacao')" style="flex-shrink:0;white-space:nowrap">◈ Automação WhatsApp</span>
+        <span id="rtab-gerente-wrap" style="display:none;flex-shrink:0">
+          <span class="chip" id="rtab-gerente" onclick="relTab('gerente')" style="white-space:nowrap">⊕ Equipe</span>
         </span>
       </div>
 
@@ -701,7 +701,33 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
           <div style="font-family:var(--FD);font-size:20px;letter-spacing:.06em;flex:1;text-align:center" id="rg-mes-label">—</div>
           <button class="btn btn-g btn-sm" onclick="relMesG(1)">→</button>
         </div>
-        <div class="sh"><div class="sh-t">Ranking do Mês</div></div>
+
+        <!-- Montante geral da equipe -->
+        <div class="sh"><div class="sh-t">⬡ Equipe no Mês</div></div>
+        <div class="g3" style="margin-bottom:16px" id="rg-montante">
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Leads Totais</div>
+            <div class="m-val" id="rg-leads-total" style="color:var(--brand)">—</div>
+            <div style="font-size:11px;color:var(--muted)">toda a equipe</div>
+          </div>
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Visitas Totais</div>
+            <div class="m-val" id="rg-visitas-total" style="color:var(--ok)">—</div>
+            <div style="font-size:11px;color:var(--muted)">toda a equipe</div>
+          </div>
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Pedidos Totais</div>
+            <div class="m-val" id="rg-pedidos-total" style="color:var(--warn)">—</div>
+            <div style="font-size:11px;color:var(--muted)">toda a equipe</div>
+          </div>
+          <div class="card shine" style="padding:14px">
+            <div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em">Vendas Fechadas</div>
+            <div class="m-val" id="rg-vendas-total" style="color:var(--ok)">—</div>
+            <div style="font-size:11px;color:var(--muted)">fechado_ganho</div>
+          </div>
+        </div>
+
+        <div class="sh"><div class="sh-t">Ranking Leads</div></div>
         <div class="card" style="padding:16px;margin-bottom:14px">
           <canvas id="chart-ranking" height="160"></canvas>
         </div>
@@ -1264,7 +1290,12 @@ body::before{content:'';position:fixed;inset:0;background-image:url("data:image/
       <span class="chip on" id="vtab-cliente" onclick="vtab('cliente')">◉ Cliente</span>
       <span class="chip" id="vtab-lead" onclick="vtab('lead')">◈ Lead</span>
     </div>
-    <div id="v-section-cliente" class="fg"><label class="fl">Cliente</label><select class="fs" id="v-cliente"></select></div>
+    <div id="v-section-cliente" class="fg">
+      <label class="fl">Cliente</label>
+      <input type="text" class="fs" id="v-cliente-search" placeholder="Buscar cliente..." autocomplete="off" oninput="filtrarClientesVisita(this.value)"/>
+      <input type="hidden" id="v-cliente"/>
+      <div id="v-cliente-dropdown" style="display:none;position:absolute;z-index:999;background:var(--card);border:1px solid var(--bb);border-radius:10px;max-height:200px;overflow-y:auto;width:100%;box-shadow:var(--bs2)"></div>
+    </div>
     <div id="v-section-lead" class="fg" style="display:none"><label class="fl">Lead</label><select class="fs" id="v-lead-sel"></select></div>
     <div class="fr">
       <div class="fg"><label class="fl">Tipo</label>
@@ -3217,6 +3248,33 @@ function verificarProximidade(lat, lng) {
   }
 }
 
+// ── BUSCA CLIENTE EM VISITAS ─────────────────────────────────────
+function filtrarClientesVisita(q) {
+  const dropdown = document.getElementById('v-cliente-dropdown');
+  const clientes = window._clientesVisita || [];
+  const filtrado = q.length < 1 ? [] : clientes.filter(c =>
+    (c.nome||'').toLowerCase().includes(q.toLowerCase()) ||
+    (c.empresa_cliente||'').toLowerCase().includes(q.toLowerCase())
+  ).slice(0, 8);
+
+  if (!filtrado.length) { dropdown.style.display = 'none'; return; }
+
+  dropdown.style.display = 'block';
+  dropdown.innerHTML = filtrado.map(c => `
+    <div onclick="selecionarClienteVisita('${c.id}','${(c.nome||'').replace(/'/g,"\'")} ${c.empresa_cliente ? '· '+c.empresa_cliente.replace(/'/g,"\'") : ''}')"
+      style="padding:10px 14px;cursor:pointer;font-size:13px;border-bottom:1px solid var(--bb)"
+      onmouseover="this.style.background='var(--dim)'" onmouseout="this.style.background=''">
+      <div style="font-weight:500">${c.nome||'—'}</div>
+      ${c.empresa_cliente ? `<div style="font-size:11px;color:var(--muted)">${c.empresa_cliente}</div>` : ''}
+    </div>`).join('');
+}
+
+function selecionarClienteVisita(id, label) {
+  document.getElementById('v-cliente').value = id;
+  document.getElementById('v-cliente-search').value = label.trim();
+  document.getElementById('v-cliente-dropdown').style.display = 'none';
+}
+
 function proxCheckin() {
   const banner = document.getElementById('prox-banner');
   banner.classList.remove('show');
@@ -3329,14 +3387,9 @@ function setupRT(){
 // ── MODAIS ────────────────────────────────────────────────────────
 function openM(id){
   if(id==='m-visita'){
-    // Carrega clientes
-    sb.from('customers').select('id, nome, empresa_cliente').eq('empresa_id',P.empresa_id)
-      .then(({data})=>{
-        const sel=document.getElementById('v-cliente');
-        sel.innerHTML=data?.length
-          ?data.map(c=>`<option value="${c.id}">${c.nome||'—'}${c.empresa_cliente?' · '+c.empresa_cliente:''}</option>`).join('')
-          :'<option value="">Nenhum cliente ainda</option>';
-      });
+    // Carrega clientes para busca
+    sb.from('customers').select('id, nome, empresa_cliente').eq('empresa_id',P.empresa_id).order('nome')
+      .then(({data})=>{ window._clientesVisita = data||[]; });
     // Carrega leads
     sb.from('leads').select('id,nome,empresa_cliente').eq('empresa_id',P.empresa_id).order('nome')
       .then(({data})=>{
@@ -3786,6 +3839,15 @@ async function loadRelGerente() {
     .eq('empresa_id', P.empresa_id).gte('created_at', ini).lte('created_at', fim);
   const {data:vis} = await sb.from('visitas').select('vendedor_id')
     .eq('empresa_id', P.empresa_id).gte('data', ini.split('T')[0]).lte('data', fim.split('T')[0]);
+  const {data:peds} = await sb.from('pedidos').select('vendedor_id,status')
+    .eq('empresa_id', P.empresa_id).gte('created_at', ini).lte('created_at', fim);
+
+  // Montante geral
+  document.getElementById('rg-leads-total').textContent   = (leads||[]).length;
+  document.getElementById('rg-visitas-total').textContent = (vis||[]).length;
+  document.getElementById('rg-pedidos-total').textContent = (peds||[]).length;
+  document.getElementById('rg-vendas-total').textContent  = (peds||[]).filter(p => p.status === 'fechado_ganho').length;
+
   const nomes = (profiles||[]).map(p => p.nome?.split(' ')[0]||'—');
   const leadsCount = (profiles||[]).map(p => (leads||[]).filter(l => l.vendedor_id===p.vendedor_id).length);
   const visitasCount = (profiles||[]).map(p => (vis||[]).filter(v => v.vendedor_id===p.vendedor_id).length);
