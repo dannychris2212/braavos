@@ -2916,9 +2916,9 @@ async function loadTabelasPage() {
       </div>
       <div id="tab-itens-${t.id}" style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
         ${allTabelaItens.filter(i=>i.tabela_id===t.id).map(i=>{
-          const prod = (window.allProdutos||[]).find(p=>p.id===i.produto_id);
+          const nomeProd = i.produtos?.nome || (window.allProdutos||[]).find(p=>p.id===i.produto_id)?.nome || 'Produto';
           return `<span class="chip">
-            ${prod?.nome||'Produto'}: R$ ${parseFloat(i.preco_venda).toFixed(2)}
+            ${nomeProd}: R$ ${parseFloat(i.preco_venda).toFixed(2)}
           </span>`;
         }).join('')}
       </div>
@@ -4413,7 +4413,12 @@ let allTabelaItens = [];
 
 async function loadTabelasPreco() {
   const { data: tabs } = await sb.from('tabelas_preco').select('*').eq('empresa_id', P.empresa_id).eq('ativa', true);
-  const { data: itens } = await sb.from('tabela_preco_itens').select('*');
+  const tabelaIds = (tabs||[]).map(t => t.id);
+  const { data: itens } = tabelaIds.length
+    ? await sb.from('tabela_preco_itens')
+        .select('*, produtos(id, nome, unidade)')
+        .in('tabela_id', tabelaIds)
+    : { data: [] };
   allTabelas = tabs || [];
   allTabelaItens = itens || [];
 }
