@@ -2887,6 +2887,8 @@ function exportarPDF() {
 
 // ── TABELAS DE PREÇO ──────────────────────────────────────────────
 async function loadTabelasPage() {
+  // Garante que produtos estão carregados antes de renderizar tabelas
+  if (!window.allProdutos?.length) await loadProdutos();
   await loadTabelasPreco();
 
   // Bloco preço Petrobras — só gerente
@@ -3535,7 +3537,7 @@ function chartDefaults(){
 
 function drawGauge(pct,meta){
   const canvas=document.getElementById('chart-gauge');
-  if(!canvas) return;
+  if(!canvas) return; // canvas não existe no dashboard atual, função desativada
   const ctx=canvas.getContext('2d');
   const w=180,h=180,cx=90,cy=110,r=72,sw=16;
   ctx.clearRect(0,0,w,h);
@@ -3548,9 +3550,10 @@ function drawGauge(pct,meta){
   ctx.beginPath();ctx.arc(cx,cy,r,Math.PI,angle);
   ctx.strokeStyle=color;ctx.lineWidth=sw;ctx.lineCap='round';ctx.stroke();
   // Label
-  document.getElementById('gauge-label').textContent=Math.round(pct)+'%';
-  document.getElementById('gauge-label').style.color=color;
-  document.getElementById('gauge-sub').textContent=`${meta} leads de meta`;
+  const gl=document.getElementById('gauge-label');
+  const gs=document.getElementById('gauge-sub');
+  if(gl){gl.textContent=Math.round(pct)+'%';gl.style.color=color;}
+  if(gs) gs.textContent=`${meta} leads de meta`;
   const faltam=Math.max(0,meta-Math.round((pct/100)*meta));
   const atingidos=Math.round((pct/100)*meta);
   const det=document.getElementById('gauge-detail');
